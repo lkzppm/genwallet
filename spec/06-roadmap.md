@@ -13,6 +13,7 @@
 - [x] `/montar`: pick the starting parameters and operate 10 past sessions in the browser with the live engine (`src/lib/sim/simulate.ts`, a Web Worker, `public/data/market.json` refreshed by `pnpm data`). The default run (formation 2026-10-08) gives R$ 102,164.01 in Node and in Chromium, to the cent.
 - [x] Engine made bit-identical across engines (`dexp`/`dlog`, polar normals; `02-genetic-algorithm.md`), merged to `main` before the formation run.
 - [x] The mark: the S and the stem as the two strands of a helix, black S, green stem, red rungs (`04-ui-design.md`).
+- [x] `/montar` reworked into one fixed screen: parameters in a sidebar, a navigable stage with three views and a session timeline (`04-ui-design.md`), checked at 1440, 1280 and 390 px in both themes.
 - [ ] The Vercel project.
 
 ## Plan

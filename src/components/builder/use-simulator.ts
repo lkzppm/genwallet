@@ -12,6 +12,8 @@ export interface Simulator {
   dates: string[];
   /** Tickers in the data's universe. */
   tickers: number;
+  /** The configuration of the run in progress or last made. */
+  config: SimConfig | null;
   progress: SimProgress | null;
   /** Sessions finished so far in the current run. */
   sessions: SessionSummary[];
@@ -27,6 +29,7 @@ export function useSimulator(): Simulator {
   const [status, setStatus] = useState<SimStatus>("loading");
   const [dates, setDates] = useState<string[]>([]);
   const [tickers, setTickers] = useState(0);
+  const [config, setConfig] = useState<SimConfig | null>(null);
   const [progress, setProgress] = useState<SimProgress | null>(null);
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
   const [result, setResult] = useState<SimResult | null>(null);
@@ -71,13 +74,14 @@ export function useSimulator(): Simulator {
     return () => worker.terminate();
   }, [spawn]);
 
-  const run = useCallback((config: SimConfig) => {
+  const run = useCallback((next: SimConfig) => {
+    setConfig(next);
     setProgress(null);
     setSessions([]);
     setResult(null);
     setError(null);
     setStatus("running");
-    workerRef.current?.postMessage({ type: "run", config } satisfies ToWorker);
+    workerRef.current?.postMessage({ type: "run", config: next } satisfies ToWorker);
   }, []);
 
   const cancel = useCallback(() => {
@@ -88,5 +92,5 @@ export function useSimulator(): Simulator {
     setStatus("idle");
   }, [spawn]);
 
-  return { status, dates, tickers, progress, sessions, result, error, run, cancel };
+  return { status, dates, tickers, config, progress, sessions, result, error, run, cancel };
 }

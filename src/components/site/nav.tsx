@@ -7,6 +7,7 @@ import { siGithub } from "simple-icons";
 import type { Dictionary } from "@/i18n";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { BRAND } from "@/lib/brand";
+import { cn } from "@/lib/utils";
 import { BrandIcon } from "./brand-icon";
 import { Logo } from "./logo";
 import { LocaleSwitch, ThemeSwitch } from "./switches";
@@ -23,6 +24,7 @@ export function Nav() {
   const tabsRef = useRef<HTMLElement>(null);
   const [indicator, setIndicator] = useState({ left: 0, width: 0 });
   const active = TABS.findIndex((tab) => pathname.startsWith(tab.href));
+  const app = pathname.startsWith("/montar");
 
   useLayoutEffect(() => {
     const list = tabsRef.current;
@@ -39,7 +41,8 @@ export function Nav() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-[color-mix(in_srgb,var(--background)_82%,transparent)] backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:gap-8 sm:px-6">
+      {/* Full width over the builder's fixed screen, so the mark sits over its sidebar. */}
+      <div className={cn("mx-auto flex h-16 items-center gap-4 px-4 sm:gap-8 sm:px-6", app ? "max-w-none" : "max-w-6xl")}>
         <Link href="/" aria-label={t.nav.home} className="group flex shrink-0 items-center gap-2.5">
           <Logo className="size-8 transition-transform duration-500 ease-[var(--ease-spring)] group-hover:-rotate-12 group-hover:scale-110" />
           <span className="hidden font-medium tracking-tight sm:inline">{BRAND.name}</span>

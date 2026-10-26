@@ -62,6 +62,8 @@ export interface SessionSummary {
   history: Pick<GenerationStat, "gen" | "best" | "mean" | "diversity" | "hyper">[];
   fill: FillEvent;
   mark: MarkEvent;
+  /** The portfolio and the benchmarks at this session's close. */
+  point: NavPoint;
   ms: number;
 }
 
@@ -141,6 +143,11 @@ export function simulate(
   };
   append(start);
 
+  // Benchmarks over the same sessions: BOVA11 bought at the first open, and
+  // the capital left in the CDI.
+  const bovaOpen = snap.bova.open[snap.dates.indexOf(sessionDates[0])];
+  let cdiValue = config.capital;
+
   const summaries: SessionSummary[] = [];
   let population: { date: string; nextId: number; population: SerializedIndividual[] } | null = null;
   let locked: string[] | undefined;
@@ -203,6 +210,8 @@ export function simulate(
     append(marked);
 
     const tickers = Object.keys(decision.champion.weights);
+    cdiValue *= 1 + snap.cdi[fillDay];
+    const bovaClose = snap.bova.close[fillDay];
     summaries.push({
       session,
       decidedOn: date,
@@ -221,29 +230,22 @@ export function simulate(
       history: decision.history.map(({ gen, best, mean, diversity, hyper }) => ({ gen, best, mean, diversity, hyper })),
       fill: filled,
       mark: marked,
+      point: {
+        date: executeOn,
+        nav: marked.nav,
+        bova: bovaOpen && bovaClose ? (config.capital * bovaClose) / bovaOpen : null,
+        cdi: cdiValue,
+      },
       ms: performance.now() - t1,
     });
     onSession?.(summaries[summaries.length - 1]);
     previous = tickers;
   }
 
-  // Benchmarks over the same sessions: BOVA11 bought at the first open, and
-  // the capital left in the CDI.
-  const firstDay = snap.dates.indexOf(sessionDates[0]);
-  const bovaOpen = snap.bova.open[firstDay];
-  let cdiValue = config.capital;
-  const navSeries: NavPoint[] = [{ date: config.formation, nav: config.capital, bova: config.capital, cdi: config.capital }];
-  for (const s of summaries) {
-    const d = snap.dates.indexOf(s.executeOn);
-    cdiValue *= 1 + snap.cdi[d];
-    const close = snap.bova.close[d];
-    navSeries.push({
-      date: s.executeOn,
-      nav: s.mark.nav,
-      bova: bovaOpen && close ? (config.capital * close) / bovaOpen : null,
-      cdi: cdiValue,
-    });
-  }
+  const navSeries: NavPoint[] = [
+    { date: config.formation, nav: config.capital, bova: config.capital, cdi: config.capital },
+    ...summaries.map((s) => s.point),
+  ];
   const last = navSeries[navSeries.length - 1];
   const fills = summaries.map((s) => s.fill);
   return {

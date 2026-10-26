@@ -1,15 +1,25 @@
 "use client";
 
+import { ArrowDownRight, ArrowUpRight, Briefcase, Dna, Moon, Receipt } from "lucide-react";
 import type { Dictionary } from "@/i18n";
 import type { SessionSummary } from "@/lib/sim/simulate";
-import { ConvergenceChart } from "./charts";
-import { day, money, number, percent } from "./format";
-import { label, panel } from "./ui";
+import { cn } from "@/lib/utils";
+import { ConvergenceChart, Swatch } from "./charts";
+import { day, money, number, percent, signClass } from "./format";
+import { Panel, label } from "./ui";
 
-/** One session: the evening's evolution, the portfolio it chose and the trades at the open. */
-export function SessionView({ s, t, lang }: { s: SessionSummary; t: Dictionary; lang: string }) {
+const ROW = 34;
+
+/**
+ * One session: the portfolio the evening chose, how that evening's evolution
+ * went, and the trades at the open. The portfolio is not remounted between
+ * sessions: its rows are keyed by ticker, so moving to the next session
+ * slides each company to its new rank and grows or shrinks its bar.
+ */
+export function SessionView({ s, before, t, lang }: { s: SessionSummary; before: number; t: Dictionary; lang: string }) {
   const v = t.builder.session;
   const maxWeight = Math.max(...s.portfolio.map((h) => h.weight));
+  const ret = s.mark.nav / before - 1;
   const metrics = [
     { label: v.score, value: number(s.score, lang, 3) },
     { label: v.expReturn, value: percent(s.mean * 252, lang, 1) },
@@ -18,117 +28,141 @@ export function SessionView({ s, t, lang }: { s: SessionSummary; t: Dictionary; 
   ];
 
   return (
-    <div className="grid gap-4">
-      <p className="text-sm text-muted-foreground">
-        {v.decided(day(s.decidedOn, lang), day(s.executeOn, lang))}
-        {s.hold && <span className="ml-1 text-foreground">{v.hold}</span>}
-      </p>
+    <div className="flex h-full min-h-0 flex-col gap-3">
+      <div className="flex shrink-0 flex-wrap items-end justify-between gap-x-6 gap-y-2">
+        <div key={s.session} className="animate-[swap-in_0.35s_var(--ease)]">
+          <h2 className="text-xl font-medium tracking-tight">{v.label(s.session)}</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">{v.decided(day(s.decidedOn, lang), day(s.executeOn, lang))}</p>
+        </div>
+        <div className="flex items-center gap-5">
+          {s.hold && (
+            <span className="flex animate-[pop_0.4s_var(--ease-spring)] items-center gap-1.5 border border-border px-2 py-1 text-[11px] text-muted-foreground">
+              <Moon className="size-3" aria-hidden />
+              {v.hold}
+            </span>
+          )}
+          <div className="text-right">
+            <p className={label}>{v.nav}</p>
+            <p className="font-mono text-sm tabular-nums">{money(s.mark.nav, lang)}</p>
+          </div>
+          <div className="text-right">
+            <p className={label}>{v.day}</p>
+            <p className={cn("font-mono text-sm tabular-nums transition-colors duration-300", signClass(ret))}>{percent(ret, lang, 2, true)}</p>
+          </div>
+        </div>
+      </div>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
-        <section className={`${panel} p-4`}>
-          <h3 className={label}>{v.convergence}</h3>
-          <div className="mt-3">
+      <div className="grid min-h-0 flex-1 auto-rows-[minmax(16rem,auto)] gap-3 overflow-y-auto @4xl:grid-cols-2 @4xl:grid-rows-[minmax(0,1.25fr)_minmax(0,1fr)] @4xl:overflow-visible">
+        <Panel title={v.portfolio} icon={Briefcase} className="@4xl:row-span-2" bodyClassName="scroll-thin flex flex-col">
+          <div className="relative shrink-0" style={{ height: s.portfolio.length * ROW }}>
+            {[...s.portfolio]
+              .sort((a, b) => a.ticker.localeCompare(b.ticker))
+              .map((h) => {
+                const rank = s.portfolio.indexOf(h);
+                const entered = s.entered.includes(h.ticker);
+                return (
+                  <div
+                    key={h.ticker}
+                    className="absolute inset-x-0 flex animate-[fade_0.45s_var(--ease)_both] items-center gap-3 border-b border-border transition-transform duration-500 ease-[var(--ease)]"
+                    style={{ height: ROW, transform: `translateY(${rank * ROW}px)` }}
+                  >
+                    <span className="w-14 shrink-0 font-mono text-xs">{h.ticker}</span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-xs text-muted-foreground" title={h.company}>
+                        {h.company}
+                      </span>
+                      <span className="block truncate text-[10px] text-muted-foreground/70" title={h.sector}>
+                        {h.sector}
+                      </span>
+                    </span>
+                    {entered && <span className="shrink-0 animate-[pop_0.4s_var(--ease-spring)] font-mono text-[9.5px] uppercase tracking-wider text-up">{v.entered}</span>}
+                    <span className="h-1.5 w-[22%] shrink-0 bg-border">
+                      <span
+                        className={cn("block h-full transition-[width] duration-500 ease-[var(--ease)]", entered ? "bg-up" : "bg-foreground/70")}
+                        style={{ width: `${(h.weight / maxWeight) * 100}%` }}
+                      />
+                    </span>
+                    <span className="w-12 shrink-0 text-right font-mono text-xs tabular-nums">{percent(h.weight, lang, 1)}</span>
+                  </div>
+                );
+              })}
+          </div>
+          {s.left.length > 0 && <p className="mt-3 animate-[rise_0.4s_var(--ease)] text-xs text-down">{v.left(s.left.join(", "))}</p>}
+        </Panel>
+
+        <Panel
+          title={v.convergence}
+          icon={Dna}
+          bodyClassName="flex flex-col gap-2"
+          actions={
+            <span className="hidden items-center gap-3 text-[10.5px] text-muted-foreground @6xl:flex">
+              <span className="flex items-center gap-1.5">
+                <Swatch width={2} /> {v.best}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Swatch width={1.25} muted /> {v.mean}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="h-2 w-3.5 bg-muted-foreground/25" /> {v.diversity}
+              </span>
+            </span>
+          }
+        >
+          <div key={s.session} className="min-h-0 flex-1 animate-[swap-in_0.35s_var(--ease)]">
             <ConvergenceChart
               history={s.history}
+              lang={lang}
               labels={{ best: v.best, mean: v.mean, diversity: v.diversity, generation: v.generation }}
             />
           </div>
-          <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-border pt-3">
+          <dl className="grid shrink-0 grid-cols-4 gap-px border border-border bg-border" title={v.inSample}>
             {metrics.map((m) => (
-              <div key={m.label}>
-                <dt className="text-[11px] text-muted-foreground">{m.label}</dt>
-                <dd className="font-mono text-sm tabular-nums">{m.value}</dd>
+              <div key={m.label} className="bg-background px-2 py-1.5">
+                <dt className="truncate text-[10px] text-muted-foreground">{m.label}</dt>
+                <dd className="font-mono text-xs tabular-nums">{m.value}</dd>
               </div>
             ))}
           </dl>
-          <p className="mt-3 text-[11px] leading-snug text-muted-foreground">{v.inSample}</p>
-        </section>
+          <p className="shrink-0 truncate text-[10.5px] text-muted-foreground" title={v.inSample}>
+            {v.inSample}
+          </p>
+        </Panel>
 
-        <section className={`${panel} p-4`}>
-          <h3 className={label}>{v.portfolio}</h3>
-          {/* Fixed columns: long company and sector names truncate instead of pushing the weights out. */}
-          <table className="mt-3 w-full table-fixed text-left text-sm">
-            <colgroup>
-              <col className="w-[7.5rem]" />
-              <col />
-              <col className="hidden 2xl:table-column" />
-              <col className="w-[6.5rem] sm:w-[8.5rem]" />
-            </colgroup>
-            <thead className="text-[11px] text-muted-foreground">
-              <tr>
-                <th className="pb-2 font-normal">{v.ticker}</th>
-                <th className="pb-2 font-normal">{v.company}</th>
-                <th className="hidden pb-2 font-normal 2xl:table-cell">{v.sector}</th>
-                <th className="pb-2 text-right font-normal">{v.weight}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {s.portfolio.map((h) => (
-                <tr key={h.ticker} className="border-t border-border">
-                  <td className="py-1.5 pr-3 font-mono">
-                    {h.ticker}
-                    {s.entered.includes(h.ticker) && (
-                      <span className="ml-2 font-sans text-[10px] uppercase tracking-wider text-up">{v.entered}</span>
-                    )}
-                  </td>
-                  <td className="truncate py-1.5 pr-3 text-muted-foreground" title={h.company}>
-                    {h.company}
-                  </td>
-                  <td className="hidden truncate py-1.5 pr-3 text-xs text-muted-foreground 2xl:table-cell" title={h.sector}>
-                    {h.sector}
-                  </td>
-                  <td className="py-1.5">
-                    <div className="flex items-center justify-end gap-2">
-                      <span className="hidden h-1.5 w-12 bg-border sm:block">
-                        <span className="block h-full bg-foreground/70" style={{ width: `${(h.weight / maxWeight) * 100}%` }} />
-                      </span>
-                      <span className="w-14 text-right font-mono tabular-nums">{percent(h.weight, lang, 1)}</span>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {s.left.length > 0 && <p className="mt-3 text-xs text-down">{v.left(s.left.join(", "))}</p>}
-        </section>
-      </div>
-
-      <section className={`${panel} p-4`}>
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h3 className={label}>{v.trades}</h3>
-          <span className="text-xs text-muted-foreground">
-            {v.nav}: <span className="font-mono text-foreground">{money(s.mark.nav, lang)}</span>
-          </span>
-        </div>
-        {s.fill.trades.length === 0 ? (
-          <p className="mt-3 text-sm text-muted-foreground">{v.noTrades}</p>
-        ) : (
-          <div className="mt-3 overflow-x-auto">
-            <table className="w-full min-w-[22rem] text-left text-sm">
-              <thead className="text-[11px] text-muted-foreground">
+        <Panel title={v.trades} icon={Receipt} bodyClassName="scroll-thin p-0">
+          {s.fill.trades.length === 0 ? (
+            <p className="p-3 text-sm text-muted-foreground">{v.noTrades}</p>
+          ) : (
+            <table key={s.session} className="w-full animate-[swap-in_0.35s_var(--ease)] text-left text-xs">
+              <thead className="sticky top-0 bg-background text-[10.5px] text-muted-foreground">
                 <tr>
-                  <th className="pb-2 font-normal">{v.ticker}</th>
-                  <th className="pb-2 font-normal" />
-                  <th className="pb-2 text-right font-normal">{v.qty}</th>
-                  <th className="pb-2 text-right font-normal">{v.price}</th>
-                  <th className="pb-2 text-right font-normal">{v.value}</th>
+                  <th className="px-3 py-2 font-normal">{v.ticker}</th>
+                  <th className="py-2 text-right font-normal">{v.qty}</th>
+                  <th className="py-2 text-right font-normal">{v.price}</th>
+                  <th className="px-3 py-2 text-right font-normal">{v.value}</th>
                 </tr>
               </thead>
               <tbody className="font-mono tabular-nums">
-                {s.fill.trades.map((tr) => (
-                  <tr key={`${tr.ticker}-${tr.side}`} className="border-t border-border">
-                    <td className="py-1.5">{tr.ticker}</td>
-                    <td className="py-1.5 font-sans text-xs text-muted-foreground">{v.side[tr.side]}</td>
-                    <td className="py-1.5 text-right">{tr.qty}</td>
-                    <td className="py-1.5 text-right">{number(tr.price, lang)}</td>
-                    <td className="py-1.5 text-right">{money(tr.value, lang)}</td>
-                  </tr>
-                ))}
+                {s.fill.trades.map((tr) => {
+                  const Side = tr.side === "buy" ? ArrowUpRight : ArrowDownRight;
+                  return (
+                    <tr key={`${tr.ticker}-${tr.side}`} className="border-t border-border transition-colors duration-150 hover:bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)]">
+                      <td className="px-3 py-1.5">
+                        <span className="flex items-center gap-1.5">
+                          <Side className={cn("size-3.5", tr.side === "buy" ? "text-up" : "text-down")} aria-label={v.side[tr.side]} />
+                          {tr.ticker}
+                        </span>
+                      </td>
+                      <td className="py-1.5 text-right">{tr.qty}</td>
+                      <td className="py-1.5 text-right">{number(tr.price, lang)}</td>
+                      <td className="px-3 py-1.5 text-right">{money(tr.value, lang)}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
-          </div>
-        )}
-      </section>
+          )}
+        </Panel>
+      </div>
     </div>
   );
 }

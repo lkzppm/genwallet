@@ -177,6 +177,126 @@ html {
     line-height: 1.1;
   }
 
+  /* A slider: a hairline track, green up to the value (`--fill`), a square
+     thumb that grows under the pointer and fills green while dragged. */
+  .range {
+    --fill: 50%;
+    appearance: none;
+    width: 100%;
+    height: 16px;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .range::-webkit-slider-runnable-track {
+    height: 2px;
+    background: linear-gradient(to right, var(--up) var(--fill), var(--border) var(--fill));
+  }
+
+  .range::-moz-range-track {
+    height: 2px;
+    background: var(--border);
+  }
+
+  .range::-moz-range-progress {
+    height: 2px;
+    background: var(--up);
+  }
+
+  .range::-webkit-slider-thumb {
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    margin-top: -5px;
+    border: 1.5px solid var(--foreground);
+    background: var(--background);
+    transition:
+      transform 0.25s var(--ease-spring),
+      border-color 0.2s var(--ease),
+      background 0.2s var(--ease),
+      box-shadow 0.2s var(--ease);
+  }
+
+  .range::-moz-range-thumb {
+    width: 10px;
+    height: 10px;
+    border: 1.5px solid var(--foreground);
+    border-radius: 0;
+    background: var(--background);
+    transition:
+      transform 0.25s var(--ease-spring),
+      border-color 0.2s var(--ease),
+      background 0.2s var(--ease);
+  }
+
+  .range:hover:not(:disabled)::-webkit-slider-thumb {
+    transform: scale(1.25);
+    border-color: var(--up);
+  }
+
+  .range:hover:not(:disabled)::-moz-range-thumb {
+    transform: scale(1.25);
+    border-color: var(--up);
+  }
+
+  .range:active:not(:disabled)::-webkit-slider-thumb {
+    background: var(--up);
+    border-color: var(--up);
+  }
+
+  .range:active:not(:disabled)::-moz-range-thumb {
+    background: var(--up);
+    border-color: var(--up);
+  }
+
+  .range:focus-visible {
+    outline: none;
+  }
+
+  .range:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--up) 35%, transparent);
+  }
+
+  .range:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Scroll inside a fixed panel: a thin bar that shows only when needed. */
+  .scroll-thin {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  /* An accordion body: rows animate between 0 and the content's height. */
+  .accordion {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.45s var(--ease);
+  }
+
+  .accordion > * {
+    min-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition:
+      opacity 0.3s var(--ease),
+      transform 0.4s var(--ease);
+  }
+
+  .accordion[data-open] {
+    grid-template-rows: 1fr;
+  }
+
+  .accordion[data-open] > * {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0.08s;
+  }
+
   .section-lead {
     margin-top: 16px;
     max-width: 640px;
@@ -190,6 +310,44 @@ html {
   from {
     opacity: 0;
     transform: translateY(10px);
+  }
+}
+
+/* A view coming in: from the side it was asked from (`--dir`, -1 or 1), or from below. */
+@keyframes swap-in {
+  from {
+    opacity: 0;
+    transform: translate(calc(var(--dir, 0) * 18px), calc((1 - var(--dir, 0) * var(--dir, 0)) * 8px));
+  }
+}
+
+/* A chart's lines drawn left to right. */
+@keyframes draw {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Something new arriving: a small spring. */
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
   }
 }
 
@@ -215,6 +373,11 @@ html {
 
   .page {
     animation: none;
+  }
+
+  .accordion,
+  .accordion > * {
+    transition: none;
   }
 }
 

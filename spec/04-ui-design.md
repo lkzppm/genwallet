@@ -25,6 +25,15 @@ A dollar sign drawn as a DNA double helix whose two strands are the letter's two
 
 Rejected on the way, all on 2026-10-26: two mirrored S strands (read as an 8), an S knocked out over a helix stem, the S as a twisting ribbon, ten genes forming the S, contour lines, a coin, an S with a strand wound round it, and an S as one strand of a vertical sine helix (read as a zigzag).
 
+## The builder, one fixed screen (Decided, 2026-10-26, Lucas)
+
+`/montar` follows GraphMan's observatory: nothing scrolls the page, and the footer is not shown.
+
+- **Sidebar (22rem, left)**: three groups (Operation, Algorithm, Constraints), one open at a time. Every parameter has an icon; numbers are a slider plus a typed value, with a tick at the default and a green dot that restores it. A line above the run button explains the parameter under the pointer. The run button turns into the progress bar while the worker runs.
+- **Stage (the rest)**: before the first run, the landscape behind a card that lists the ten sessions the run will operate. After it, six figures across the top (the three returns, final value, costs, timing), three views (overview: value chart and per-session returns; session: portfolio, that evening's evolution, trades; composition: weights as a heatmap of companies by sessions) and the ten sessions on a timeline along the bottom. ← → and clicks on any chart move between sessions.
+- **Motion**: views and sessions enter from the side of the move; the portfolio's rows slide to their new ranks; lines draw in from the left; groups open with a height transition.
+- **Phone**: a switch at the top shows the parameters or the result, each on the full screen.
+
 ## Constraints inherited from the sister projects
 
 - Bilingual interface, Portuguese by default, every string in `src/i18n/`; no em dash in visitor text.

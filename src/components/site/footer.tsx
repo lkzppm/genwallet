@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { siGithub } from "simple-icons";
 import { useT } from "@/i18n/LocaleProvider";
 import { BRAND } from "@/lib/brand";
@@ -14,6 +15,9 @@ const linkClass = "w-fit transition-colors duration-200 hover:text-up";
    hanging from it; a column's dot turns green while it is hovered. */
 export function Footer() {
   const t = useT();
+  const pathname = usePathname();
+  // The builder is one fixed screen, with nothing below it.
+  if (pathname.startsWith("/montar")) return null;
   const columns = [
     {
       heading: t.footer.project,
