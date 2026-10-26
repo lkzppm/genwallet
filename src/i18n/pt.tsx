@@ -44,6 +44,14 @@ export const pt: Dictionary = {
     },
     figure: (min, max, cap) =>
       `Ilustração: um cromossomo. Pesos entre ${min}% e ${max}%, no máximo ${cap} empresas por setor; a cada poucos segundos um gene sofre mutação.`,
+    lab: {
+      label: "O algoritmo genético, passo a passo",
+      tabs: { genome: "Cromossomo", operators: "Operadores", session: "Pregão" },
+      genome: "Dez genes, cada um uma empresa e o seu peso. A mutação troca uma empresa por outra de fora ou desloca peso; um reparo garante todas as regras.",
+      mutate: "Mutar",
+      hint: "Clique num gene para mutá-lo.",
+      pool: "Atrás desta seção, um pool genético: cada quadrado é um gene, e cada geração que passa muta alguns. Clique no fundo para soltar uma onda de mutações.",
+    },
   },
 
   operators: {

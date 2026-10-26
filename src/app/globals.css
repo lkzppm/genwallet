@@ -339,6 +339,13 @@ html {
   }
 }
 
+/* A bar filling from the left (`origin-left`), e.g. the time left on a tab. */
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
 @keyframes fade {
   from {
     opacity: 0;

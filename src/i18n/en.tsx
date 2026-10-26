@@ -45,6 +45,14 @@ export const en = {
     },
     figure: (min: number, max: number, cap: number) =>
       `Illustration: one chromosome. Weights between ${min}% and ${max}%, at most ${cap} companies per sector; every few seconds one gene mutates.`,
+    lab: {
+      label: "The genetic algorithm, step by step",
+      tabs: { genome: "Chromosome", operators: "Operators", session: "Session" },
+      genome: "Ten genes, each a company and its weight. Mutation swaps a company for an outsider or moves weight around; a repair keeps every rule.",
+      mutate: "Mutate",
+      hint: "Click a gene to mutate it.",
+      pool: "Behind this section, a gene pool: each square is a gene, and each generation that sweeps across mutates a few. Click the background to send a wave of mutations.",
+    },
   },
 
   operators: {

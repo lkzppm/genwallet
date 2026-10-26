@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ArrowRight, ChartLine, ChevronDown, Dices, Dna, EyeOff, GitCommitHorizontal, Receipt, RotateCcw, Sunrise, Sunset } from "lucide-react";
+import { ArrowRight, ChevronDown, Dices, EyeOff, Receipt, RotateCcw } from "lucide-react";
 import { siGithubactions, siNextdotjs, siTypescript, siVercel, siWebgpu } from "simple-icons";
 import { TerrainField, type TerrainStatus } from "@/components/terrain/terrain-canvas";
 import { useT } from "@/i18n/LocaleProvider";
@@ -11,7 +11,8 @@ import { DEFAULT_PARAMS } from "@/lib/ga/params";
 import { sessionsAfter } from "@/lib/live/calendar";
 import { FORMATION_DATE, LIVE_CONFIG } from "@/lib/live/config";
 import { BrandIcon } from "./brand-icon";
-import { GenomeFigure, OperatorsFigure } from "./figures";
+import { GenePool } from "./gene-pool";
+import { Lab } from "./lab";
 import { Reveal } from "./reveal";
 
 // Every number on the landing page comes from the engine's configuration.
@@ -25,7 +26,6 @@ const STACK = [
   { icon: siVercel, label: "Vercel", href: "https://vercel.com" },
 ];
 
-const STEP_ICONS = [Sunset, Dna, GitCommitHorizontal, Sunrise, ChartLine];
 const HONESTY_ICONS = [EyeOff, RotateCcw, Dices, Receipt];
 
 function shortDate(date: string, lang: string): string {
@@ -35,7 +35,7 @@ function shortDate(date: string, lang: string): string {
 export function Home() {
   const t = useT();
   const [status, setStatus] = useState<TerrainStatus>({ session: 0, generation: 0 });
-  const { k, populationSize, lookback, immigrantRate } = DEFAULT_PARAMS;
+  const { k, populationSize } = DEFAULT_PARAMS;
 
   const facts = [
     { value: k, label: t.what.facts.companies },
@@ -46,15 +46,6 @@ export function Home() {
     { value: populationSize, label: t.what.facts.population },
     { value: LIVE_CONFIG.formationGenerations, label: t.what.facts.generations(LIVE_CONFIG.dailyGenerations) },
   ];
-  const { close, evolve, commit, open, mark } = t.session.steps;
-  const steps = [
-    { title: close.title, body: close.body(lookback) },
-    { title: evolve.title, body: evolve.body(LIVE_CONFIG.dailyGenerations, Math.round(immigrantRate * 100)) },
-    commit,
-    open,
-    mark,
-  ];
-
   return (
     <main className="page">
       {/* One viewport: the GA on its landscape behind, the name and the brief over it. */}
@@ -111,87 +102,57 @@ export function Home() {
         </div>
       </section>
 
-      {/* What it is: the words and the facts, then the chromosome. */}
-      <section id="como-funciona" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-24 sm:px-6">
-        <Reveal as="h2" className="section-title">
-          {t.what.title}
-          <span className="text-up">.</span>
-        </Reveal>
-        <Reveal as="p" className="section-lead" delay={0.1}>
-          {t.what.lead}
-        </Reveal>
-        <dl className="mt-10 grid grid-cols-2 gap-6 border-t border-border pt-6 md:grid-cols-4">
-          {facts.map((fact, i) => (
-            <Reveal key={fact.label} delay={0.15 + i * 0.07}>
-              <dt className="font-mono text-4xl tabular-nums">{fact.value}</dt>
-              <dd className="mt-2 text-sm leading-snug text-muted-foreground">{fact.label}</dd>
+      {/* How it works, on a plain ground: the words and the facts on the
+          left, the algorithm in three tabs on the right. */}
+      <section
+        id="como-funciona"
+        className="relative flex min-h-[calc(100svh-4rem)] scroll-mt-16 items-center border-b border-border bg-[color-mix(in_srgb,var(--foreground)_2.5%,var(--background))]"
+      >
+        <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+          <div>
+            <Reveal as="h2" className="section-title">
+              {t.what.title}
+              <span className="text-up">.</span>
             </Reveal>
-          ))}
-        </dl>
-        <Reveal className="mt-12" delay={0.2}>
-          <GenomeFigure />
-        </Reveal>
-      </section>
-
-      {/* The operators. */}
-      <section className="border-y border-border bg-[color-mix(in_srgb,var(--foreground)_2.5%,var(--background))]">
-        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
-          <Reveal as="h2" className="section-title">
-            {t.operators.title}
-            <span className="text-up">.</span>
-          </Reveal>
-          <Reveal as="p" className="section-lead" delay={0.1}>
-            {t.operators.lead}
-          </Reveal>
-          <Reveal className="mt-10" delay={0.2}>
-            <OperatorsFigure />
+            <Reveal as="p" className="section-lead" delay={0.1}>
+              {t.what.lead}
+            </Reveal>
+            <dl className="mt-10 grid grid-cols-2 gap-x-6 gap-y-6 border-t border-border pt-6">
+              {facts.map((fact, i) => (
+                <Reveal key={fact.label} delay={0.15 + i * 0.07}>
+                  <dt className="font-mono text-4xl tabular-nums">{fact.value}</dt>
+                  <dd className="mt-2 text-sm leading-snug text-muted-foreground">{fact.label}</dd>
+                </Reveal>
+              ))}
+            </dl>
+          </div>
+          <Reveal delay={0.2}>
+            <Lab />
           </Reveal>
         </div>
       </section>
 
-      {/* One session: a line of five stops, the population carried along it. */}
-      <section className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
-        <Reveal as="h2" className="section-title">
-          {t.session.title}
-          <span className="text-up">.</span>
-        </Reveal>
-        <Reveal as="p" className="section-lead" delay={0.1}>
-          {t.session.lead}
-        </Reveal>
-        <ol className="relative mt-12 grid gap-8 md:grid-cols-5 md:gap-6">
-          <span aria-hidden className="absolute top-5 right-0 left-0 hidden h-px bg-border md:block" />
-          {steps.map((step, i) => {
-            const Icon = STEP_ICONS[i];
-            return (
-              <Reveal key={step.title} as="li" delay={0.15 + i * 0.1} className="group relative flex gap-4 md:flex-col">
-                <span className="relative grid size-10 shrink-0 place-items-center border border-border bg-background text-muted-foreground transition-all duration-300 ease-[var(--ease-spring)] group-hover:scale-110 group-hover:border-up group-hover:text-up">
-                  <Icon className="size-4" aria-hidden />
-                </span>
-                <div>
-                  <h3 className="font-medium">
-                    <span className="mr-2 font-mono text-xs text-muted-foreground">{String(i + 1).padStart(2, "0")}</span>
-                    {step.title}
-                  </h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
-                </div>
-              </Reveal>
-            );
-          })}
-        </ol>
-      </section>
-
-      {/* Built to be checked, and the way into the builder. */}
-      <section className="border-t border-border">
-        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
-          <Reveal as="h2" className="section-title">
-            {t.honesty.title}
-            <span className="text-up">.</span>
+      {/* Built to be checked, on the gene pool, and the way into the builder. */}
+      <section className="relative flex min-h-[calc(100svh-4rem)] items-center overflow-hidden">
+        <GenePool />
+        <div className="relative mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
+          <Reveal className="relative isolate before:pointer-events-none before:absolute before:-inset-x-20 before:-inset-y-12 before:-z-10 before:bg-[radial-gradient(closest-side,var(--background)_55%,transparent)] mx-auto max-w-2xl text-center">
+            <h2 className="section-title">
+              {t.honesty.title}
+              <span className="text-up">.</span>
+            </h2>
+            <p className="section-lead mx-auto">{t.honesty.cta.body}</p>
           </Reveal>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <ol className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {t.honesty.items.map((item, i) => {
               const Icon = HONESTY_ICONS[i];
               return (
-                <Reveal key={item.title} delay={0.1 + i * 0.08} className="group relative border border-border bg-panel p-5 transition-all duration-300 hover:-translate-y-1 hover:border-[color-mix(in_srgb,var(--up)_50%,var(--border))]">
+                <Reveal
+                  key={item.title}
+                  as="li"
+                  delay={0.1 + i * 0.08}
+                  className="group relative border border-border bg-[color-mix(in_srgb,var(--background)_85%,transparent)] p-5 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-[color-mix(in_srgb,var(--up)_50%,var(--border))]"
+                >
                   {["-top-1 -left-1", "-top-1 -right-1", "-bottom-1 -left-1", "-bottom-1 -right-1"].map((corner) => (
                     <span key={corner} aria-hidden className={`absolute ${corner} size-2 border border-border bg-background transition-colors duration-300 group-hover:border-up group-hover:bg-up`} />
                   ))}
@@ -201,16 +162,18 @@ export function Home() {
                 </Reveal>
               );
             })}
-          </div>
-          <Reveal delay={0.2} className="mt-16 flex flex-col items-start justify-between gap-6 border border-border bg-panel p-8 sm:flex-row sm:items-center">
-            <div>
-              <h3 className="text-2xl font-medium tracking-tight">{t.honesty.cta.title}</h3>
-              <p className="mt-2 max-w-xl text-muted-foreground">{t.honesty.cta.body}</p>
+          </ol>
+          <Reveal delay={0.3} className="mt-14 flex flex-col items-center gap-6 text-center">
+            <div className="flex flex-wrap justify-center gap-3">
+              <Link href="/montar" className="btn btn-primary">
+                {t.honesty.cta.title}
+                <ArrowRight className="btn-arrow size-4" aria-hidden />
+              </Link>
+              <a href={BRAND.record} target="_blank" rel="noreferrer" className="btn btn-secondary">
+                {t.common.record}
+              </a>
             </div>
-            <Link href="/montar" className="btn btn-primary shrink-0">
-              {t.nav.builder}
-              <ArrowRight className="btn-arrow size-4" aria-hidden />
-            </Link>
+            <p className="relative isolate before:pointer-events-none before:absolute before:-inset-x-10 before:-inset-y-2 before:-z-10 before:bg-[radial-gradient(closest-side,var(--background)_55%,transparent)] max-w-md text-xs leading-relaxed text-muted-foreground">{t.what.lab.pool}</p>
           </Reveal>
         </div>
       </section>

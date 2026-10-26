@@ -25,6 +25,14 @@ A dollar sign drawn as a DNA double helix whose two strands are the letter's two
 
 Rejected on the way, all on 2026-10-26: two mirrored S strands (read as an 8), an S knocked out over a helix stem, the S as a twisting ribbon, ten genes forming the S, contour lines, a coin, an S with a strand wound round it, and an S as one strand of a vertical sine helix (read as a zigzag).
 
+## The landing, three screens (Decided, 2026-10-26, Lucas)
+
+Each section is about one viewport and has its own ground:
+
+1. **Hero** on the moving landscape (WebGPU).
+2. **How it works** on a plain tint: the brief and four facts beside one figure in three tabs (the chromosome, whose genes mutate on a click; selection, crossover and mutation in turn; the five stops of a session). The tabs turn on their own, a green line filling under the current one, and the pointer on the figure pauses them.
+3. **Built to be checked** on the gene pool (`src/components/site/gene-pool.tsx`, a 2D canvas): a grid of genes that a generation sweeps every 5.5 s, mutating a few in green or red; the pointer lights the genes around it and a click sends a ring of mutations. The four checks and the way into the builder.
+
 ## The builder, one fixed screen (Decided, 2026-10-26, Lucas)
 
 `/montar` follows GraphMan's observatory: nothing scrolls the page, and the footer is not shown.

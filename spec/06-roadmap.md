@@ -14,6 +14,7 @@
 - [x] Engine made bit-identical across engines (`dexp`/`dlog`, polar normals; `02-genetic-algorithm.md`), merged to `main` before the formation run.
 - [x] The mark: the S and the stem as the two strands of a helix, black S, green stem, red rungs (`04-ui-design.md`).
 - [x] `/montar` reworked into one fixed screen: parameters in a sidebar, a navigable stage with three views and a session timeline (`04-ui-design.md`), checked at 1440, 1280 and 390 px in both themes.
+- [x] Landing cut to three screens with three grounds, the GA figure in tabs (`04-ui-design.md`); one navbar on every page, the home's green name sliding off as the tab underline.
 - [ ] The Vercel project.
 
 ## Plan
