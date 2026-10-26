@@ -9,7 +9,10 @@
 - [ ] **Formation run tonight**, after 17:30 BRT and before 10:00 BRT on 2026-10-27, committed and pushed.
 - [ ] Nightly GitHub Action on the `live` branch, before the evening of 2026-10-27.
 - [x] UI direction (`04-ui-design.md`): the moving landscape in red and green, the $-helix mark. Landing page on `feat/site`, checked in Chromium with WebGPU at 1440 px (both themes) and 390 px.
-- [ ] Lucas tests the site locally, then the Vercel project.
+- [x] Landing in GraphMan's layout (hero over the terrain, chromosome and operator figures, session timeline, checks, footer with EEL874), nav tab and GitHub button, button transitions (`feat/site`).
+- [x] `/montar`: pick the starting parameters and operate 10 past sessions in the browser with the live engine (`src/lib/sim/simulate.ts`, a Web Worker, `public/data/market.json` refreshed by `pnpm data`). The default run (formation 2026-10-08) gives R$ 102,164.01 in Node and in Chromium, to the cent.
+- [x] Engine made bit-identical across engines (`dexp`/`dlog`, polar normals; `02-genetic-algorithm.md`), merged to `main` before the formation run.
+- [ ] Lucas picks the mark among six variants; then the Vercel project.
 
 ## Plan
 
