@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ------------------------------------------------------------------
+   GenWallet: a topographic map of a fitness landscape behind plain type.
+   Green is up (peaks, gains), red is down (pits, losses), and nothing
+   else on the page is coloured. Two themes: paper (`:root`) and night
+   (`.dark`, set on <html> before the first paint, see
+   `src/lib/use-theme.ts`). The terrain shader reads --up, --down,
+   --background and --foreground at runtime: keep those four as 6-digit hex.
+   ------------------------------------------------------------------ */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-panel: var(--panel);
+  --color-up: var(--up);
+  --color-down: var(--down);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  color-scheme: light;
+  --background: #f4f4f0;
+  --foreground: #101213;
+  --muted-foreground: #5b6166;
+  --border: #d6d8d2;
+  /* Text sits on the map through this veil, so the lines never cut a word. */
+  --panel: color-mix(in srgb, var(--background) 78%, transparent);
+  --up: #12863f;
+  --down: #d62839;
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #08090a;
+  --foreground: #e9ebee;
+  --muted-foreground: #8a9199;
+  --border: #23272b;
+  --panel: color-mix(in srgb, var(--background) 72%, transparent);
+  --up: #2bd576;
+  --down: #ff4d5e;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--up) 35%, transparent);
+}

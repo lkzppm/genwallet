@@ -1,10 +1,27 @@
 # 04 — UI design
 
-**Open: to be debated with Lucas (from 2026-10-26).**
+**Background, palette and mark decided 2026-10-26 (Lucas); screens beyond the landing still Proposed.**
 
 ## Starting idea (Lucas, 2026-10-26)
 
 A vgpu background running something animated in the spirit of Conway's Game of Life. Note for the debate: Life is a cellular automaton (fixed rules, no genomes, no selection), not a genetic algorithm, so on its own it would tell the wrong story. Variants that keep the look and tell the right one are in the debate.
+
+## The background: the moving landscape (Decided, 2026-10-26)
+
+Lucas chose idea 1 of three (landscape, garden of 10-petal portfolios, lineage tapestry) and asked for red and green.
+
+- A topographic map of a fitness landscape: thin contour lines (`fract` of height over `fwidth`), every fifth an index contour; **green on the peaks, red in the pits**, grey on the plain; a faint wash of the same colours; a lamp of brighter lines around the pointer (`src/components/terrain/terrain.wgsl`).
+- A **real GA runs on it** (`landscape.ts`): 96 points, tournament of 2, elitism, BLX-α crossover, Gaussian mutation with hypermutation when the population collapses; every 18 s a "session" moves the bumps (6 s morph) and 15% random immigrants arrive. Clicking the map drops 10 immigrants where it lands. The champion wears a green ring (`dots.wgsl`, instanced quads).
+- It is a **demo landscape**, and the caption says so. Peaks keep to the right half, where no text covers the climb. Replacing it with the real portfolio landscape (a fixed PCA projection of the evaluated weight vectors, height from their fitness) is next once the formation run exists.
+- Without WebGPU or with reduced motion: one still frame of the same map on a 2D canvas.
+
+## Palette and type (Decided, 2026-10-26)
+
+Green is up, red is down, and nothing else is coloured: paper `#f4f4f0` / night `#08090a`, greys for text and borders, `--up` `#12863f` / `#2bd576`, `--down` `#d62839` / `#ff4d5e`. Inter for text, Geist Mono for numbers; square panels and buttons with hairline borders, like Debait.
+
+## The mark (Decided, 2026-10-26)
+
+A dollar sign whose stem is a DNA double helix: a green and a red strand with grey rungs, the S knocked out over it in the page colour (`src/app/icon.svg`, `src/components/site/logo.tsx`). A first version with two mirrored S strands read as an 8 and was dropped.
 
 ## Constraints inherited from the sister projects
 

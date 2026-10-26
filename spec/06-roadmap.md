@@ -8,7 +8,8 @@
 - [x] **2026-10-26 is a crash day**: Ibovespa about −16% (ITUB4 −15%, MGLU3 −56%, VALE3 +4%, confirmed on Yahoo and brapi). The formation runs on it anyway, and that day stays in every window of the run.
 - [ ] **Formation run tonight**, after 17:30 BRT and before 10:00 BRT on 2026-10-27, committed and pushed.
 - [ ] Nightly GitHub Action on the `live` branch, before the evening of 2026-10-27.
-- [ ] UI direction debated with Lucas (`04-ui-design.md`), then the site.
+- [x] UI direction (`04-ui-design.md`): the moving landscape in red and green, the $-helix mark. Landing page on `feat/site`, checked in Chromium with WebGPU at 1440 px (both themes) and 390 px.
+- [ ] Lucas tests the site locally, then the Vercel project.
 
 ## Plan
 
@@ -27,5 +28,4 @@
 ## Open questions for Lucas
 
 1. Presentation date (sets the study's deadline).
-2. The UI direction (`04-ui-design.md`).
 3. An LLM narrator per session (Groq, the model narrates, the code decides): in or out?
