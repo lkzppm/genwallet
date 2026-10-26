@@ -26,7 +26,13 @@ export interface TerrainStatus {
  * visitor who asked for reduced motion, one still frame drawn on a 2D canvas.
  * Decorative: `aria-hidden`, and clicks on controls never reach it.
  */
-export function TerrainField({ onStatus }: { onStatus?: (status: TerrainStatus) => void }) {
+export function TerrainField({
+  onStatus,
+  className = "pointer-events-none absolute inset-0 overflow-hidden",
+}: {
+  onStatus?: (status: TerrainStatus) => void;
+  className?: string;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const hasWebGpu = useSyncExternalStore(subscribeNever, () => "gpu" in navigator, () => true);
   const reducedMotion = useSyncExternalStore(
@@ -65,7 +71,7 @@ export function TerrainField({ onStatus }: { onStatus?: (status: TerrainStatus) 
   }, [still]);
 
   return (
-    <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden>
+    <div className={className} aria-hidden>
       {still ? <StillTerrain /> : <canvas ref={canvasRef} className="block h-full w-full" />}
     </div>
   );
