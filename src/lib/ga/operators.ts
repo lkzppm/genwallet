@@ -1,6 +1,7 @@
 // Selection, crossover and mutation. Operators may produce infeasible
 // genomes; the caller always repairs before evaluating.
 
+import { dexp, dlog } from "./math";
 import type { Individual } from "./individual";
 import { byScore } from "./individual";
 import type { GaParams } from "./params";
@@ -22,7 +23,7 @@ export function randomGenome(p: Problem, params: GaParams, rng: Rng): Genome {
   const pool = p.locked ? [...p.locked] : [...p.eligible];
   const assets: number[] = [];
   while (assets.length < params.k && pool.length) assets.push(pool.splice(rng.int(pool.length), 1)[0]);
-  const raw = assets.map(() => -Math.log(1 - rng.next()));
+  const raw = assets.map(() => -dlog(1 - rng.next()));
   const total = raw.reduce((s, x) => s + x, 0);
   return { assets, weights: raw.map((x) => x / total) };
 }
@@ -65,7 +66,7 @@ export function mutate(p: Problem, params: GaParams, rng: Rng, g: Genome, boost:
     if (outsiders.length) assets[rng.int(assets.length)] = rng.pick(outsiders);
   }
   if (rng.next() < rate(params.weightRate)) {
-    for (let i = 0; i < weights.length; i++) weights[i] *= Math.exp(params.weightSigma * rng.normal());
+    for (let i = 0; i < weights.length; i++) weights[i] *= dexp(params.weightSigma * rng.normal());
   }
   if (rng.next() < rate(params.transferRate) && weights.length > 1) {
     const i = rng.int(weights.length);
