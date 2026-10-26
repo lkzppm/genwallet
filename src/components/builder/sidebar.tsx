@@ -187,6 +187,7 @@ export function Sidebar({
   const resetGroup = (group: GroupKey) =>
     form && defaults && setForm({ ...form, ...Object.fromEntries(GROUP_KEYS[group].map((k) => [k, defaults[k]])) });
   const count = (group: GroupKey) => (form && defaults ? GROUP_KEYS[group].filter((k) => changed(form, defaults, k)).length : 0);
+  const modified = (Object.keys(GROUP_KEYS) as GroupKey[]).some((g) => count(g) > 0);
 
   // A date the data has no session for snaps back to the trading day before it.
   const pickFormation = (value: string) => {
@@ -437,9 +438,12 @@ export function Sidebar({
             <Square className="size-3.5" aria-hidden />
           </IconButton>
         ) : (
-          <IconButton label={b.reset} onClick={bar.onReset} disabled={!form} className="group/reset size-10">
-            <RotateCcw className="size-3.5 transition-transform duration-500 ease-[var(--ease)] group-hover/reset:-rotate-180" aria-hidden />
-          </IconButton>
+          // Only once something differs from the defaults.
+          modified && (
+            <IconButton label={b.reset} onClick={bar.onReset} className="group/reset size-10 animate-[pop_0.35s_var(--ease-spring)]">
+              <RotateCcw className="size-3.5 transition-transform duration-500 ease-[var(--ease)] group-hover/reset:-rotate-180" aria-hidden />
+            </IconButton>
+          )
         )}
       </div>
     </div>

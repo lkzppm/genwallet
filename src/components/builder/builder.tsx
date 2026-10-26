@@ -12,7 +12,6 @@ import {
   LayoutDashboard,
   CalendarDays,
   LoaderCircle,
-  Play,
   SlidersHorizontal,
   TriangleAlert,
 } from "lucide-react";
@@ -237,8 +236,6 @@ export function Builder() {
             sessionWindow={sessionWindow}
             loading={sim.status === "loading"}
             error={sim.status === "error" ? sim.error : null}
-            canRun={!!config && sim.status !== "loading"}
-            onRun={run}
           />
         ) : (
           <>
@@ -547,8 +544,6 @@ function EmptyStage({
   sessionWindow,
   loading,
   error,
-  canRun,
-  onRun,
 }: {
   t: Dictionary;
   lang: string;
@@ -557,8 +552,6 @@ function EmptyStage({
   sessionWindow: string[];
   loading: boolean;
   error: string | null;
-  canRun: boolean;
-  onRun: () => void;
 }) {
   const b = t.builder;
   const st = b.stage.steps;
@@ -637,10 +630,6 @@ function EmptyStage({
                   ))}
                 </ol>
               </div>
-              <button type="button" className="btn btn-primary mt-7 w-full" disabled={!canRun} onClick={onRun}>
-                <Play className="size-3.5" aria-hidden />
-                {b.run(n || SESSIONS)}
-              </button>
             </>
           )}
 
