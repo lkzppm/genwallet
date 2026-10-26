@@ -1,0 +1,299 @@
+// English interface strings. This object is the schema every other language
+// must match (see `index.ts`). Functions take the values a sentence needs
+// so word order stays each language's business. No em dash in anything the
+// visitor reads: a comma, a colon or a full stop takes its place.
+
+export const en = {
+  lang: "en",
+  name: "English",
+  short: "EN",
+
+  common: {
+    language: "Language",
+    themeLight: "Switch to the light theme",
+    themeDark: "Switch to the dark theme",
+    source: "Source on GitHub",
+    record: "Live record",
+    paper: "Paper money. Not investment advice.",
+  },
+
+  nav: {
+    home: "GenWallet home",
+    pages: "Pages",
+    builder: "Build a portfolio",
+  },
+
+  hero: {
+    eyebrow: "EEL874 · Artificial Intelligence · UFRJ 2026/2",
+    brief: (companies: number, sessions: number) =>
+      `A genetic algorithm picks ${companies} Ibovespa companies and trades the portfolio live over ${sessions} B3 sessions. Every order is published before the open it trades on.`,
+    build: "Build a portfolio",
+    discover: "How it works",
+  },
+
+  what: {
+    title: "A portfolio is a chromosome",
+    lead: "Every individual in the population is a portfolio: ten genes, each a company and its weight. The whole population evolves, and each evening's best portfolio becomes the next session's order.",
+    facts: {
+      companies: "companies per portfolio, one ticker each",
+      sessions: (first: string, last: string) => `live sessions, ${first} to ${last}`,
+      population: "portfolios per generation",
+      generations: (daily: number) => `generations on the first evening, ${daily} on each one after`,
+    },
+    figure: (min: number, max: number, cap: number) =>
+      `Illustration: one chromosome. Weights between ${min}% and ${max}%, at most ${cap} companies per sector; every few seconds one gene mutates.`,
+    lab: {
+      label: "The genetic algorithm, step by step",
+      tabs: { genome: "Chromosome", operators: "Operators", session: "Session" },
+      genome: "Ten genes, each a company and its weight. Mutation swaps a company for an outsider or moves weight around; a repair keeps every rule.",
+      mutate: "Mutate",
+      hint: "Click a gene to mutate it.",
+      pool: "Behind this section, a gene pool: each square is a gene, and each generation that sweeps across mutates a few. Click the background to send a wave of mutations.",
+    },
+  },
+
+  operators: {
+    title: "Selection, crossover, mutation",
+    lead: "Every generation, portfolios meet in tournaments, the winners breed and the children mutate. A child that breaks a rule is repaired, never punished.",
+    selection: {
+      title: "Tournament selection",
+      body: (size: number) =>
+        `${size} portfolios are drawn and the fittest becomes a parent. Fitness is the Sharpe ratio net of the cost of leaving the current portfolio.`,
+    },
+    crossover: {
+      title: "Crossover",
+      body: "The companies both parents hold are kept; the free slots come from one parent or the other, and the weights are blended.",
+    },
+    mutation: {
+      title: "Mutation",
+      body: (factor: number) =>
+        `A company is swapped for an outsider, or one weight grows at another's expense. When the population grows too alike, mutation runs ${factor} times faster.`,
+    },
+    labels: { parentA: "parent A", parentB: "parent B", child: "child", shared: "shared", winner: "winner" },
+  },
+
+  session: {
+    title: "One session, from the close to the open",
+    lead: "The population does not die overnight: it takes in immigrants, re-scores everyone on the new landscape and evolves again.",
+    steps: {
+      close: { title: "Close", body: (lookback: number) => `The day's prices join a window of the last ${lookback} sessions.` },
+      evolve: {
+        title: "Evolution",
+        body: (generations: number, immigrants: number) =>
+          `${generations} generations from the previous evening's population, plus ${immigrants}% immigrants and the current portfolio as a candidate.`,
+      },
+      commit: { title: "Commit", body: "The decision lands on the repository's live branch. The commit's time proves it came before the open." },
+      open: { title: "Open", body: "The order fills at the opening price, with fees and slippage, in whole shares." },
+      mark: { title: "Mark", body: "The portfolio is valued at the close, next to BOVA11 and the CDI." },
+    },
+  },
+
+  honesty: {
+    title: "Built to be checked",
+    headline: (
+      <>
+        Every order is on the record <span className="text-up">before the open</span>
+      </>
+    ),
+    items: [
+      { title: "No look-ahead", body: "It decides on the close and trades at the next open. A late decision becomes a missed session in the record." },
+      { title: "Reproducible", body: "Every evening archives its data and its seed. Anyone can run it again and reach the same portfolio." },
+      { title: "Against chance", body: "Ten sessions are few. The result sits next to 10,000 random portfolios and the index." },
+      { title: "Real costs", body: "Fees, slippage and whole shares: no order is free." },
+    ],
+    cta: {
+      title: "Build your own",
+      body: "Pick the starting parameters and a date in the past, and watch the algorithm trade ten sessions in your browser.",
+    },
+  },
+
+  footer: {
+    project: "Project",
+    stack: "Stack",
+    licence: "MIT licence",
+    author: "Author",
+    authorName: "Lucas Pacheco",
+    github: "GitHub",
+    linkedin: "LinkedIn",
+    course: "Course",
+    courseName: "EEL874 · Artificial Intelligence",
+    term: "UFRJ · 2026/2",
+    copyright: "© 2026",
+  },
+  builder: {
+    meta: "Build a portfolio: choose the genetic algorithm's starting parameters and operate 10 past B3 sessions in your browser.",
+    eyebrow: "Build a portfolio",
+    title: (n: number) => (n === 1 ? "Operate a session of the past" : `Operate ${n} sessions of the past`),
+    data: (tickers: number, first: string, last: string) => `${tickers} Ibovespa tickers · ${first} to ${last} · dividend-adjusted`,
+    loading: "Loading market data",
+    groups: { run: "Operation", algorithm: "Algorithm", constraints: "Constraints" },
+    fields: {
+      formation: {
+        label: "Formation evening",
+        hint: (first: string, last: string) => `the portfolio is formed at this close and operated over the sessions after it (${first} to ${last})`,
+      },
+      sessions: { label: "Sessions", hint: "how many sessions the portfolio is operated after the formation; the live run operates 10" },
+      capital: { label: "Capital (R$)", hint: "paper money" },
+      seed: { label: "Seed", hint: "the same seed gives the same run" },
+      mode: {
+        label: "Companies",
+        free: "Free",
+        strict: "Fixed",
+        custom: "Chosen",
+        hint: "free: the algorithm may swap companies every evening, always 10, paying the cost; fixed: the 10 of the formation stay, only the weights change; chosen: you pick the 10 and the algorithm only sets their weights",
+      },
+      picks: {
+        label: "Your companies",
+        hint: "the 10 the portfolio holds from the formation to the last session",
+        open: "Choose the companies",
+        edit: "Edit the choice",
+        count: (n: number, k: number) => `${n} of ${k}`,
+        remove: (ticker: string) => `Remove ${ticker}`,
+      },
+      fitness: {
+        label: "Fitness",
+        sharpe: "Sharpe",
+        sortino: "Sortino",
+        cvar: "Return / CVaR",
+        hint: "risk-adjusted return over the CDI, net of the cost of trading from the current portfolio",
+      },
+      population: { label: "Population", hint: "portfolios per generation" },
+      formationGenerations: { label: "Generations at formation", hint: "from a random population" },
+      dailyGenerations: { label: "Generations per evening", hint: "the population carries over from the evening before" },
+      crossover: { label: "Crossover rate", hint: "share of children born from two parents" },
+      swap: { label: "Swap mutation", hint: "chance of trading one company for another" },
+      weight: { label: "Weight mutation", hint: "chance of nudging the weights" },
+      immigrants: { label: "Immigrants", hint: "share of the population replaced by random portfolios each evening" },
+      elite: { label: "Elite", hint: "best portfolios copied unchanged to the next generation" },
+      tournament: { label: "Tournament", hint: "candidates per parent selection" },
+      wMin: { label: "Minimum weight", hint: "per company, %" },
+      wMax: { label: "Maximum weight", hint: "per company, %" },
+      sectorCap: { label: "Companies per sector", hint: "at most, out of 10" },
+      lookback: { label: "Lookback (sessions)", hint: "history behind every estimate" },
+      meanShrink: { label: "Mean shrinkage", hint: "pull of each stock's mean return toward the average of all" },
+    },
+    invalid: {
+      bounds: (k: number) =>
+        `With ${k} companies the weights must allow a sum of 100%: minimum × ${k} ≤ 100% ≤ maximum × ${k}.`,
+      elite: "The elite must be smaller than the population.",
+      picks: (missing: number) => (missing === 1 ? "Choose 1 more company." : `Choose ${missing} more companies.`),
+      refused: (tickers: string) => `${tickers}: no full price history or too little trading in this window. Swap them or change the evening.`,
+    },
+    picker: {
+      title: (k: number) => `Choose ${k} companies`,
+      lead: "From the formation on, the portfolio holds exactly these; every evening the algorithm only decides their weights.",
+      search: "Ticker, company or sector",
+      all: "All",
+      clear: "Clear",
+      random: "Draw the rest",
+      done: "Done",
+      close: "Close",
+      ticker: "Ticker",
+      company: "Company",
+      sector: "Sector",
+      ret: "Return",
+      vol: "Vol. a.y.",
+      traded: "Traded/day",
+      window: (n: number) => `Return and volatility over the ${n} sessions before the formation.`,
+      sectorNote: "Chosen by hand, the cap per sector does not apply.",
+      refused: { history: "no full price history in this window", liquidity: "too little trading in this window" },
+      sibling: (ticker: string) => `same company as ${ticker}`,
+      full: "Already 10: remove one to swap",
+      empty: "Nothing matches the search.",
+      sort: (column: string) => `Sort by ${column}`,
+    },
+    panes: { label: "Panels", params: "Parameters", result: "Result" },
+    sidebar: {
+      resetGroup: "Restore this group's defaults",
+      resize: "Drag to resize the panel, double click to restore it",
+      resetField: "Restore the default",
+      modified: (n: number) => (n === 1 ? "1 changed" : `${n} changed`),
+      randomSeed: "Draw a new seed",
+      prevEvening: "Previous evening",
+      nextEvening: "Next evening",
+      window: (first: string, last: string) => `${first} to ${last}`,
+    },
+    views: { label: "Views", overview: "Overview", session: "Session", composition: "Composition" },
+    stage: {
+      steps: {
+        form: { verb: "forms", value: (k: number) => `${k} companies` },
+        operate: { verb: "operates", value: (n: number) => (n === 1 ? "1 session" : `${n} sessions`) },
+        compare: { verb: "compares with", value: "BOVA11 · CDI" },
+      },
+      download: "Download the run's event log (JSON)",
+      discard: "Discard this run",
+      keys: "← → move between sessions",
+      running: "Evolving",
+    },
+    tiles: {
+      nav: "Final value",
+      fees: "Fees",
+      trades: "Trades",
+      holds: "Without trading",
+      time: "Computed in",
+    },
+    returns: "Return of each session",
+    composition: {
+      title: "Weights through the sessions",
+      hint: "Each row is a company, each column a session; the stronger the green, the larger the weight. Click a column to open its session.",
+      out: "out of the portfolio",
+    },
+    run: (n: number) => (n === 1 ? "Run 1 session" : `Run ${n} sessions`),
+    again: "Run again",
+    cancel: "Cancel",
+    reset: "Defaults",
+    progress: (session: number, sessions: number, gen: number, generations: number) =>
+      `Session ${session} of ${sessions} · generation ${gen} of ${generations}`,
+    cancelled: "Cancelled.",
+    error: (message: string) => `The simulation failed: ${message}`,
+    empty: "Set the parameters and run. Each evening evolves the population and decides the next order; each session fills it at the open and marks the portfolio at the close.",
+    results: {
+      title: "Result",
+      ga: "Genetic portfolio",
+      bova: "BOVA11 (Ibovespa)",
+      cdi: "CDI",
+      finalValue: "final value",
+      fees: (fees: string, trades: number) => `${fees} in fees over ${trades} trades`,
+      holds: (n: number) => (n === 1 ? "1 session without trading" : `${n} sessions without trading`),
+      seconds: (s: string) => `computed in ${s} s`,
+      chart: "Value through the sessions",
+      formation: "formation",
+      oneSample: (n: number) =>
+        `${n === 1 ? "One session is" : `${n} sessions are`} one sample: another evening or another seed can give the opposite result. Compare with the benchmarks over the same sessions, not with zero.`,
+    },
+    session: {
+      tabs: "Sessions",
+      label: (n: number) => `Session ${n}`,
+      decided: (on: string, fill: string) => `Decided on the evening of ${on}, filled at the open of ${fill}.`,
+      hold: "The current portfolio won the evening: no order was sent.",
+      convergence: "That evening's evolution",
+      best: "best",
+      mean: "mean",
+      diversity: "diversity",
+      generation: "generation",
+      portfolio: "Portfolio",
+      ticker: "Ticker",
+      company: "Company",
+      sector: "Sector",
+      weight: "Weight",
+      entered: "entered",
+      left: (tickers: string) => `Left the portfolio: ${tickers}.`,
+      inSample: "In-sample estimates over the lookback before the decision, not forecasts.",
+      score: "score",
+      expReturn: "return a.y.",
+      vol: "volatility a.y.",
+      turnover: "turnover",
+      trades: "Trades at the open",
+      side: { buy: "buy", sell: "sell" },
+      qty: "Qty",
+      price: "Price",
+      value: "Value",
+      noTrades: "No trades this session.",
+      nav: "value at the close",
+      prev: "Previous session",
+      next: "Next session",
+      day: "on the day",
+      pending: "not run yet",
+    },
+  },
+};
