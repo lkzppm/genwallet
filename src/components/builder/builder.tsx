@@ -73,7 +73,7 @@ export function Builder() {
     : [];
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 pt-24 pb-16 sm:px-6">
+    <main className="page mx-auto w-full max-w-6xl px-4 pt-10 pb-16 sm:px-6">
       <header className="max-w-3xl">
         <p className={label}>{b.eyebrow}</p>
         <h1 className="mt-3 text-4xl font-medium tracking-tight sm:text-5xl">{b.title}</h1>
