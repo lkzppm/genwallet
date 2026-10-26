@@ -433,11 +433,11 @@ export function Sidebar({
             {bar.again ? b.again : b.run(bar.sessions)}
           </button>
         )}
-        {/* The second slot opens beside the run button while there is something to undo or to cancel, and closes again: the run button widens and narrows with it. */}
+        {/* The second slot opens beside the run button while there is something to undo or to cancel, and closes again: the run button widens and narrows with it. Clipped across only, so the button can still lift on hover. */}
         <div
           inert={!bar.running && !modified}
           className={cn(
-            "flex shrink-0 justify-end overflow-hidden transition-[width,opacity] duration-400 ease-[var(--ease)]",
+            "flex shrink-0 justify-end overflow-x-clip transition-[width,opacity] duration-400 ease-[var(--ease)]",
             bar.running || modified ? "w-12 opacity-100" : "w-0 opacity-0",
           )}
         >
