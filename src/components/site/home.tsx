@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { ArrowRight, ChevronDown, Dices, EyeOff, Receipt, RotateCcw } from "lucide-react";
 import { siGithubactions, siNextdotjs, siTypescript, siVercel, siWebgpu } from "simple-icons";
-import { TerrainField, type TerrainStatus } from "@/components/terrain/terrain-canvas";
+import { TerrainField } from "@/components/terrain/terrain-canvas";
 import { useT } from "@/i18n/LocaleProvider";
 import { BRAND } from "@/lib/brand";
 import { DEFAULT_PARAMS } from "@/lib/ga/params";
@@ -12,6 +11,7 @@ import { sessionsAfter } from "@/lib/live/calendar";
 import { FORMATION_DATE, LIVE_CONFIG } from "@/lib/live/config";
 import { BrandIcon } from "./brand-icon";
 import { GenePool } from "./gene-pool";
+import { Helix } from "./helix";
 import { Lab } from "./lab";
 import { Reveal } from "./reveal";
 
@@ -34,7 +34,6 @@ function shortDate(date: string, lang: string): string {
 
 export function Home() {
   const t = useT();
-  const [status, setStatus] = useState<TerrainStatus>({ session: 0, generation: 0 });
   const { k, populationSize } = DEFAULT_PARAMS;
 
   const facts = [
@@ -50,7 +49,7 @@ export function Home() {
     <main className="page">
       {/* One viewport: the GA on its landscape behind, the name and the brief over it. */}
       <section className="relative flex min-h-[calc(100svh-4rem)] flex-col overflow-hidden border-b border-border">
-        <TerrainField onStatus={setStatus} />
+        <TerrainField />
         {/* A veil behind the words, so the map never cuts a letter: wide on a phone, the left half on a desk. */}
         <div
           aria-hidden
@@ -60,7 +59,9 @@ export function Home() {
           <div className="max-w-xl">
             <p className="eyebrow animate-[rise_0.6s_var(--ease)_0.05s_backwards]">{t.hero.eyebrow}</p>
             <h1 className="mt-5 animate-[rise_0.7s_var(--ease)_0.12s_backwards] text-6xl font-medium tracking-tight sm:text-7xl">
-              {BRAND.name}
+              {/* From the red of the pits to the green of the peaks, as the landscape behind it runs. */}
+              <span className="text-down">Gen</span>
+              <span className="text-up">Wallet</span>
             </h1>
             <p className="mt-5 animate-[rise_0.7s_var(--ease)_0.2s_backwards] text-lg leading-relaxed text-muted-foreground [text-shadow:0_0_18px_var(--background)]">
               {t.hero.brief(k, LIVE_CONFIG.sessions)}
@@ -91,11 +92,8 @@ export function Home() {
             </ul>
           </div>
         </div>
-        <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 pb-6 sm:flex-row sm:items-end sm:justify-between sm:px-6">
-          <p className="pointer-events-none max-w-md text-xs leading-relaxed text-muted-foreground">
-            {t.hero.background} <span className="font-mono text-foreground">{t.hero.counter(status.session + 1, status.generation)}</span>
-          </p>
-          <a href="#como-funciona" className="group flex items-center gap-2 self-center text-xs text-muted-foreground transition-colors hover:text-foreground sm:self-end">
+        <div className="relative mx-auto flex w-full max-w-6xl justify-center px-4 pb-6 sm:px-6">
+          <a href="#como-funciona" className="group flex items-center gap-2 text-xs text-muted-foreground transition-colors hover:text-foreground">
             {t.hero.discover}
             <ChevronDown className="size-4 animate-[nudge_1.8s_var(--ease)_infinite]" aria-hidden />
           </a>
@@ -149,14 +147,15 @@ export function Home() {
                   key={item.title}
                   as="li"
                   delay={0.1 + i * 0.08}
-                  className="group relative border border-border bg-[color-mix(in_srgb,var(--background)_85%,transparent)] p-5 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-[color-mix(in_srgb,var(--up)_50%,var(--border))]"
+                  className="group relative flex gap-4 bg-[radial-gradient(ellipse_at_left,color-mix(in_srgb,var(--background)_88%,transparent),color-mix(in_srgb,var(--background)_55%,transparent))] py-2 pr-3 transition-transform duration-300 ease-[var(--ease)] hover:-translate-y-1"
                 >
-                  {["-top-1 -left-1", "-top-1 -right-1", "-bottom-1 -left-1", "-bottom-1 -right-1"].map((corner) => (
-                    <span key={corner} aria-hidden className={`absolute ${corner} size-2 border border-border bg-background transition-colors duration-300 group-hover:border-up group-hover:bg-up`} />
-                  ))}
-                  <Icon className="size-5 text-muted-foreground transition-colors duration-300 group-hover:text-up" aria-hidden />
-                  <h3 className="mt-4 font-medium">{item.title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
+                  {/* No box: each check hangs on a strand of helix. */}
+                  <Helix vertical className="shrink-0 self-stretch" />
+                  <div className="py-1">
+                    <Icon className="size-5 text-muted-foreground transition-colors duration-300 group-hover:text-up" aria-hidden />
+                    <h3 className="mt-4 font-medium">{item.title}</h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
+                  </div>
                 </Reveal>
               );
             })}

@@ -28,9 +28,6 @@ export const pt: Dictionary = {
       `Um algoritmo genético escolhe ${companies} empresas do Ibovespa e opera a carteira ao vivo durante ${sessions} pregões da B3. Cada ordem é publicada antes da abertura em que ela é executada.`,
     build: "Montar uma carteira",
     discover: "Como funciona",
-    background:
-      "Atrás desta tela, um algoritmo genético de verdade escala um terreno de demonstração: cada ponto é um indivíduo, a altitude é o fitness, o verde são os picos e o vermelho os vales. O terreno muda a cada pregão. Clique para soltar imigrantes.",
-    counter: (session, generation) => `pregão ${session} · geração ${generation}`,
   },
 
   what: {

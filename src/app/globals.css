@@ -18,8 +18,8 @@
   --color-panel: var(--panel);
   --color-up: var(--up);
   --color-down: var(--down);
-  --font-sans: var(--font-inter);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-plex-sans);
+  --font-mono: var(--font-plex-mono);
 }
 
 :root {
@@ -172,7 +172,7 @@ html {
   }
 
   .eyebrow {
-    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-family: var(--font-plex-mono), ui-monospace, monospace;
     font-size: 12px;
     letter-spacing: 0.16em;
     text-transform: uppercase;
@@ -352,6 +352,21 @@ html {
 @keyframes grow {
   from {
     transform: scaleX(0);
+  }
+}
+
+/* The helix strip (src/components/site/helix.tsx) sliding by one turn. */
+@keyframes helix-flow-x {
+  to {
+    -webkit-mask-position: var(--helix-turn) 0;
+    mask-position: var(--helix-turn) 0;
+  }
+}
+
+@keyframes helix-flow-y {
+  to {
+    -webkit-mask-position: 0 var(--helix-turn);
+    mask-position: 0 var(--helix-turn);
   }
 }
 

@@ -17,7 +17,7 @@ Lucas chose idea 1 of three (landscape, garden of 10-petal portfolios, lineage t
 
 ## Palette and type (Decided, 2026-10-26)
 
-Green is up, red is down, and nothing else is coloured: paper `#f4f4f0` / night `#08090a`, greys for text and borders, `--up` `#12863f` / `#2bd576`, `--down` `#d62839` / `#ff4d5e`. Inter for text, Geist Mono for numbers; square panels and buttons with hairline borders, like Debait.
+Green is up, red is down, and nothing else is coloured: paper `#f4f4f0` / night `#08090a`, greys for text and borders, `--up` `#12863f` / `#2bd576`, `--down` `#d62839` / `#ff4d5e`. IBM Plex Sans for text and IBM Plex Mono for numbers (Decided, 2026-10-26, Lucas: its own face among the sister projects, which use Inter and Geist, and steady figures for prices); square panels and buttons with hairline borders, like Debait. The hero's name runs from red to green, *Gen* in `--down` and *Wallet* in `--up`, as the landscape behind it does. The DNA motif (`src/components/site/helix.tsx`, two strands and rungs in the mark's colours) marks the footer's columns and hangs each check of the third section.
 
 ## The mark (Decided, 2026-10-26, Lucas)
 

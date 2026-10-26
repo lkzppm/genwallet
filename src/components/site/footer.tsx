@@ -6,13 +6,14 @@ import { siGithub } from "simple-icons";
 import { useT } from "@/i18n/LocaleProvider";
 import { BRAND } from "@/lib/brand";
 import { BrandIcon, LINKEDIN } from "./brand-icon";
+import { Helix } from "./helix";
 import { Logo } from "./logo";
 import { Reveal } from "./reveal";
 
 const linkClass = "w-fit transition-colors duration-200 hover:text-up";
 
-/* The footer as GraphMan's: a hairline across the top and a dot per column
-   hanging from it; a column's dot turns green while it is hovered. */
+/* The footer: each column under its own strip of helix, like genes along a
+   chromosome; a hovered column's strip takes the mark's colours. */
 export function Footer() {
   const t = useT();
   const pathname = usePathname();
@@ -75,14 +76,11 @@ export function Footer() {
   return (
     <footer className="border-t border-border bg-[color-mix(in_srgb,var(--foreground)_3%,var(--background))]">
       <Reveal className="mx-auto max-w-6xl px-4 pt-14 pb-9 sm:px-6">
-        <div className="relative grid grid-cols-2 gap-8 pt-7 before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-border md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-4">
           {columns.map((column) => (
-            <div key={column.heading} className="group relative flex flex-col gap-2 text-sm text-muted-foreground">
-              <span
-                aria-hidden
-                className="absolute -top-[34px] left-0 size-3 rounded-full border border-border bg-background transition-all duration-300 ease-[var(--ease-spring)] group-hover:scale-125 group-hover:border-up group-hover:bg-up"
-              />
-              <h3 className="eyebrow mb-1">{column.heading}</h3>
+            <div key={column.heading} className="group flex flex-col gap-2 text-sm text-muted-foreground">
+              <Helix className="mb-5" />
+              <h3 className="eyebrow mb-1 transition-colors duration-300 group-hover:text-foreground">{column.heading}</h3>
               {column.body}
             </div>
           ))}

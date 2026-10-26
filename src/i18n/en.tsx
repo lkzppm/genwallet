@@ -29,9 +29,6 @@ export const en = {
       `A genetic algorithm picks ${companies} Ibovespa companies and trades the portfolio live over ${sessions} B3 sessions. Every order is published before the open it trades on.`,
     build: "Build a portfolio",
     discover: "How it works",
-    background:
-      "Behind this screen a real genetic algorithm climbs a demo landscape: each dot is an individual, height is fitness, green are the peaks and red the pits. The landscape moves every session. Click to drop immigrants.",
-    counter: (session: number, generation: number) => `session ${session} · generation ${generation}`,
   },
 
   what: {

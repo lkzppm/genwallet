@@ -15,6 +15,7 @@
 - [x] The mark: the S and the stem as the two strands of a helix, black S, green stem, red rungs (`04-ui-design.md`).
 - [x] `/montar` reworked into one fixed screen: parameters in a sidebar, a navigable stage with three views and a session timeline (`04-ui-design.md`), checked at 1440, 1280 and 390 px in both themes.
 - [x] Landing cut to three screens with three grounds, the GA figure in tabs (`04-ui-design.md`); one navbar on every page, the home's green name sliding off as the tab underline.
+- [x] IBM Plex for type, the hero's name in red and green, the helix motif in the footer and the checks; the hero's caption removed.
 - [ ] The Vercel project.
 
 ## Plan
