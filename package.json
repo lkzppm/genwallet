@@ -11,7 +11,9 @@
     "typecheck": "next typegen && tsc --noEmit",
     "live": "tsx scripts/live.mts",
     "live:verify": "tsx scripts/verify.mts",
-    "evolve": "tsx scripts/evolve.mts"
+    "evolve": "tsx scripts/evolve.mts",
+    "data": "tsx scripts/export-market.mts",
+    "simulate": "tsx scripts/simulate.mts"
   },
   "packageManager": "pnpm@11.25.0",
   "devDependencies": {
