@@ -12,7 +12,8 @@
 - [x] Landing in GraphMan's layout (hero over the terrain, chromosome and operator figures, session timeline, checks, footer with EEL874), nav tab and GitHub button, button transitions (`feat/site`).
 - [x] `/montar`: pick the starting parameters and operate 10 past sessions in the browser with the live engine (`src/lib/sim/simulate.ts`, a Web Worker, `public/data/market.json` refreshed by `pnpm data`). The default run (formation 2026-10-08) gives R$ 102,164.01 in Node and in Chromium, to the cent.
 - [x] Engine made bit-identical across engines (`dexp`/`dlog`, polar normals; `02-genetic-algorithm.md`), merged to `main` before the formation run.
-- [ ] Lucas picks the mark among six variants; then the Vercel project.
+- [x] The mark: the S and the stem as the two strands of a helix, black S, green stem, red rungs (`04-ui-design.md`).
+- [ ] The Vercel project.
 
 ## Plan
 

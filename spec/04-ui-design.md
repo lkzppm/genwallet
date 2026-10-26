@@ -19,9 +19,11 @@ Lucas chose idea 1 of three (landscape, garden of 10-petal portfolios, lineage t
 
 Green is up, red is down, and nothing else is coloured: paper `#f4f4f0` / night `#08090a`, greys for text and borders, `--up` `#12863f` / `#2bd576`, `--down` `#d62839` / `#ff4d5e`. Inter for text, Geist Mono for numbers; square panels and buttons with hairline borders, like Debait.
 
-## The mark (Decided, 2026-10-26)
+## The mark (Decided, 2026-10-26, Lucas)
 
-A dollar sign whose stem is a DNA double helix: a green and a red strand with grey rungs, the S knocked out over it in the page colour (`src/app/icon.svg`, `src/components/site/logo.tsx`). A first version with two mirrored S strands read as an 8 and was dropped.
+A dollar sign drawn as a DNA double helix whose two strands are the letter's two strokes: the **S** (black on paper, the text colour at night) and the **stem** (green) it winds around, joined by **red rungs**. The S passes over the stem at the top and bottom crossings and under it in the middle, so the pair twists. `src/app/icon.svg` is the paper tile (legible on light and dark tabs); `src/components/site/logo.tsx` takes the theme's colours.
+
+Rejected on the way, all on 2026-10-26: two mirrored S strands (read as an 8), an S knocked out over a helix stem, the S as a twisting ribbon, ten genes forming the S, contour lines, a coin, an S with a strand wound round it, and an S as one strand of a vertical sine helix (read as a zigzag).
 
 ## Constraints inherited from the sister projects
 
