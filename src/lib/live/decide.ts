@@ -2,7 +2,7 @@
 // the replay, so both run exactly the same computation.
 
 import { evolve } from "../ga/evolve";
-import type { EvolveResult } from "../ga/evolve";
+import type { EvolveOptions, EvolveResult } from "../ga/evolve";
 import type { SerializedIndividual } from "../ga/individual";
 import { serialize } from "../ga/individual";
 import type { GaParams } from "../ga/params";
@@ -31,7 +31,11 @@ export interface PopulationFile {
   population: SerializedIndividual[];
 }
 
-export function runDecision(day: DayArchive, seedPopulation?: SerializedIndividual[]): {
+export function runDecision(
+  day: DayArchive,
+  seedPopulation?: SerializedIndividual[],
+  onGeneration?: EvolveOptions["onGeneration"],
+): {
   problem: Problem;
   result: EvolveResult;
   population: PopulationFile;
@@ -43,6 +47,7 @@ export function runDecision(day: DayArchive, seedPopulation?: SerializedIndividu
     label: day.date,
     seedPopulation,
     nextId: day.nextId,
+    onGeneration,
   });
   return {
     problem,
