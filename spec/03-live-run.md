@@ -21,11 +21,11 @@ Capital: R$ 100,000 of paper money. B3 trades 10:00–17:00 BRT while the US is 
 
 ## Accounting (`src/lib/live/`)
 
-- **Order**: target shares `⌊wᵢ · NAV · (1 − 0.5%) / closeᵢ⌋` from the decision day's close (the buffer absorbs gaps and costs). Integer shares, fractional market, so lots of 100 are not needed.
+- **Order** (Decided, 2026-10-26): the order committed before the open is the champion's **weights**. The fill sizes them at the open: `⌊wᵢ · NAV_open · (1 − 0.2%) / (openᵢ · (1 + slippage))⌋`. Sizing in shares at the decision's close was tried first and, in a dry run filling on the 2026-10-26 gap (Ibovespa about −16% at the open), left 12% of the portfolio in cash. No look-ahead: the weights are fixed before the open. Integer shares, fractional market, so lots of 100 are not needed.
 - **Fill**: sells first at `open · (1 − slippage)`, then buys at `open · (1 + slippage)`; fees on traded value. If cash falls short after a gap up, all buys are scaled down by the same factor. A stock with no open that day is not traded.
 - **Dividends**: credited on the ex-date to the shares held before that day's fill (Yahoo `events.dividends`, gross).
 - **Cash** earns the CDI of the day (last published value carried forward).
-- **Mark**: NAV = cash + Σ shares × close, plus the Ibovespa's open and close for the benchmark.
+- **Mark**: NAV = cash + Σ shares × close, plus the benchmark. The benchmark is **BOVA11** (the Ibovespa ETF) at the open and the close: Yahoo's `^BVSP` open is the index's first print and sits at the previous close (205,070 on 2026-10-26, while BOVA11 opened at 169.00 against a 201.69 close).
 
 ## The event log (Proposed)
 
@@ -46,4 +46,4 @@ GitHub Actions on a schedule (22:30 UTC, with retries at 01:30 and 10:00 UTC; al
 
 ## Benchmarks shown during the run
 
-Ibovespa (from the open of session 1), CDI, the formation portfolio bought and held, equal weights over the same 10, and the cone of 10,000 random 10-company portfolios bought at the open of session 1.
+BOVA11 from the open of session 1 (the Ibovespa as traded), CDI, the formation portfolio bought and held, equal weights over the same 10, and the cone of 10,000 random 10-company portfolios bought at the open of session 1.
