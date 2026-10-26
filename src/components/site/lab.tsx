@@ -108,7 +108,7 @@ export function Lab() {
       </div>
       <div key={tab} role="tabpanel" className="min-h-[23rem] animate-[swap-in_0.45s_var(--ease)] p-5 sm:p-6">
         {tab === "genome" && <Genome paused={paused} />}
-        {tab === "operators" && <Operators paused={paused} />}
+        {tab === "operators" && <Operators still={reduced} />}
         {tab === "session" && <Session paused={paused} />}
       </div>
     </figure>
@@ -193,10 +193,10 @@ function Genome({ paused }: { paused: boolean }) {
 type Mark = "a" | "b" | "shared" | "new";
 
 /** A tiny chromosome: ten cells, `marks[i]` colours cell i. */
-function Strip({ marks, label, highlight }: { marks: Mark[]; label: string; highlight?: boolean }) {
+function Strip({ marks, label, highlight, stagger }: { marks: Mark[]; label: string; highlight?: boolean; stagger?: boolean }) {
   return (
     <div className="flex items-center gap-3">
-      <span className={cn("w-16 shrink-0 font-mono text-[10.5px]", highlight ? "text-up" : "text-muted-foreground")}>{label}</span>
+      <span className={cn("w-16 shrink-0 font-mono text-[10.5px] transition-colors duration-500", highlight ? "text-up" : "text-muted-foreground")}>{label}</span>
       <div className="grid flex-1 grid-cols-10 gap-1">
         {marks.map((m, i) => (
           <span
@@ -208,6 +208,8 @@ function Strip({ marks, label, highlight }: { marks: Mark[]; label: string; high
               m === "shared" && "border-up bg-up/70",
               m === "new" && "scale-110 border-up bg-up",
             )}
+            // The child's genes settle one after the other, from the left.
+            style={stagger ? { transitionDelay: `${i * 35}ms` } : undefined}
           />
         ))}
       </div>
@@ -215,20 +217,47 @@ function Strip({ marks, label, highlight }: { marks: Mark[]; label: string; high
   );
 }
 
-/** Selection, crossover and mutation in turn, each lit while its step runs; click one to stay on it. */
-function Operators({ paused }: { paused: boolean }) {
+/** Milliseconds each operator stays lit. */
+const OPERATOR_MS = 2600;
+
+/**
+ * Selection, crossover and mutation in turn. A frame glides from one to the
+ * next while a line inside fills up to the change, and each operator draws
+ * its new case as it lights up. The pointer on one holds it.
+ */
+function Operators({ still }: { still: boolean }) {
   const t = useT();
   const o = t.operators;
-  const [step, setStep] = useState({ phase: 0, round: 0 });
-  useEvery(1900, paused, () => setStep((s) => (s.phase === 2 ? { phase: 0, round: s.round + 1 } : { ...s, phase: s.phase + 1 })));
+  // Steps since the start: the operator lit is `tick % 3`, and each one draws a new case when its turn comes.
+  const [tick, setTick] = useState(0);
+  const [held, setHeld] = useState<number | null>(null);
+  const phase = held ?? tick % 3;
+  const turn = (i: number) => (tick < i ? 0 : Math.floor((tick - i) / 3) + 1);
   const { tournament, hyperFactor } = DEFAULT_PARAMS;
 
-  const rng = createRng(`operators-${step.round % 32}`);
-  const fitness = Array.from({ length: tournament }, () => rng.range(0.2, 1));
+  const selection = createRng(`operators-selection-${turn(0) % 32}`);
+  const fitness = Array.from({ length: tournament }, () => selection.range(0.2, 1));
   const winner = fitness.indexOf(Math.max(...fitness));
-  const shared = Array.from({ length: 10 }, () => rng.next() < 0.4);
-  const fromA = Array.from({ length: 10 }, () => rng.next() < 0.5);
-  const mutated = rng.int(10);
+  const crossing = createRng(`operators-crossover-${turn(1) % 32}`);
+  const shared = Array.from({ length: 10 }, () => crossing.next() < 0.4);
+  const fromA = Array.from({ length: 10 }, () => crossing.next() < 0.5);
+  const mutated = createRng(`operators-mutation-${turn(2) % 32}`).int(10);
+
+  // The frame follows the lit block: its top and height, measured.
+  const listRef = useRef<HTMLDivElement>(null);
+  const [frame, setFrame] = useState<{ top: number; height: number } | null>(null);
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+    const measure = () => {
+      const block = list.children[phase + 1] as HTMLElement | undefined;
+      if (block) setFrame({ top: block.offsetTop, height: block.offsetHeight });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(list);
+    return () => observer.disconnect();
+  }, [phase]);
 
   const blocks: { icon: LucideIcon; title: string; body: string; figure: React.ReactNode }[] = [
     {
@@ -237,9 +266,9 @@ function Operators({ paused }: { paused: boolean }) {
       body: o.selection.body(tournament),
       figure: fitness.map((f, i) => (
         <div key={i} className="flex items-center gap-3">
-          <div className={cn("grid flex-1 grid-cols-10 gap-1 border p-0.5 transition-colors duration-500", step.phase === 0 && i === winner ? "border-up" : "border-transparent")}>
+          <div className={cn("grid flex-1 grid-cols-10 gap-1 border p-0.5 transition-colors duration-500", phase === 0 && i === winner ? "border-up" : "border-transparent")}>
             {Array.from({ length: 10 }, (_, j) => (
-              <span key={j} className={cn("h-2 transition-colors duration-500", step.phase === 0 && i === winner ? "bg-up/70" : "bg-foreground/25")} />
+              <span key={j} className={cn("h-2 transition-colors duration-500", phase === 0 && i === winner ? "bg-up/70" : "bg-foreground/25")} style={{ transitionDelay: `${j * 25}ms` }} />
             ))}
           </div>
           <div className="h-1.5 w-14 bg-border">
@@ -256,7 +285,7 @@ function Operators({ paused }: { paused: boolean }) {
         <>
           <Strip label={o.labels.parentA} marks={shared.map((s) => (s ? "shared" : "a"))} />
           <Strip label={o.labels.parentB} marks={shared.map((s) => (s ? "shared" : "b"))} />
-          <Strip label={o.labels.child} highlight marks={shared.map((s, i) => (s ? "shared" : fromA[i] ? "a" : "b"))} />
+          <Strip label={o.labels.child} highlight={phase === 1} stagger marks={shared.map((s, i) => (s ? "shared" : fromA[i] ? "a" : "b"))} />
         </>
       ),
     },
@@ -264,45 +293,74 @@ function Operators({ paused }: { paused: boolean }) {
       icon: Shuffle,
       title: o.mutation.title,
       body: o.mutation.body(hyperFactor),
-      figure: <Strip label={o.labels.child} marks={Array.from({ length: 10 }, (_, i) => (step.phase === 2 && i === mutated ? "new" : "a"))} />,
+      figure: <Strip label={o.labels.child} highlight={phase === 2} marks={Array.from({ length: 10 }, (_, i) => (phase === 2 && i === mutated ? "new" : "a"))} />,
     },
   ];
-  const active = blocks[step.phase];
 
   return (
     <div className="flex h-full flex-col gap-2">
-      {blocks.map((b, i) => {
-        const Icon = b.icon;
-        const on = i === step.phase;
-        return (
-          <button
-            key={b.title}
-            type="button"
-            onClick={() => setStep((s) => ({ ...s, phase: i }))}
-            aria-pressed={on}
-            className={cn(
-              "group/op flex items-center gap-4 border px-3 py-2.5 text-left transition-all duration-500 ease-[var(--ease)]",
-              on
-                ? "border-[color-mix(in_srgb,var(--up)_55%,var(--border))] opacity-100"
-                : "border-border opacity-45 hover:translate-x-1 hover:border-[color-mix(in_srgb,var(--up)_35%,var(--border))] hover:bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] hover:opacity-90",
-            )}
-          >
+      <div ref={listRef} className="relative flex flex-col gap-2" onPointerLeave={() => setHeld(null)}>
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 z-10 overflow-hidden border border-[color-mix(in_srgb,var(--up)_60%,var(--border))] transition-[top,height] duration-500 ease-[var(--ease)]"
+          style={frame ? { top: frame.top, height: frame.height } : { opacity: 0 }}
+        >
+          {/* Fills up to the next operator; holds while the pointer is on one. */}
+          {!still && (
             <span
+              key={tick}
+              className="absolute bottom-0 left-0 h-0.5 w-full origin-left animate-[grow_var(--step)_linear_both] bg-up"
+              style={{ "--step": `${OPERATOR_MS}ms`, animationPlayState: held === null ? "running" : "paused" } as React.CSSProperties}
+              onAnimationEnd={() => setTick((n) => n + 1)}
+            />
+          )}
+        </span>
+        {blocks.map((b, i) => {
+          const Icon = b.icon;
+          const on = i === phase;
+          return (
+            <button
+              key={b.title}
+              type="button"
+              aria-pressed={on}
+              onPointerEnter={() => setHeld(i)}
+              onFocus={() => setHeld(i)}
+              onBlur={() => setHeld(null)}
+              onClick={() => setHeld(i)}
               className={cn(
-                "grid size-8 shrink-0 place-items-center border transition-colors duration-300",
-                on ? "border-up text-up" : "border-border text-muted-foreground group-hover/op:border-up group-hover/op:text-up",
+                "group/op flex items-center gap-4 border border-border px-3 py-2.5 text-left transition-[opacity,background-color,transform] duration-500 ease-[var(--ease)]",
+                on ? "bg-[color-mix(in_srgb,var(--up)_4%,transparent)] opacity-100" : "opacity-45 hover:opacity-90",
               )}
             >
-              <Icon className="size-4" aria-hidden />
-            </span>
-            <span className="w-28 shrink-0 text-sm font-medium">{b.title}</span>
-            <span className="flex min-w-0 flex-1 flex-col gap-1">{b.figure}</span>
-          </button>
-        );
-      })}
-      <p key={step.phase} className="mt-2 animate-[rise_0.4s_var(--ease)] text-sm leading-relaxed text-muted-foreground">
-        {active.body}
-      </p>
+              <span
+                className={cn(
+                  "grid size-8 shrink-0 place-items-center border transition-colors duration-500",
+                  on ? "border-up text-up" : "border-border text-muted-foreground group-hover/op:border-up group-hover/op:text-up",
+                )}
+              >
+                <Icon className={cn("size-4 transition-transform duration-500 ease-[var(--ease-spring)]", on && "scale-110")} aria-hidden />
+              </span>
+              <span className="w-28 shrink-0 text-sm font-medium">{b.title}</span>
+              <span className="flex min-w-0 flex-1 flex-col gap-1">{b.figure}</span>
+            </button>
+          );
+        })}
+      </div>
+      {/* The three explanations share one cell, so the figure never changes height; they cross-fade. */}
+      <div className="mt-2 grid">
+        {blocks.map((b, i) => (
+          <p
+            key={b.title}
+            aria-hidden={i !== phase}
+            className={cn(
+              "text-sm leading-relaxed text-muted-foreground transition-[opacity,translate] duration-500 ease-[var(--ease)] [grid-area:1/1]",
+              i === phase ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0",
+            )}
+          >
+            {b.body}
+          </p>
+        ))}
+      </div>
     </div>
   );
 }

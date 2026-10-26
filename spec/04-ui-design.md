@@ -11,7 +11,7 @@ A vgpu background running something animated in the spirit of Conway's Game of L
 Lucas chose idea 1 of three (landscape, garden of 10-petal portfolios, lineage tapestry) and asked for red and green.
 
 - A topographic map of a fitness landscape: thin contour lines (`fract` of height over `fwidth`), every fifth an index contour; **green on the peaks, red in the pits**, grey on the plain; a faint wash of the same colours; a lamp of brighter lines around the pointer (`src/components/terrain/terrain.wgsl`).
-- A **real GA runs on it** (`landscape.ts`): 96 points, tournament of 2, elitism, BLX-α crossover, Gaussian mutation with hypermutation when the population collapses; every 18 s a "session" moves the bumps (6 s morph) and 15% random immigrants arrive. Clicking the map drops 10 immigrants where it lands. The champion wears a green ring (`dots.wgsl`, instanced quads).
+- A **real GA runs on it** (`landscape.ts`): 96 points, tournament of 2, elitism, BLX-α crossover, Gaussian mutation with hypermutation when the population collapses; every 8 s a "session" moves the bumps (4.5 s morph; 18 s and 6 s until 2026-10-26, shortened at Lucas's request so the landscape visibly changes) and 15% random immigrants arrive. Clicking the map drops 10 immigrants where it lands. The champion wears a green ring (`dots.wgsl`, instanced quads).
 - It is a **demo landscape**, and the caption says so. Peaks keep to the right half, where no text covers the climb. Replacing it with the real portfolio landscape (a fixed PCA projection of the evaluated weight vectors, height from their fitness) is next once the formation run exists.
 - Without WebGPU or with reduced motion: one still frame of the same map on a 2D canvas.
 

@@ -80,7 +80,7 @@ export class Landscape {
   private sinceSession = 0;
 
   constructor(options: LandscapeOptions = {}) {
-    this.opts = { seed: "genwallet-terrain", generation: 0.8, session: 18, morph: 6, ...options };
+    this.opts = { seed: "genwallet-terrain", generation: 0.8, session: 8, morph: 4.5, ...options };
     this.rng = createRng(this.opts.seed);
     this.from = randomBumps(this.rng);
     this.to = this.from;

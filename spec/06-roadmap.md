@@ -17,6 +17,7 @@
 - [x] Landing cut to three screens with three grounds, the GA figure in tabs (`04-ui-design.md`); one navbar on every page, the home's green name sliding off as the tab underline.
 - [x] IBM Plex for type, the hero's name in red and green, the helix motif in the footer and the checks; the hero's caption removed.
 - [x] `/montar` opened up: 1 to 60 sessions, a third company mode where the visitor picks the 10 in a picker over the stage (strict mode with a given locked set, `SimConfig.companies`); groups that close, a hidden scroll bar, the hint floating beside the parameter. The default run is unchanged (R$ 102,164.01).
+- [x] The terrain moves every 8 s instead of 18 s; the operators figure glides from one operator to the next (a sliding frame, a progress line, cross-faded text), and the pointer on one holds it.
 - [ ] The Vercel project.
 
 ## Plan
