@@ -2,6 +2,8 @@
 // through one Rng built from a string seed, so a run is reproducible to the
 // last digit in Node and in the browser. Never use Math.random in src/lib/ga.
 
+import { dlog } from "./math";
+
 export interface Rng {
   /** Uniform in [0, 1). */
   next(): number;
@@ -9,7 +11,7 @@ export interface Rng {
   int(n: number): number;
   /** Uniform in [lo, hi). */
   range(lo: number, hi: number): number;
-  /** Standard normal (Box-Muller). */
+  /** Standard normal (Marsaglia's polar method). */
   normal(): number;
   pick<T>(items: readonly T[]): T;
 }
@@ -69,12 +71,18 @@ export function createRng(seed: string): Rng {
         spare = null;
         return s;
       }
+      // Marsaglia's polar method: no sin or cos, and the log is dlog (see math.ts).
       let u = 0;
-      while (u === 0) u = next();
-      const v = next();
-      const r = Math.sqrt(-2 * Math.log(u));
-      spare = r * Math.sin(2 * Math.PI * v);
-      return r * Math.cos(2 * Math.PI * v);
+      let v = 0;
+      let s = 0;
+      do {
+        u = 2 * next() - 1;
+        v = 2 * next() - 1;
+        s = u * u + v * v;
+      } while (s >= 1 || s === 0);
+      const f = Math.sqrt((-2 * dlog(s)) / s);
+      spare = v * f;
+      return u * f;
     },
     pick: (items) => items[Math.floor(next() * items.length)],
   };
