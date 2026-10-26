@@ -4,7 +4,8 @@
 
 - [x] Research and plan (`01-research.md`); Lucas chose the live run from 2026-10-27 and free swaps by default.
 - [x] `spec/`, public repository `lkzppm/genwallet`.
-- [ ] Engine (`src/lib/ga/`), data (`src/lib/market/`), accounting (`src/lib/live/`), `pnpm live`.
+- [x] Engine (`src/lib/ga/`), data (`src/lib/market/`), accounting (`src/lib/live/`), `pnpm live`, `pnpm live:verify`, `pnpm evolve` (branch `feat/engine`). Dry run on 2026-10-26 with formation on 2026-10-23: two evenings, both replays identical; 400 generations in about 350 ms, the 76 charts in 5–10 s.
+- [x] **2026-10-26 is a crash day**: Ibovespa about −16% (ITUB4 −15%, MGLU3 −56%, VALE3 +4%, confirmed on Yahoo and brapi). The formation runs on it anyway, and that day stays in every window of the run.
 - [ ] **Formation run tonight**, after 17:30 BRT and before 10:00 BRT on 2026-10-27, committed and pushed.
 - [ ] Nightly GitHub Action on the `live` branch, before the evening of 2026-10-27.
 - [ ] UI direction debated with Lucas (`04-ui-design.md`), then the site.
