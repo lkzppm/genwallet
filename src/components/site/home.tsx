@@ -136,11 +136,9 @@ export function Home() {
       <section className="relative flex min-h-[calc(100svh-4rem)] items-center overflow-hidden">
         <GenePool />
         <div className="relative mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
-          <Reveal className="relative isolate before:pointer-events-none before:absolute before:-inset-x-20 before:-inset-y-12 before:-z-10 before:bg-[radial-gradient(closest-side,var(--background)_55%,transparent)] mx-auto max-w-2xl text-center">
-            <h2 className="section-title">
-              {t.honesty.title}
-              <span className="text-up">.</span>
-            </h2>
+          <Reveal className="relative isolate before:pointer-events-none before:absolute before:-inset-x-24 before:-inset-y-14 before:-z-10 before:bg-[radial-gradient(closest-side,var(--background)_55%,transparent)] mx-auto max-w-3xl text-center">
+            <p className="eyebrow">{t.honesty.title}</p>
+            <h2 className="mt-5 text-[clamp(34px,5.2vw,62px)] leading-[1.05] font-medium tracking-tight text-balance">{t.honesty.headline}</h2>
             <p className="section-lead mx-auto">{t.honesty.cta.body}</p>
           </Reveal>
           <ol className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

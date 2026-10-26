@@ -79,10 +79,20 @@ export function Lab() {
               role="tab"
               aria-selected={active}
               onClick={() => setTab(key)}
-              className="group relative flex h-11 items-center justify-center gap-2 text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground aria-selected:text-foreground"
+              className="group relative flex h-11 items-center justify-center gap-2 text-sm text-muted-foreground transition-colors duration-200 hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] hover:text-foreground aria-selected:text-foreground"
             >
-              <Icon className={cn("size-4 transition-all duration-300 ease-[var(--ease-spring)] group-hover:scale-110", active && "text-up")} aria-hidden />
+              <Icon
+                className={cn("size-4 transition-all duration-300 ease-[var(--ease-spring)] group-hover:scale-115 group-hover:text-up", active && "text-up")}
+                aria-hidden
+              />
               {t.what.lab.tabs[key]}
+              {/* A tab under the pointer previews the line it would fill. */}
+              {!active && (
+                <span
+                  aria-hidden
+                  className="absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-up/50 transition-transform duration-300 ease-[var(--ease)] group-hover:scale-x-100"
+                />
+              )}
               {active && (
                 <span
                   key={tab}
@@ -162,11 +172,11 @@ function Genome({ paused }: { paused: boolean }) {
               <span className="font-mono text-[10px] text-muted-foreground">{String(i + 1).padStart(2, "0")}</span>
               <span className="flex flex-1 items-end py-2">
                 <span
-                  className={cn("w-full transition-all duration-700 ease-[var(--ease)]", hot ? "bg-up" : "bg-foreground/40 group-hover:bg-foreground/60")}
+                  className={cn("w-full transition-all duration-700 ease-[var(--ease)]", hot ? "bg-up" : "bg-foreground/40 group-hover:bg-up/60")}
                   style={{ height: `${(gene.weight / wMax) * 100}%` }}
                 />
               </span>
-              <span key={gene.ticker} className={cn("animate-[rise_0.5s_var(--ease)] font-mono text-[10.5px] tracking-tight", hot && "text-up")}>
+              <span key={gene.ticker} className={cn("animate-[rise_0.5s_var(--ease)] font-mono text-[10.5px] tracking-tight transition-colors duration-200 group-hover:text-up", hot && "text-up")}>
                 {gene.ticker}
               </span>
             </button>
@@ -271,11 +281,18 @@ function Operators({ paused }: { paused: boolean }) {
             onClick={() => setStep((s) => ({ ...s, phase: i }))}
             aria-pressed={on}
             className={cn(
-              "flex items-center gap-4 border px-3 py-2.5 text-left transition-all duration-500 ease-[var(--ease)]",
-              on ? "border-[color-mix(in_srgb,var(--up)_55%,var(--border))] opacity-100" : "border-border opacity-45 hover:opacity-80",
+              "group/op flex items-center gap-4 border px-3 py-2.5 text-left transition-all duration-500 ease-[var(--ease)]",
+              on
+                ? "border-[color-mix(in_srgb,var(--up)_55%,var(--border))] opacity-100"
+                : "border-border opacity-45 hover:translate-x-1 hover:border-[color-mix(in_srgb,var(--up)_35%,var(--border))] hover:bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] hover:opacity-90",
             )}
           >
-            <span className={cn("grid size-8 shrink-0 place-items-center border transition-colors duration-500", on ? "border-up text-up" : "border-border text-muted-foreground")}>
+            <span
+              className={cn(
+                "grid size-8 shrink-0 place-items-center border transition-colors duration-300",
+                on ? "border-up text-up" : "border-border text-muted-foreground group-hover/op:border-up group-hover/op:text-up",
+              )}
+            >
               <Icon className="size-4" aria-hidden />
             </span>
             <span className="w-28 shrink-0 text-sm font-medium">{b.title}</span>
@@ -323,12 +340,14 @@ function Session({ paused }: { paused: boolean }) {
                 <span
                   className={cn(
                     "relative grid size-10 place-items-center border bg-background transition-all duration-500 ease-[var(--ease-spring)] group-hover:scale-110",
-                    on ? "scale-110 border-up text-up" : i < at ? "border-foreground/50 text-foreground" : "border-border text-muted-foreground",
+                    on
+                      ? "scale-110 border-up text-up"
+                      : cn("group-hover:border-up group-hover:text-up", i < at ? "border-foreground/50 text-foreground" : "border-border text-muted-foreground"),
                   )}
                 >
                   <StepIcon className="size-4" aria-hidden />
                 </span>
-                <span className={cn("text-xs transition-colors duration-300", on ? "text-foreground" : "text-muted-foreground")}>{s.title}</span>
+                <span className={cn("text-xs transition-colors duration-300", on ? "text-foreground" : "text-muted-foreground group-hover:text-foreground")}>{s.title}</span>
               </button>
             </li>
           );

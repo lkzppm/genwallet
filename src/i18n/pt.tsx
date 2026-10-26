@@ -92,6 +92,11 @@ export const pt: Dictionary = {
 
   honesty: {
     title: "Feito para ser conferido",
+    headline: (
+      <>
+        Cada ordem entra no registro <span className="text-up">antes da abertura</span>
+      </>
+    ),
     items: [
       { title: "Sem olhar para o futuro", body: "Decide com o fechamento e opera na abertura seguinte. Uma decisão atrasada vira um pregão perdido no registro." },
       { title: "Reprodutível", body: "Cada noite arquiva os dados e a semente. Qualquer pessoa pode rodar de novo e chegar à mesma carteira." },

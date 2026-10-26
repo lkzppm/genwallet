@@ -93,6 +93,11 @@ export const en = {
 
   honesty: {
     title: "Built to be checked",
+    headline: (
+      <>
+        Every order is on the record <span className="text-up">before the open</span>
+      </>
+    ),
     items: [
       { title: "No look-ahead", body: "It decides on the close and trades at the next open. A late decision becomes a missed session in the record." },
       { title: "Reproducible", body: "Every evening archives its data and its seed. Anyone can run it again and reach the same portfolio." },
