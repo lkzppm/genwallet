@@ -1,0 +1,47 @@
+# The live run's nightly step (spec/03). The code comes from main; the record
+# lives on the orphan branch `live`, which holds nothing but live/. Every slot
+# is idempotent: a run with nothing to do commits nothing.
+name: Live run
+
+on:
+  schedule:
+    - cron: "30 22 * * 1-5" # 19:30 BRT, after the close
+    - cron: "30 1 * * 2-6" # 22:30 BRT, retry
+    - cron: "0 10 * * 2-6" # 07:00 BRT, last slot before the open
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: live
+  cancel-in-progress: false
+
+jobs:
+  step:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: live
+          path: record
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Fill, mark and decide
+        run: pnpm live --dir record/live
+      - name: Commit the record
+        working-directory: record
+        run: |
+          git add live
+          if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          last=$(node -e "const l=require('./live/log.json');const e=l[l.length-1];console.log(e.type+' '+e.date+(e.session?' (session '+e.session+')':''))")
+          git commit -q -m "chore(live): $last"
+          git push -q
