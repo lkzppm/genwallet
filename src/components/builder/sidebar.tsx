@@ -418,7 +418,7 @@ export function Sidebar({
         </p>
       ))}
 
-      <div className="flex shrink-0 gap-2 border-t border-border p-3">
+      <div className="flex shrink-0 border-t border-border p-3">
         {bar.running ? (
           <div className="relative h-10 flex-1 overflow-hidden border border-up" role="progressbar" aria-valuenow={Math.round(bar.fraction * 100)} aria-valuemin={0} aria-valuemax={100}>
             <div className="absolute inset-y-0 left-0 bg-[color-mix(in_srgb,var(--up)_22%,transparent)] transition-[width] duration-150 ease-out" style={{ width: `${bar.fraction * 100}%` }} />
@@ -428,23 +428,31 @@ export function Sidebar({
             </span>
           </div>
         ) : (
-          <button type="button" className="btn btn-primary h-10 flex-1" disabled={!bar.canRun} onClick={bar.onRun}>
+          <button type="button" className="btn btn-primary h-10 min-w-0 flex-1" disabled={!bar.canRun} onClick={bar.onRun}>
             <Play className="size-3.5" aria-hidden />
             {bar.again ? b.again : b.run(bar.sessions)}
           </button>
         )}
-        {bar.running ? (
-          <IconButton label={b.cancel} onClick={bar.onCancel} className="size-10 hover:border-down hover:text-down">
-            <Square className="size-3.5" aria-hidden />
-          </IconButton>
-        ) : (
-          // Only once something differs from the defaults.
-          modified && (
-            <IconButton label={b.reset} onClick={bar.onReset} className="group/reset size-10 animate-[pop_0.35s_var(--ease-spring)]">
-              <RotateCcw className="size-3.5 transition-transform duration-500 ease-[var(--ease)] group-hover/reset:-rotate-180" aria-hidden />
-            </IconButton>
-          )
-        )}
+        {/* The second slot opens beside the run button while there is something to undo or to cancel, and closes again: the run button widens and narrows with it. */}
+        <div
+          inert={!bar.running && !modified}
+          className={cn(
+            "flex shrink-0 justify-end overflow-hidden transition-[width,opacity] duration-400 ease-[var(--ease)]",
+            bar.running || modified ? "w-12 opacity-100" : "w-0 opacity-0",
+          )}
+        >
+          <span className={cn("transition-transform duration-400 ease-[var(--ease-spring)]", bar.running || modified ? "scale-100" : "scale-75")}>
+            {bar.running ? (
+              <IconButton label={b.cancel} onClick={bar.onCancel} className="size-10 hover:border-down hover:text-down">
+                <Square className="size-3.5" aria-hidden />
+              </IconButton>
+            ) : (
+              <IconButton label={b.reset} onClick={bar.onReset} className="group/reset size-10">
+                <RotateCcw className="size-3.5 transition-transform duration-500 ease-[var(--ease)] group-hover/reset:-rotate-180" aria-hidden />
+              </IconButton>
+            )}
+          </span>
+        </div>
       </div>
     </div>
   );
