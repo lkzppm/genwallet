@@ -18,6 +18,10 @@ export function day(date: string, lang: string): string {
   return new Date(`${date}T12:00:00Z`).toLocaleDateString(lang, { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" });
 }
 
+export function monthYear(date: string, lang: string): string {
+  return new Date(`${date}T12:00:00Z`).toLocaleDateString(lang, { month: "short", year: "numeric", timeZone: "UTC" });
+}
+
 export function shortDay(date: string, lang: string): string {
   return new Date(`${date}T12:00:00Z`).toLocaleDateString(lang, { day: "2-digit", month: "2-digit", timeZone: "UTC" });
 }

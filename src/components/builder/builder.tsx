@@ -26,7 +26,7 @@ import type { NavPoint, SessionSummary, SimResult } from "@/lib/sim/simulate";
 import { cn } from "@/lib/utils";
 import { NavChart, ReturnBars, SERIES, Swatch } from "./charts";
 import { Composition } from "./composition";
-import { day, money, percent, shortDay, signClass } from "./format";
+import { day, money, monthYear, percent, shortDay, signClass } from "./format";
 import { defaultForm, read, toConfig, type FormState } from "./form";
 import { Picker } from "./picker";
 import { SessionView } from "./session-view";
@@ -61,6 +61,7 @@ export function Builder() {
   // The session picked on the stage (1-based), and the side the move came from.
   const [pick, setPick] = useKept<{ session: number | null; dir: number }>("builder.pick", { session: null, dir: 0 });
   const [picking, setPicking] = useKept("builder.picking", false);
+  const [sidebar, setSidebar] = useSidebarWidth();
 
   // The window the form asks for: how many sessions, on how long a history.
   const lookback = formState ? Math.round(read(formState, "lookback")) : DEFAULT_PARAMS.lookback;
@@ -163,10 +164,13 @@ export function Builder() {
   }, [setPicking, setPane]);
 
   const dataLine =
-    sim.dates.length && sim.market ? b.data(sim.market.universe.length, day(sim.dates[0], lang), day(sim.dates[sim.dates.length - 1], lang)) : "";
+    sim.dates.length && sim.market ? b.data(sim.market.universe.length, monthYear(sim.dates[0], lang), monthYear(sim.dates[sim.dates.length - 1], lang)) : "";
 
   return (
-    <main className="page grid h-[calc(100dvh-4rem-1px)] grid-rows-[auto_minmax(0,1fr)] overflow-hidden lg:grid-cols-[22rem_minmax(0,1fr)] lg:grid-rows-1">
+    <main
+      className="page grid h-[calc(100dvh-4rem-1px)] grid-rows-[auto_minmax(0,1fr)] overflow-hidden lg:grid-cols-[var(--sidebar)_minmax(0,1fr)] lg:grid-rows-1"
+      style={{ "--sidebar": `${sidebar}px` } as CSSProperties}
+    >
       {/* On a phone the two halves take turns on the screen. */}
       <div className="border-b border-border p-2 lg:hidden">
         <Segmented<Pane>
@@ -206,6 +210,7 @@ export function Builder() {
             onReset: () => latest && setForm(defaultForm(latest)),
           }}
         />
+        <Resizer width={sidebar} onChange={setSidebar} label={b.sidebar.resize} />
       </aside>
 
       <section className={cn("@container relative flex min-h-0 min-w-0 flex-col", pane !== "result" && "max-lg:hidden")}>
@@ -530,7 +535,10 @@ function Timeline({
   );
 }
 
-/** Before the first run: the landscape behind, and a card that says what will happen. */
+/**
+ * Before the first run: the landscape behind, and a card that says what will
+ * happen in three steps and shows the sessions as dots on a line.
+ */
 function EmptyStage({
   t,
   lang,
@@ -553,7 +561,13 @@ function EmptyStage({
   onRun: () => void;
 }) {
   const b = t.builder;
+  const st = b.stage.steps;
   const n = sessionWindow.length;
+  const steps = [
+    { icon: Dna, verb: st.form.verb, value: st.form.value(DEFAULT_PARAMS.k) },
+    { icon: CalendarDays, verb: st.operate.verb, value: st.operate.value(n || SESSIONS) },
+    { icon: ChartLine, verb: st.compare.verb, value: st.compare.value },
+  ];
   return (
     <div className="relative h-full overflow-hidden">
       <TerrainField className="pointer-events-none absolute inset-0 overflow-hidden opacity-80" />
@@ -562,21 +576,33 @@ function EmptyStage({
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,color-mix(in_srgb,var(--background)_82%,transparent)_0%,color-mix(in_srgb,var(--background)_45%,transparent)_55%,transparent_100%)]"
       />
       <div className="relative grid h-full place-items-center overflow-y-auto p-4 sm:p-8">
-        <div className="w-full max-w-xl animate-[rise_0.6s_var(--ease)] border border-border bg-[color-mix(in_srgb,var(--background)_88%,transparent)] p-6 shadow-[0_30px_80px_-40px_rgba(0,0,0,0.6)] backdrop-blur-md sm:p-8">
-          <div className="flex items-center gap-3">
-            <span className="grid size-9 place-items-center border border-up text-up">
-              <Dna className="size-4" aria-hidden />
-            </span>
-            <p className={label}>{b.eyebrow}</p>
-          </div>
-          <h1 className="mt-5 text-3xl font-medium tracking-tight sm:text-4xl">{b.title(n || SESSIONS)}</h1>
-          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{b.lead}</p>
-          {dataLine && (
-            <p className="mt-4 flex animate-[fade_0.4s_var(--ease)] gap-2 text-xs leading-snug text-muted-foreground">
-              <Database className="mt-px size-3.5 shrink-0 text-up" aria-hidden />
-              {dataLine}
-            </p>
-          )}
+        <div className="w-full max-w-lg animate-[rise_0.6s_var(--ease)] border border-border bg-[color-mix(in_srgb,var(--background)_88%,transparent)] p-6 shadow-[0_30px_80px_-40px_rgba(0,0,0,0.6)] backdrop-blur-md sm:p-8">
+          <p className={label}>{b.eyebrow}</p>
+          <h1 className="mt-3 text-3xl font-medium tracking-tight">{b.title(n || SESSIONS)}</h1>
+
+          {/* What a run does, in three steps. */}
+          <ol className="mt-6 grid grid-cols-3 gap-px border border-border bg-border">
+            {steps.map((step, i) => {
+              const Icon = step.icon;
+              return (
+                <li
+                  key={step.verb}
+                  className="group/step flex animate-[fade_0.5s_var(--ease)_both] flex-col gap-2.5 bg-background px-3 py-3.5 transition-colors duration-200 hover:bg-[color-mix(in_srgb,var(--foreground)_3%,var(--background))]"
+                  style={{ animationDelay: `${120 + i * 90}ms` }}
+                >
+                  <span className="grid size-8 place-items-center border border-border text-muted-foreground transition-all duration-300 ease-[var(--ease-spring)] group-hover/step:scale-110 group-hover/step:border-up group-hover/step:text-up">
+                    <Icon className="size-4" aria-hidden />
+                  </span>
+                  <span>
+                    <span className="block text-[11px] text-muted-foreground">{step.verb}</span>
+                    <span key={step.value} className="block animate-[fade_0.35s_var(--ease)] font-mono text-[13px] sm:text-sm">
+                      {step.value}
+                    </span>
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
 
           {error ? (
             <p className="mt-6 flex items-center gap-2 text-sm text-down">
@@ -590,62 +616,135 @@ function EmptyStage({
             </p>
           ) : (
             <>
-              <p className={cn(label, "mt-7")}>{b.stage.window(n)}</p>
-              <div key={`${formation}-${n}`} className="mt-3 flex flex-col gap-1.5 sm:flex-row">
-                <span className="flex shrink-0 animate-[pop_0.4s_var(--ease-spring)_both] items-center gap-1.5 self-start border border-up/60 px-2 py-1.5 font-mono text-[10px] text-up">
-                  <span>{b.results.formation}</span>
-                  <span className="text-foreground">{shortDay(formation, lang)}</span>
-                </span>
-                {n <= 20 ? (
-                  // Up to twenty, a chip per session, ten to a row.
-                  <ol
-                    className="grid flex-1 grid-cols-[repeat(var(--narrow),minmax(0,1fr))] gap-1.5 sm:grid-cols-[repeat(var(--wide),minmax(0,1fr))]"
-                    style={{ "--narrow": Math.min(n, 5), "--wide": Math.min(n, 10) } as CSSProperties}
-                  >
-                    {sessionWindow.map((d, i) => (
-                      <li
-                        key={d}
-                        className="flex animate-[pop_0.4s_var(--ease-spring)_both] flex-col items-center border border-border py-1 font-mono text-[10px] leading-tight"
-                        style={{ animationDelay: `${60 + i * 25}ms` }}
-                      >
-                        <span className="text-muted-foreground">{i + 1}</span>
-                        <span>{shortDay(d, lang)}</span>
-                      </li>
-                    ))}
-                  </ol>
-                ) : (
-                  // More, a strip of ticks from the first session to the last.
-                  <div className="flex-1">
-                    <ol className="flex h-7 gap-px">
-                      {sessionWindow.map((d, i) => (
-                        <li
-                          key={d}
-                          title={`${i + 1} · ${day(d, lang)}`}
-                          className="flex-1 origin-bottom animate-[pop_0.4s_var(--ease-spring)_both] border border-border bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)]"
-                          style={{ animationDelay: `${60 + i * 8}ms` }}
-                        />
-                      ))}
-                    </ol>
-                    <p className="mt-1 flex justify-between font-mono text-[10px] text-muted-foreground">
-                      <span>1 · {shortDay(sessionWindow[0], lang)}</span>
-                      <span>
-                        {n} · {shortDay(sessionWindow[n - 1], lang)}
-                      </span>
-                    </p>
-                  </div>
-                )}
+              {/* The formation and its sessions as dots on a line. */}
+              <div key={`${formation}-${n}`} className="mt-6">
+                <div className="flex justify-between font-mono text-[10.5px] text-muted-foreground">
+                  <span>
+                    <span className="text-up">{b.results.formation}</span> {shortDay(formation, lang)}
+                  </span>
+                  {n > 0 && <span>{shortDay(sessionWindow[n - 1], lang)}</span>}
+                </div>
+                <ol className="relative mt-2 flex h-3 items-center justify-between">
+                  <span aria-hidden className="absolute inset-x-0 top-1/2 h-px origin-left animate-[grow_0.8s_var(--ease)_both] bg-border" />
+                  <li title={`${b.results.formation} · ${day(formation, lang)}`} className="relative size-3 animate-[pop_0.4s_var(--ease-spring)_both] border border-up bg-up" />
+                  {sessionWindow.map((d, i) => (
+                    <li
+                      key={d}
+                      title={`${i + 1} · ${day(d, lang)}`}
+                      className="relative size-2 animate-[pop_0.4s_var(--ease-spring)_both] border border-foreground/50 bg-background transition-transform duration-200 hover:scale-150 hover:border-up"
+                      style={{ animationDelay: `${80 + (i * 500) / Math.max(1, n)}ms` }}
+                    />
+                  ))}
+                </ol>
               </div>
-              <div className="mt-7 flex flex-wrap items-center gap-4">
-                <button type="button" className="btn btn-primary" disabled={!canRun} onClick={onRun}>
-                  <Play className="size-3.5" aria-hidden />
-                  {b.run(n)}
-                </button>
-                <span className="text-xs text-muted-foreground">{b.stage.emptyHint}</span>
-              </div>
+              <button type="button" className="btn btn-primary mt-7 w-full" disabled={!canRun} onClick={onRun}>
+                <Play className="size-3.5" aria-hidden />
+                {b.run(n || SESSIONS)}
+              </button>
             </>
+          )}
+
+          {dataLine && (
+            <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-[11px] text-muted-foreground">
+              <Database className="size-3 shrink-0" aria-hidden />
+              {dataLine}
+            </p>
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+/** The sidebar's width in pixels: the default, its bounds, and where a viewer last left it. */
+const SIDEBAR = { initial: 352, min: 288, max: 576, key: "genwallet.sidebar" };
+
+const clampWidth = (w: number) => Math.round(Math.min(SIDEBAR.max, Math.max(SIDEBAR.min, w)));
+
+/** The sidebar's width, remembered in this browser (a convenience: without storage it starts at the default). */
+function useSidebarWidth(): [number, (w: number) => void] {
+  const [width, setWidth] = useKept("builder.sidebar", SIDEBAR.initial);
+  useEffect(() => {
+    try {
+      const saved = Number(localStorage.getItem(SIDEBAR.key));
+      if (saved) setWidth(clampWidth(saved));
+    } catch {}
+  }, [setWidth]);
+  const set = useCallback(
+    (w: number) => {
+      const next = clampWidth(w);
+      setWidth(next);
+      try {
+        localStorage.setItem(SIDEBAR.key, String(next));
+      } catch {}
+    },
+    [setWidth],
+  );
+  return [width, set];
+}
+
+/**
+ * The handle on the sidebar's right edge: drag it to resize, arrows step it,
+ * a double click puts the default back. A green line shows under the pointer.
+ */
+function Resizer({ width, onChange, label: text }: { width: number; onChange: (w: number) => void; label: string }) {
+  const [dragging, setDragging] = useState(false);
+  const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const handle = event.currentTarget;
+    handle.setPointerCapture(event.pointerId);
+    const start = { x: event.clientX, width };
+    setDragging(true);
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    const move = (e: PointerEvent) => onChange(start.width + e.clientX - start.x);
+    const up = () => {
+      setDragging(false);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+      handle.removeEventListener("pointermove", move);
+      handle.removeEventListener("pointerup", up);
+      handle.removeEventListener("pointercancel", up);
+    };
+    handle.addEventListener("pointermove", move);
+    handle.addEventListener("pointerup", up);
+    handle.addEventListener("pointercancel", up);
+  };
+  return (
+    <div
+      role="separator"
+      aria-orientation="vertical"
+      aria-label={text}
+      aria-valuenow={width}
+      aria-valuemin={SIDEBAR.min}
+      aria-valuemax={SIDEBAR.max}
+      tabIndex={0}
+      title={text}
+      onPointerDown={onPointerDown}
+      onDoubleClick={() => onChange(SIDEBAR.initial)}
+      onKeyDown={(event) => {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+        event.preventDefault();
+        onChange(width + (event.key === "ArrowRight" ? 16 : -16));
+      }}
+      className="group/resize absolute inset-y-0 -right-1.5 z-30 hidden w-3 cursor-col-resize touch-none outline-none lg:block"
+    >
+      <span
+        aria-hidden
+        className={cn(
+          "absolute inset-y-0 left-1/2 w-0.5 -translate-x-1/2 bg-up transition-opacity duration-200",
+          dragging ? "opacity-100" : "opacity-0 group-hover/resize:opacity-70 group-focus-visible/resize:opacity-100",
+        )}
+      />
+      <span
+        aria-hidden
+        className={cn(
+          "absolute top-1/2 left-1/2 grid h-8 w-2 -translate-1/2 place-items-center border border-border bg-background transition-opacity duration-200",
+          dragging ? "opacity-100" : "opacity-0 group-hover/resize:opacity-100 group-focus-visible/resize:opacity-100",
+        )}
+      >
+        <span className="h-3 w-px bg-muted-foreground" />
+      </span>
     </div>
   );
 }

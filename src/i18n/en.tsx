@@ -124,9 +124,7 @@ export const en = {
     meta: "Build a portfolio: choose the genetic algorithm's starting parameters and operate 10 past B3 sessions in your browser.",
     eyebrow: "Build a portfolio",
     title: (n: number) => (n === 1 ? "Operate a session of the past" : `Operate ${n} sessions of the past`),
-    lead: "Choose how the genetic algorithm starts and pick an evening in the data. It forms a portfolio of 10 companies and operates it session by session, with the same engine, costs and rules as the live run, here in your browser.",
-    data: (tickers: number, first: string, last: string) =>
-      `Data: ${tickers} Ibovespa tickers, ${first} to ${last}, adjusted for dividends.`,
+    data: (tickers: number, first: string, last: string) => `${tickers} Ibovespa tickers · ${first} to ${last} · dividend-adjusted`,
     loading: "Loading market data",
     groups: { run: "Operation", algorithm: "Algorithm", constraints: "Constraints" },
     fields: {
@@ -207,6 +205,7 @@ export const en = {
     panes: { label: "Panels", params: "Parameters", result: "Result" },
     sidebar: {
       resetGroup: "Restore this group's defaults",
+      resize: "Drag to resize the panel, double click to restore it",
       resetField: "Restore the default",
       modified: (n: number) => (n === 1 ? "1 changed" : `${n} changed`),
       randomSeed: "Draw a new seed",
@@ -216,8 +215,11 @@ export const en = {
     },
     views: { label: "Views", overview: "Overview", session: "Session", composition: "Composition" },
     stage: {
-      emptyHint: "Set the parameters on the left, or run the defaults.",
-      window: (n: number) => (n === 1 ? "The session this run will operate" : `The ${n} sessions this run will operate`),
+      steps: {
+        form: { verb: "forms", value: (k: number) => `${k} companies` },
+        operate: { verb: "operates", value: (n: number) => (n === 1 ? "1 session" : `${n} sessions`) },
+        compare: { verb: "compares with", value: "BOVA11 · CDI" },
+      },
       download: "Download the run's event log (JSON)",
       keys: "← → move between sessions",
       running: "Evolving",

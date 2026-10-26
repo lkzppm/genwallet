@@ -123,8 +123,7 @@ export const pt: Dictionary = {
     meta: "Monte uma carteira: escolha os parâmetros iniciais do algoritmo genético e opere 10 pregões passados da B3 no seu navegador.",
     eyebrow: "Montar carteira",
     title: (n) => (n === 1 ? "Opere um pregão do passado" : `Opere ${n} pregões do passado`),
-    lead: "Escolha como o algoritmo genético começa e uma noite nos dados. Ele forma uma carteira de 10 empresas e a opera pregão a pregão, com o mesmo motor, os mesmos custos e as mesmas regras da operação ao vivo, aqui no seu navegador.",
-    data: (tickers, first, last) => `Dados: ${tickers} papéis do Ibovespa, de ${first} a ${last}, ajustados por proventos.`,
+    data: (tickers, first, last) => `${tickers} papéis do Ibovespa · ${first} a ${last} · com proventos`,
     loading: "Carregando os dados de mercado",
     groups: { run: "Operação", algorithm: "Algoritmo", constraints: "Restrições" },
     fields: {
@@ -204,6 +203,7 @@ export const pt: Dictionary = {
     panes: { label: "Painéis", params: "Parâmetros", result: "Resultado" },
     sidebar: {
       resetGroup: "Restaurar os padrões deste grupo",
+      resize: "Arraste para ajustar o painel, clique duas vezes para restaurar",
       resetField: "Voltar ao padrão",
       modified: (n) => (n === 1 ? "1 alterado" : `${n} alterados`),
       randomSeed: "Sortear uma nova semente",
@@ -213,8 +213,11 @@ export const pt: Dictionary = {
     },
     views: { label: "Vistas", overview: "Visão geral", session: "Pregão", composition: "Composição" },
     stage: {
-      emptyHint: "Ajuste os parâmetros à esquerda, ou rode com os padrões.",
-      window: (n) => (n === 1 ? "O pregão que esta corrida vai operar" : `Os ${n} pregões que esta corrida vai operar`),
+      steps: {
+        form: { verb: "forma", value: (k) => `${k} empresas` },
+        operate: { verb: "opera", value: (n) => (n === 1 ? "1 pregão" : `${n} pregões`) },
+        compare: { verb: "compara com", value: "BOVA11 · CDI" },
+      },
       download: "Baixar o registro de eventos da corrida (JSON)",
       keys: "← → navegam entre os pregões",
       running: "Evoluindo",
