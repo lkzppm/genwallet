@@ -40,6 +40,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useRef, useState, type CSSProperties, type FocusEvent, type ReactNode } from "react";
+import { useKept } from "./use-simulator";
 import type { Dictionary } from "@/i18n";
 import type { FitnessKind } from "@/lib/ga/params";
 import { cn } from "@/lib/utils";
@@ -158,7 +159,7 @@ export function Sidebar({
 }) {
   const b = t.builder;
   const f = b.fields;
-  const [open, setOpen] = useState<GroupKey | null>("run");
+  const [open, setOpen] = useKept<GroupKey | null>("builder.group", "run");
   const [hint, setHint] = useState<Hint>({ text: "", top: 0, bottom: 0, visible: false });
   const rootRef = useRef<HTMLDivElement>(null);
   const disabled = bar.running;

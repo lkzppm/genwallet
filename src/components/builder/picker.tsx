@@ -1,12 +1,13 @@
 "use client";
 
 import { ArrowDown, ArrowUp, Check, Dices, Eraser, ListChecks, Search, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import type { Dictionary } from "@/i18n";
 import { cn } from "@/lib/utils";
 import { percent } from "./format";
 import { IconButton, input, label } from "./ui";
 import { tickerStats, type MarketView, type Refusal, type TickerStats } from "./universe";
+import { useKept } from "./use-simulator";
 
 type SortKey = "ticker" | "sector" | "ret" | "vol" | "traded";
 
@@ -69,9 +70,9 @@ export function Picker({
 }) {
   const p = t.builder.picker;
   const k = 10;
-  const [query, setQuery] = useState("");
-  const [sector, setSector] = useState<string | null>(null);
-  const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: "traded", dir: -1 });
+  const [query, setQuery] = useKept("builder.picker.query", "");
+  const [sector, setSector] = useKept<string | null>("builder.picker.sector", null);
+  const [sort, setSort] = useKept<{ key: SortKey; dir: 1 | -1 }>("builder.picker.sort", { key: "traded", dir: -1 });
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => event.key === "Escape" && onClose();

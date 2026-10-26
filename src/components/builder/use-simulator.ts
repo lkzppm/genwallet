@@ -1,13 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState, useSyncExternalStore, type SetStateAction } from "react";
 import type { SessionSummary, SimConfig, SimProgress, SimResult } from "@/lib/sim/simulate";
 import type { FromWorker, ToWorker } from "./protocol";
 import type { MarketView } from "./universe";
 
 export type SimStatus = "loading" | "idle" | "running" | "done" | "error";
 
-export interface Simulator {
+export interface SimState {
   status: SimStatus;
   /** Trading dates of the market data, once the worker has loaded it. */
   dates: string[];
@@ -20,78 +20,102 @@ export interface Simulator {
   sessions: SessionSummary[];
   result: SimResult | null;
   error: string | null;
+}
+
+export interface Simulator extends SimState {
   run: (config: SimConfig) => void;
   cancel: () => void;
 }
 
-/** Owns the simulation worker: one per page, replaced when a run is cancelled. */
+const INITIAL: SimState = {
+  status: "loading",
+  dates: [],
+  market: null,
+  config: null,
+  progress: null,
+  sessions: [],
+  result: null,
+  error: null,
+};
+
+/*
+ * The simulation worker and what it has sent, kept by the module rather than
+ * by the page: leaving /montar and coming back finds the same data, the same
+ * run, and a run still going if one was. One worker per tab, replaced when a
+ * run is cancelled.
+ */
+let state = INITIAL;
+let worker: Worker | null = null;
+const listeners = new Set<() => void>();
+
+function update(patch: Partial<SimState> | ((s: SimState) => Partial<SimState>)) {
+  state = { ...state, ...(typeof patch === "function" ? patch(state) : patch) };
+  for (const listener of listeners) listener();
+}
+
+function spawn() {
+  const next = new Worker(new URL("./sim.worker.ts", import.meta.url), { type: "module" });
+  next.onmessage = (event: MessageEvent<FromWorker>) => {
+    const message = event.data;
+    switch (message.type) {
+      case "ready":
+        update((s) => ({ dates: message.dates, market: message.market, status: s.status === "loading" ? "idle" : s.status }));
+        break;
+      case "progress":
+        update({ progress: message.progress });
+        break;
+      case "session":
+        update((s) => ({ sessions: [...s.sessions, message.summary] }));
+        break;
+      case "done":
+        update({ result: message.result, status: "done" });
+        break;
+      case "error":
+        update({ error: message.message, status: "error" });
+        break;
+    }
+  };
+  next.onerror = (event) => update({ error: event.message || "worker failed", status: "error" });
+  worker = next;
+}
+
+function run(config: SimConfig) {
+  update({ config, progress: null, sessions: [], result: null, error: null, status: "running" });
+  worker?.postMessage({ type: "run", config } satisfies ToWorker);
+}
+
+function cancel() {
+  worker?.terminate();
+  // The data is in the HTTP cache by now, so the new worker is ready almost at once.
+  spawn();
+  update({ progress: null, status: "idle" });
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
 export function useSimulator(): Simulator {
-  const workerRef = useRef<Worker | null>(null);
-  const [status, setStatus] = useState<SimStatus>("loading");
-  const [dates, setDates] = useState<string[]>([]);
-  const [market, setMarket] = useState<MarketView | null>(null);
-  const [config, setConfig] = useState<SimConfig | null>(null);
-  const [progress, setProgress] = useState<SimProgress | null>(null);
-  const [sessions, setSessions] = useState<SessionSummary[]>([]);
-  const [result, setResult] = useState<SimResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const spawn = useCallback(() => {
-    const worker = new Worker(new URL("./sim.worker.ts", import.meta.url), { type: "module" });
-    worker.onmessage = (event: MessageEvent<FromWorker>) => {
-      const message = event.data;
-      switch (message.type) {
-        case "ready":
-          setDates(message.dates);
-          setMarket(message.market);
-          setStatus((s) => (s === "loading" ? "idle" : s));
-          break;
-        case "progress":
-          setProgress(message.progress);
-          break;
-        case "session":
-          setSessions((list) => [...list, message.summary]);
-          break;
-        case "done":
-          setResult(message.result);
-          setStatus("done");
-          break;
-        case "error":
-          setError(message.message);
-          setStatus("error");
-          break;
-      }
-    };
-    worker.onerror = (event) => {
-      setError(event.message || "worker failed");
-      setStatus("error");
-    };
-    workerRef.current = worker;
-    return worker;
-  }, []);
-
+  // The worker starts with the first visit to the page and stays for the tab's life.
   useEffect(() => {
-    const worker = spawn();
-    return () => worker.terminate();
-  }, [spawn]);
-
-  const run = useCallback((next: SimConfig) => {
-    setConfig(next);
-    setProgress(null);
-    setSessions([]);
-    setResult(null);
-    setError(null);
-    setStatus("running");
-    workerRef.current?.postMessage({ type: "run", config: next } satisfies ToWorker);
+    if (!worker) spawn();
   }, []);
+  const snapshot = useSyncExternalStore(subscribe, () => state, () => INITIAL);
+  return { ...snapshot, run, cancel };
+}
 
-  const cancel = useCallback(() => {
-    workerRef.current?.terminate();
-    // The data is in the HTTP cache by now, so the new worker is ready almost at once.
-    spawn();
-    setProgress(null);
-    setStatus("idle");
-  }, [spawn]);
+const kept = new Map<string, unknown>();
 
-  return { status, dates, market, config, progress, sessions, result, error, run, cancel };
+/**
+ * `useState` whose value outlives the component: the builder's form, view
+ * and picked session are where the visitor left them after a visit to
+ * another page. Held in memory only, so a reload starts fresh.
+ */
+export function useKept<T>(key: string, initial: T): [T, (next: SetStateAction<T>) => void] {
+  const [value, setValue] = useState<T>(() => (kept.has(key) ? (kept.get(key) as T) : initial));
+  useEffect(() => {
+    kept.set(key, value);
+  }, [key, value]);
+  return [value, setValue];
 }

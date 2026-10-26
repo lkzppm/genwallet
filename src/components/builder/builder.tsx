@@ -33,7 +33,7 @@ import { SessionView } from "./session-view";
 import { Sidebar } from "./sidebar";
 import { IconButton, Panel, Segmented, label } from "./ui";
 import { refusals } from "./universe";
-import { useSimulator } from "./use-simulator";
+import { useKept, useSimulator } from "./use-simulator";
 
 const SESSIONS = LIVE_CONFIG.sessions;
 
@@ -54,12 +54,13 @@ export function Builder() {
   const lang = t.lang;
   const b = t.builder;
   const sim = useSimulator();
-  const [formState, setForm] = useState<FormState | null>(null);
-  const [view, setView] = useState<View>("overview");
-  const [pane, setPane] = useState<Pane>("params");
+  // Kept across pages: back from another page, the builder is as it was left.
+  const [formState, setForm] = useKept<FormState | null>("builder.form", null);
+  const [view, setView] = useKept<View>("builder.view", "overview");
+  const [pane, setPane] = useKept<Pane>("builder.pane", "params");
   // The session picked on the stage (1-based), and the side the move came from.
-  const [pick, setPick] = useState<{ session: number | null; dir: number }>({ session: null, dir: 0 });
-  const [picking, setPicking] = useState(false);
+  const [pick, setPick] = useKept<{ session: number | null; dir: number }>("builder.pick", { session: null, dir: 0 });
+  const [picking, setPicking] = useKept("builder.picking", false);
 
   // The window the form asks for: how many sessions, on how long a history.
   const lookback = formState ? Math.round(read(formState, "lookback")) : DEFAULT_PARAMS.lookback;
@@ -134,7 +135,7 @@ export function Builder() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [sessions.length, pick.session]);
+  }, [sessions.length, pick.session, setPick]);
 
   const totalGenerations = config ? config.formationGenerations + (config.sessions - 1) * config.dailyGenerations : 1;
   const done = sim.progress
@@ -159,7 +160,7 @@ export function Builder() {
   const closePicker = useCallback(() => {
     setPicking(false);
     setPane("params");
-  }, []);
+  }, [setPicking, setPane]);
 
   const dataLine =
     sim.dates.length && sim.market ? b.data(sim.market.universe.length, day(sim.dates[0], lang), day(sim.dates[sim.dates.length - 1], lang)) : "";
