@@ -109,7 +109,13 @@ export function Composition({
                   }}
                 >
                   {isHover && (
-                    <span className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-1.5 -translate-x-1/2 border border-border bg-background/95 px-2 py-1 font-mono text-[10.5px] whitespace-nowrap text-foreground shadow-lg">
+                    // Centred over the cell, or held inside the panel at either end of the row.
+                    <span
+                      className={cn(
+                        "pointer-events-none absolute bottom-full z-20 mb-1.5 border border-border bg-background/95 px-2 py-1 font-mono text-[10.5px] whitespace-nowrap text-foreground shadow-lg",
+                        i < 2 ? "left-0" : i >= dates.length - 2 ? "right-0" : "left-1/2 -translate-x-1/2",
+                      )}
+                    >
                       {r.ticker} · {i + 1} · {w ? percent(w, lang, 1) : c.out}
                     </span>
                   )}

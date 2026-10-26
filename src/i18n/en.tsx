@@ -221,6 +221,7 @@ export const en = {
         compare: { verb: "compares with", value: "BOVA11 · CDI" },
       },
       download: "Download the run's event log (JSON)",
+      discard: "Discard this run",
       keys: "← → move between sessions",
       running: "Evolving",
     },

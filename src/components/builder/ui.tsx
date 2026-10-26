@@ -119,6 +119,7 @@ export function Panel({
   actions,
   className,
   bodyClassName,
+  flush,
   children,
 }: {
   title: string;
@@ -126,6 +127,8 @@ export function Panel({
   actions?: ReactNode;
   className?: string;
   bodyClassName?: string;
+  /** No padding around the body: for a table that scrolls under a sticky header. */
+  flush?: boolean;
   children: ReactNode;
 }) {
   return (
@@ -135,7 +138,7 @@ export function Panel({
         <h3 className={cn(label, "truncate")}>{title}</h3>
         {actions && <div className="ml-auto flex shrink-0 items-center gap-2">{actions}</div>}
       </header>
-      <div className={cn("min-h-0 flex-1 p-3", bodyClassName)}>{children}</div>
+      <div className={cn("min-h-0 flex-1", !flush && "p-3", bodyClassName)}>{children}</div>
     </section>
   );
 }

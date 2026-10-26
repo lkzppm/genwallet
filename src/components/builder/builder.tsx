@@ -8,6 +8,7 @@ import {
   Database,
   Dna,
   Download,
+  Trash2,
   Grid3x3,
   LayoutDashboard,
   CalendarDays,
@@ -194,6 +195,7 @@ export function Builder() {
           sessionWindow={sessionWindow}
           refused={refused}
           onPick={openPicker}
+          onUnpick={closePicker}
           bar={{
             running,
             canRun: !!config && sim.status !== "loading",
@@ -271,6 +273,16 @@ export function Builder() {
                 )}
                 <IconButton label={b.stage.download} disabled={!r} onClick={() => r && downloadEvents(r)}>
                   <Download className="size-3.5" aria-hidden />
+                </IconButton>
+                <IconButton
+                  label={b.stage.discard}
+                  onClick={() => {
+                    sim.clear();
+                    setPick({ session: null, dir: 0 });
+                  }}
+                  className="group/bin hover:border-down hover:text-down"
+                >
+                  <Trash2 className="size-3.5 transition-transform duration-300 ease-[var(--ease-spring)] group-hover/bin:-rotate-12" aria-hidden />
                 </IconButton>
               </div>
             </header>

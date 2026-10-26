@@ -140,6 +140,7 @@ export function Sidebar({
   sessionWindow,
   refused,
   onPick,
+  onUnpick,
   bar,
 }: {
   form: FormState | null;
@@ -153,8 +154,9 @@ export function Sidebar({
   sessionWindow: string[];
   /** Tickers the engine would refuse over the chosen window. */
   refused: Map<string, Refusal>;
-  /** Opens the company picker on the stage. */
+  /** Opens and closes the company picker on the stage. */
   onPick: () => void;
+  onUnpick: () => void;
   bar: RunBar;
 }) {
   const b = t.builder;
@@ -284,8 +286,9 @@ export function Sidebar({
               disabled={disabled}
               onChange={(v) => {
                 set("mode", v);
-                // Choosing by hand opens the picker until the ten are there.
+                // Choosing by hand opens the picker until the ten are there; leaving that mode closes it.
                 if (v === "custom" && form.picks.length < 10) onPick();
+                if (v !== "custom") onUnpick();
               }}
               options={[
                 { value: "free", label: f.mode.free, icon: Shuffle },

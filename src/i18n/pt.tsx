@@ -219,6 +219,7 @@ export const pt: Dictionary = {
         compare: { verb: "compara com", value: "BOVA11 · CDI" },
       },
       download: "Baixar o registro de eventos da corrida (JSON)",
+      discard: "Excluir esta simulação",
       keys: "← → navegam entre os pregões",
       running: "Evoluindo",
     },

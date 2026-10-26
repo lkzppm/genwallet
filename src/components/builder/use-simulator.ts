@@ -25,6 +25,8 @@ export interface SimState {
 export interface Simulator extends SimState {
   run: (config: SimConfig) => void;
   cancel: () => void;
+  /** Drops the current run (cancelling it if it is still going), back to the empty stage. */
+  clear: () => void;
 }
 
 const INITIAL: SimState = {
@@ -91,6 +93,11 @@ function cancel() {
   update({ progress: null, status: "idle" });
 }
 
+function clear() {
+  if (state.status === "running") cancel();
+  update({ config: null, progress: null, sessions: [], result: null, error: null, status: state.dates.length ? "idle" : "loading" });
+}
+
 function subscribe(listener: () => void) {
   listeners.add(listener);
   return () => listeners.delete(listener);
@@ -102,7 +109,7 @@ export function useSimulator(): Simulator {
     if (!worker) spawn();
   }, []);
   const snapshot = useSyncExternalStore(subscribe, () => state, () => INITIAL);
-  return { ...snapshot, run, cancel };
+  return { ...snapshot, run, cancel, clear };
 }
 
 const kept = new Map<string, unknown>();

@@ -6,8 +6,9 @@ import type { SessionSummary } from "@/lib/sim/simulate";
 import { cn } from "@/lib/utils";
 import { ConvergenceChart, Swatch } from "./charts";
 import { day, money, number, percent, signClass } from "./format";
-import { Panel, label } from "./ui";
+import { Panel, label, useSize } from "./ui";
 
+/** The shortest a portfolio row gets; taller, the rows share the panel's height. */
 const ROW = 34;
 
 /**
@@ -18,6 +19,8 @@ const ROW = 34;
  */
 export function SessionView({ s, before, t, lang }: { s: SessionSummary; before: number; t: Dictionary; lang: string }) {
   const v = t.builder.session;
+  const [rowsRef, rowsBox] = useSize<HTMLDivElement>();
+  const row = Math.max(ROW, rowsBox.height / Math.max(1, s.portfolio.length));
   const maxWeight = Math.max(...s.portfolio.map((h) => h.weight));
   const ret = s.mark.nav / before - 1;
   const metrics = [
@@ -54,7 +57,7 @@ export function SessionView({ s, before, t, lang }: { s: SessionSummary; before:
 
       <div className="grid min-h-0 flex-1 auto-rows-[minmax(16rem,auto)] gap-3 overflow-y-auto @4xl:grid-cols-2 @4xl:grid-rows-[minmax(0,1.25fr)_minmax(0,1fr)] @4xl:overflow-visible">
         <Panel title={v.portfolio} icon={Briefcase} className="@4xl:row-span-2" bodyClassName="scroll-thin flex flex-col">
-          <div className="relative shrink-0" style={{ height: s.portfolio.length * ROW }}>
+          <div ref={rowsRef} className="relative min-h-0 flex-1" style={{ minHeight: s.portfolio.length * ROW }}>
             {[...s.portfolio]
               .sort((a, b) => a.ticker.localeCompare(b.ticker))
               .map((h) => {
@@ -64,7 +67,7 @@ export function SessionView({ s, before, t, lang }: { s: SessionSummary; before:
                   <div
                     key={h.ticker}
                     className="absolute inset-x-0 flex animate-[fade_0.45s_var(--ease)_both] items-center gap-3 border-b border-border transition-transform duration-500 ease-[var(--ease)]"
-                    style={{ height: ROW, transform: `translateY(${rank * ROW}px)` }}
+                    style={{ height: row, transform: `translateY(${rank * row}px)` }}
                   >
                     <span className="w-14 shrink-0 font-mono text-xs">{h.ticker}</span>
                     <span className="min-w-0 flex-1">
@@ -87,7 +90,7 @@ export function SessionView({ s, before, t, lang }: { s: SessionSummary; before:
                 );
               })}
           </div>
-          {s.left.length > 0 && <p className="mt-3 animate-[rise_0.4s_var(--ease)] text-xs text-down">{v.left(s.left.join(", "))}</p>}
+          {s.left.length > 0 && <p className="mt-3 shrink-0 animate-[rise_0.4s_var(--ease)] text-xs text-down">{v.left(s.left.join(", "))}</p>}
         </Panel>
 
         <Panel
@@ -128,12 +131,12 @@ export function SessionView({ s, before, t, lang }: { s: SessionSummary; before:
           </p>
         </Panel>
 
-        <Panel title={v.trades} icon={Receipt} bodyClassName="scroll-thin p-0">
+        <Panel title={v.trades} icon={Receipt} flush bodyClassName="scroll-thin">
           {s.fill.trades.length === 0 ? (
             <p className="p-3 text-sm text-muted-foreground">{v.noTrades}</p>
           ) : (
             <table key={s.session} className="w-full animate-[swap-in_0.35s_var(--ease)] text-left text-xs">
-              <thead className="sticky top-0 bg-background text-[10.5px] text-muted-foreground">
+              <thead className="sticky top-0 z-10 bg-background text-[10.5px] text-muted-foreground shadow-[0_1px_0_var(--border)]">
                 <tr>
                   <th className="px-3 py-2 font-normal">{v.ticker}</th>
                   <th className="py-2 text-right font-normal">{v.qty}</th>

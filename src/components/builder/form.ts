@@ -131,10 +131,10 @@ export function toConfig(
   const problems: string[] = [];
   if (params.wMin * k > 1 + 1e-9 || params.wMax * k < 1 - 1e-9) problems.push(t.builder.invalid.bounds(k));
   if (params.elite >= params.populationSize) problems.push(t.builder.invalid.elite);
-  if (custom && form.picks.length < k) problems.push(t.builder.invalid.picks(k - form.picks.length));
   const out = custom ? form.picks.filter((ticker) => refused.has(ticker)) : [];
   if (out.length) problems.push(t.builder.invalid.refused(out.join(", ")));
-  if (problems.length) return { config: null, problems };
+  // Too few picks is said in the picker, not listed here, but it still keeps the run from starting.
+  if (problems.length || (custom && form.picks.length < k)) return { config: null, problems };
   return {
     problems,
     config: {

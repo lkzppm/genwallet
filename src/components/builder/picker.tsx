@@ -148,6 +148,11 @@ export function Picker({
         <span className={cn("shrink-0 font-mono text-[11px] whitespace-nowrap tabular-nums", picks.length === k ? "text-up" : "text-muted-foreground")}>
           {t.builder.fields.picks.count(picks.length, k)}
         </span>
+        {picks.length < k && (
+          <span key={picks.length} className="hidden min-w-0 animate-[fade_0.3s_var(--ease)] truncate text-[11px] text-down @2xl:inline">
+            {t.builder.invalid.picks(k - picks.length)}
+          </span>
+        )}
         <div className="ml-auto flex items-center gap-1.5">
           <IconButton label={p.random} disabled={picks.length >= k} onClick={drawRest} className="group/dice">
             <Dices className="size-3.5 transition-transform duration-500 ease-[var(--ease-spring)] group-hover/dice:rotate-180" aria-hidden />
