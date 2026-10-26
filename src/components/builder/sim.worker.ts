@@ -3,6 +3,7 @@
 // terminating the worker and starting a new one.
 
 import type { Snapshot } from "@/lib/market/snapshot";
+import { tradedValue } from "@/lib/market/window";
 import { simulate } from "@/lib/sim/simulate";
 import type { FromWorker, ToWorker } from "./protocol";
 
@@ -14,7 +15,18 @@ const data: Promise<Snapshot> = fetch("/data/market.json").then((res) => {
 });
 
 data
-  .then((snap) => post({ type: "ready", dates: snap.dates, tickers: snap.universe.length }))
+  .then((snap) =>
+    // The company picker's view of the universe: prices and traded values, so the page can tell which tickers a run accepts.
+    post({
+      type: "ready",
+      dates: snap.dates,
+      market: {
+        universe: snap.universe,
+        adjClose: snap.adjClose,
+        traded: snap.universe.map((_, a) => snap.dates.map((_, day) => tradedValue(snap, a, day))),
+      },
+    }),
+  )
   .catch((error: unknown) => post({ type: "error", message: String(error) }));
 
 self.onmessage = async (event: MessageEvent<ToWorker>) => {

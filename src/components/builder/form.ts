@@ -5,13 +5,20 @@ import type { FitnessKind, GaParams } from "@/lib/ga/params";
 import { DEFAULT_PARAMS } from "@/lib/ga/params";
 import { LIVE_CONFIG } from "@/lib/live/config";
 import type { SimConfig } from "@/lib/sim/simulate";
+import type { Refusal } from "./universe";
+
+/** Who picks the companies: the algorithm every evening, the algorithm once, or the visitor. */
+export type CompanyMode = "free" | "strict" | "custom";
 
 /** What the form holds: numbers as typed (strings), so a half-typed value never jumps. */
 export interface FormState {
   formation: string;
+  sessions: string;
   capital: string;
   seed: string;
-  strict: boolean;
+  mode: CompanyMode;
+  /** The companies chosen by hand, in the order they were picked. */
+  picks: string[];
   fitness: FitnessKind;
   populationSize: string;
   formationGenerations: string;
@@ -42,9 +49,11 @@ export function defaultForm(formation: string): FormState {
   const p = DEFAULT_PARAMS;
   return {
     formation,
+    sessions: String(LIVE_CONFIG.sessions),
     capital: String(LIVE_CONFIG.capital),
     seed: "genwallet",
-    strict: p.strict,
+    mode: p.strict ? "strict" : "free",
+    picks: [],
     fitness: p.fitness,
     populationSize: String(p.populationSize),
     formationGenerations: String(LIVE_CONFIG.formationGenerations),
@@ -65,6 +74,7 @@ export function defaultForm(formation: string): FormState {
 
 /** Bounds per numeric field: what the inputs accept and what a run is clamped to. */
 export const LIMITS = {
+  sessions: { min: 1, max: 60, step: 1 },
   capital: { min: 1_000, max: 100_000_000, step: 1_000 },
   populationSize: { min: 20, max: 1_000, step: 10 },
   formationGenerations: { min: 10, max: 2_000, step: 10 },
@@ -84,18 +94,26 @@ export const LIMITS = {
 
 export type NumericKey = keyof typeof LIMITS;
 
-function read(form: FormState, key: NumericKey): number {
+export function read(form: FormState, key: NumericKey): number {
   const { min, max } = LIMITS[key];
   const value = Number(form[key]);
   return Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : min;
 }
 
-/** The form as a simulation, or the reasons it cannot run. */
-export function toConfig(form: FormState, t: Dictionary): { config: SimConfig | null; problems: string[] } {
+/**
+ * The form as a simulation, or the reasons it cannot run. `refused` holds
+ * the tickers the engine would not accept over the chosen window.
+ */
+export function toConfig(
+  form: FormState,
+  t: Dictionary,
+  refused: Map<string, Refusal>,
+): { config: SimConfig | null; problems: string[] } {
   const k = DEFAULT_PARAMS.k;
+  const custom = form.mode === "custom";
   const params: GaParams = {
     ...DEFAULT_PARAMS,
-    strict: form.strict,
+    strict: form.mode !== "free",
     fitness: form.fitness,
     populationSize: Math.round(read(form, "populationSize")),
     crossoverRate: read(form, "crossoverRate") / 100,
@@ -113,18 +131,22 @@ export function toConfig(form: FormState, t: Dictionary): { config: SimConfig | 
   const problems: string[] = [];
   if (params.wMin * k > 1 + 1e-9 || params.wMax * k < 1 - 1e-9) problems.push(t.builder.invalid.bounds(k));
   if (params.elite >= params.populationSize) problems.push(t.builder.invalid.elite);
+  if (custom && form.picks.length < k) problems.push(t.builder.invalid.picks(k - form.picks.length));
+  const out = custom ? form.picks.filter((ticker) => refused.has(ticker)) : [];
+  if (out.length) problems.push(t.builder.invalid.refused(out.join(", ")));
   if (problems.length) return { config: null, problems };
   return {
     problems,
     config: {
       formation: form.formation,
-      sessions: LIVE_CONFIG.sessions,
+      sessions: Math.round(read(form, "sessions")),
       capital: Math.round(read(form, "capital")),
       params,
       formationGenerations: Math.round(read(form, "formationGenerations")),
       dailyGenerations: Math.round(read(form, "dailyGenerations")),
       seed: form.seed.trim() || "genwallet",
       orderBuffer: LIVE_CONFIG.orderBuffer,
+      ...(custom ? { companies: [...form.picks] } : {}),
     },
   };
 }

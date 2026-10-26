@@ -6,6 +6,7 @@ import {
   ArrowUpToLine,
   Building2,
   CalendarDays,
+  CalendarRange,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -17,6 +18,7 @@ import {
   History,
   Info,
   Layers,
+  ListChecks,
   LoaderCircle,
   Lock,
   Play,
@@ -34,15 +36,17 @@ import {
   UserPlus,
   Users,
   Wallet,
+  X,
   type LucideIcon,
 } from "lucide-react";
-import { useState, type CSSProperties, type ReactNode } from "react";
+import { useRef, useState, type CSSProperties, type FocusEvent, type ReactNode } from "react";
 import type { Dictionary } from "@/i18n";
 import type { FitnessKind } from "@/lib/ga/params";
 import { cn } from "@/lib/utils";
 import { day } from "./format";
-import { LIMITS, randomSeed, type FormState, type NumericKey } from "./form";
-import { IconButton, Segmented, input, label } from "./ui";
+import { LIMITS, randomSeed, type CompanyMode, type FormState, type NumericKey } from "./form";
+import { IconButton, Segmented, input } from "./ui";
+import type { Refusal } from "./universe";
 
 export type GroupKey = "run" | "algorithm" | "constraints";
 
@@ -76,18 +80,40 @@ const CONSTRAINTS: SliderDef[] = [
 ];
 
 const GROUP_KEYS: Record<GroupKey, (keyof FormState)[]> = {
-  run: ["formation", "capital", "seed", "strict"],
+  run: ["formation", "sessions", "capital", "seed", "mode", "picks"],
   algorithm: ["fitness", ...ALGORITHM.map((d) => d.key)],
   constraints: CONSTRAINTS.map((d) => d.key),
 };
 
-// Numbers compare as numbers, so "20" and "20.0" are the same value.
-const changed = (form: FormState, defaults: FormState, key: keyof FormState) =>
-  key in LIMITS ? Number(form[key]) !== Number(defaults[key]) : form[key] !== defaults[key];
+// Numbers compare as numbers, so "20" and "20.0" are the same value; the picks as a list.
+const changed = (form: FormState, defaults: FormState, key: keyof FormState) => {
+  const [a, b] = [form[key], defaults[key]];
+  if (key in LIMITS) return Number(a) !== Number(b);
+  if (Array.isArray(a) && Array.isArray(b)) return a.join() !== b.join();
+  return a !== b;
+};
+
+/** Where the hint floats: beside the row on a desk, under it on a phone. */
+interface Hint {
+  text: string;
+  top: number;
+  bottom: number;
+  visible: boolean;
+}
+
+/** Handlers that show a row's hint while the pointer or the focus is on it. */
+type HintFor = (text: string) => {
+  onPointerEnter: (event: { currentTarget: HTMLElement }) => void;
+  onPointerLeave: () => void;
+  onFocus: (event: FocusEvent<HTMLElement>) => void;
+  onBlur: (event: FocusEvent<HTMLElement>) => void;
+};
 
 export interface RunBar {
   running: boolean;
   canRun: boolean;
+  /** Sessions the run will operate, for the button. */
+  sessions: number;
   again: boolean;
   /** 0..1 through the whole run, and what to say over the bar. */
   fraction: number;
@@ -99,9 +125,9 @@ export interface RunBar {
 }
 
 /**
- * The parameters, fixed to the left of the screen: a short header, three
- * groups of which one is open at a time, a line that explains the parameter
- * under the pointer, and the run button pinned to the bottom.
+ * The parameters, fixed to the left of the screen: three groups of which at
+ * most one is open, a hint that floats beside the parameter under the
+ * pointer, and the run button pinned to the bottom.
  */
 export function Sidebar({
   form,
@@ -111,7 +137,8 @@ export function Sidebar({
   lang,
   formations,
   sessionWindow,
-  dataLine,
+  refused,
+  onPick,
   bar,
 }: {
   form: FormState | null;
@@ -123,14 +150,37 @@ export function Sidebar({
   formations: string[];
   /** The sessions the chosen formation would operate. */
   sessionWindow: string[];
-  dataLine: string;
+  /** Tickers the engine would refuse over the chosen window. */
+  refused: Map<string, Refusal>;
+  /** Opens the company picker on the stage. */
+  onPick: () => void;
   bar: RunBar;
 }) {
   const b = t.builder;
   const f = b.fields;
-  const [open, setOpen] = useState<GroupKey>("run");
-  const [hint, setHint] = useState<string | null>(null);
+  const [open, setOpen] = useState<GroupKey | null>("run");
+  const [hint, setHint] = useState<Hint>({ text: "", top: 0, bottom: 0, visible: false });
+  const rootRef = useRef<HTMLDivElement>(null);
   const disabled = bar.running;
+
+  const hide = () => setHint((h) => (h.visible ? { ...h, visible: false } : h));
+  const hintFor: HintFor = (text) => {
+    const show = (row: HTMLElement) => {
+      const root = rootRef.current?.getBoundingClientRect();
+      const box = row.getBoundingClientRect();
+      if (!root) return;
+      // Kept clear of the run bar at the bottom.
+      const top = Math.min(box.top - root.top, root.height - 150);
+      setHint({ text, top, bottom: box.bottom - root.top, visible: true });
+    };
+    return {
+      onPointerEnter: (event) => show(event.currentTarget),
+      onPointerLeave: hide,
+      onFocus: (event) => show(event.currentTarget),
+      // Focus moving between the row's own controls keeps the hint.
+      onBlur: (event) => !event.currentTarget.contains(event.relatedTarget as Node | null) && hide(),
+    };
+  };
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) => form && setForm({ ...form, [key]: value });
   const resetGroup = (group: GroupKey) =>
@@ -148,12 +198,13 @@ export function Sidebar({
     ? b.sidebar.window(day(sessionWindow[0], lang), day(sessionWindow[sessionWindow.length - 1], lang))
     : "";
 
-  const slider = (d: SliderDef) => {
+  const slider = (d: SliderDef, hintText?: string) => {
     if (!form || !defaults) return null;
     const text = f[d.text] as { label: string; hint: string };
     return (
       <SliderRow
         key={d.key}
+        hint={hintFor(hintText ?? text.hint)}
         icon={d.icon}
         title={text.label}
         unit={d.percent ? "%" : undefined}
@@ -163,7 +214,6 @@ export function Sidebar({
         disabled={disabled}
         resetLabel={b.sidebar.resetField}
         onChange={(v) => set(d.key, v)}
-        onHint={() => setHint(text.hint)}
       />
     );
   };
@@ -175,7 +225,7 @@ export function Sidebar({
       icon: SlidersHorizontal,
       body: form && (
         <>
-          <Row icon={CalendarDays} title={f.formation.label} onHint={() => setHint(f.formation.hint(...windowEnds(sessionWindow, lang)))}>
+          <Row icon={CalendarDays} title={f.formation.label} hint={hintFor(f.formation.hint(...windowEnds(sessionWindow, lang)))}>
             <div className="flex gap-1">
               <IconButton label={b.sidebar.prevEvening} disabled={disabled || at <= 0} onClick={() => set("formation", formations[at - 1])}>
                 <ChevronLeft className="size-3.5" aria-hidden />
@@ -202,7 +252,8 @@ export function Sidebar({
               {windowText}
             </p>
           </Row>
-          <Row icon={Wallet} title={f.capital.label} onHint={() => setHint(f.capital.hint)}>
+          {slider({ key: "sessions", icon: CalendarRange, text: "sessions" })}
+          <Row icon={Wallet} title={f.capital.label} hint={hintFor(f.capital.hint)}>
             <input
               type="number"
               inputMode="decimal"
@@ -216,7 +267,7 @@ export function Sidebar({
               onChange={(e) => set("capital", e.target.value)}
             />
           </Row>
-          <Row icon={Sprout} title={f.seed.label} onHint={() => setHint(f.seed.hint)}>
+          <Row icon={Sprout} title={f.seed.label} hint={hintFor(f.seed.hint)}>
             <div className="flex gap-1">
               <input aria-label={f.seed.label} className={input} value={form.seed} disabled={disabled} onChange={(e) => set("seed", e.target.value)} />
               <IconButton label={b.sidebar.randomSeed} disabled={disabled} onClick={() => set("seed", randomSeed())} className="group/dice">
@@ -224,18 +275,36 @@ export function Sidebar({
               </IconButton>
             </div>
           </Row>
-          <Row icon={Building2} title={f.mode.label} onHint={() => setHint(f.mode.hint)}>
-            <Segmented
+          <Row icon={Building2} title={f.mode.label} hint={hintFor(f.mode.hint)}>
+            <Segmented<CompanyMode>
               label={f.mode.label}
-              value={form.strict ? "strict" : "free"}
+              value={form.mode}
               disabled={disabled}
-              onChange={(v) => set("strict", v === "strict")}
+              onChange={(v) => {
+                set("mode", v);
+                // Choosing by hand opens the picker until the ten are there.
+                if (v === "custom" && form.picks.length < 10) onPick();
+              }}
               options={[
                 { value: "free", label: f.mode.free, icon: Shuffle },
                 { value: "strict", label: f.mode.strict, icon: Lock },
+                { value: "custom", label: f.mode.custom, icon: ListChecks },
               ]}
             />
           </Row>
+          <div className="accordion" data-open={form.mode === "custom" || undefined} inert={form.mode !== "custom"}>
+            <div>
+              <Picks
+                picks={form.picks}
+                refused={refused}
+                disabled={disabled}
+                text={f.picks}
+                hint={hintFor(f.picks.hint)}
+                onRemove={(ticker) => set("picks", form.picks.filter((x) => x !== ticker))}
+                onPick={onPick}
+              />
+            </div>
+          </div>
         </>
       ),
     },
@@ -245,7 +314,7 @@ export function Sidebar({
       icon: Dna,
       body: form && (
         <>
-          <Row icon={Target} title={f.fitness.label} onHint={() => setHint(f.fitness.hint)}>
+          <Row icon={Target} title={f.fitness.label} hint={hintFor(f.fitness.hint)}>
             <Segmented<FitnessKind>
               label={f.fitness.label}
               value={form.fitness}
@@ -254,21 +323,22 @@ export function Sidebar({
               options={(["sharpe", "sortino", "cvar"] as const).map((k) => ({ value: k, label: f.fitness[k] }))}
             />
           </Row>
-          {ALGORITHM.map(slider)}
+          {ALGORITHM.map((d) => slider(d))}
         </>
       ),
     },
-    { key: "constraints", title: b.groups.constraints, icon: ShieldCheck, body: form && CONSTRAINTS.map(slider) },
+    {
+      key: "constraints",
+      title: b.groups.constraints,
+      icon: ShieldCheck,
+      // Chosen by hand, the companies skip the sector cap.
+      body: form && CONSTRAINTS.map((d) => slider(d, d.key === "sectorCap" && form.mode === "custom" ? `${f.sectorCap.hint}. ${b.picker.sectorNote}` : undefined)),
+    },
   ];
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
-      <header className="shrink-0 border-b border-border px-4 py-3">
-        <p className={label}>{b.eyebrow}</p>
-        <p className="mt-1 text-[11px] leading-snug text-muted-foreground">{dataLine}</p>
-      </header>
-
-      <div className="scroll-thin min-h-0 flex-1" onPointerLeave={() => setHint(null)}>
+    <div ref={rootRef} className="relative flex h-full min-h-0 flex-col">
+      <div className="scroll-none min-h-0 flex-1" onScroll={hide}>
         {groups.map((g) => {
           const isOpen = open === g.key;
           const n = count(g.key);
@@ -278,7 +348,8 @@ export function Sidebar({
               <button
                 type="button"
                 aria-expanded={isOpen}
-                onClick={() => setOpen(g.key)}
+                // A second click on the open group closes it.
+                onClick={() => setOpen(isOpen ? null : g.key)}
                 className="group/head flex h-12 w-full items-center gap-3 px-4 text-left transition-colors duration-200 hover:bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)]"
               >
                 <span
@@ -322,11 +393,20 @@ export function Sidebar({
         })}
       </div>
 
-      {/* What the parameter under the pointer does. */}
-      <div className="flex min-h-[4.75rem] shrink-0 gap-2.5 border-t border-border px-4 py-3">
-        <Info className={cn("mt-px size-3.5 shrink-0 transition-colors duration-300", hint ? "text-up" : "text-muted-foreground")} aria-hidden />
-        <p key={hint ?? ""} aria-live="polite" className="animate-[rise_0.35s_var(--ease)] text-[11.5px] leading-snug text-muted-foreground first-letter:uppercase">
-          {hint ?? b.sidebar.hintIdle}
+      {/* What the parameter under the pointer does: beside it on a desk, under it on a phone. */}
+      <div
+        role="tooltip"
+        aria-hidden={!hint.visible}
+        className={cn(
+          "pointer-events-none absolute inset-x-4 z-30 top-[var(--below)] flex gap-2.5 border border-border bg-background/95 px-3 py-2.5 shadow-[0_18px_40px_-20px_rgba(0,0,0,0.55)] backdrop-blur-sm transition-[top,opacity,translate] duration-300 ease-[var(--ease)] lg:right-auto lg:left-[calc(100%+10px)] lg:top-[var(--beside)] lg:w-64",
+          hint.visible ? "translate-x-0 opacity-100" : "opacity-0 lg:-translate-x-1.5",
+        )}
+        style={{ "--beside": `${hint.top + 4}px`, "--below": `${hint.bottom + 4}px` } as CSSProperties}
+      >
+        <span aria-hidden className="absolute top-3.5 -left-[5px] hidden size-2 rotate-45 border-b border-l border-border bg-background lg:block" />
+        <Info className="mt-px size-3.5 shrink-0 text-up" aria-hidden />
+        <p key={hint.text} aria-live="polite" className="animate-[fade_0.3s_var(--ease)] text-[11.5px] leading-snug text-muted-foreground first-letter:uppercase">
+          {hint.text}
         </p>
       </div>
 
@@ -348,7 +428,7 @@ export function Sidebar({
         ) : (
           <button type="button" className="btn btn-primary h-10 flex-1" disabled={!bar.canRun} onClick={bar.onRun}>
             <Play className="size-3.5" aria-hidden />
-            {bar.again ? b.again : b.run}
+            {bar.again ? b.again : b.run(bar.sessions)}
           </button>
         )}
         {bar.running ? (
@@ -370,13 +450,9 @@ function windowEnds(sessionWindow: string[], lang: string): [string, string] {
 }
 
 /** A parameter that is not a slider: its icon and name over its control. */
-function Row({ icon: Icon, title, onHint, children }: { icon: LucideIcon; title: string; onHint: () => void; children: ReactNode }) {
+function Row({ icon: Icon, title, hint, children }: { icon: LucideIcon; title: string; hint: ReturnType<HintFor>; children: ReactNode }) {
   return (
-    <div
-      className="group/row px-4 py-1.5 transition-colors duration-200 hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)]"
-      onPointerEnter={onHint}
-      onFocus={onHint}
-    >
+    <div className="group/row px-4 py-1.5 transition-colors duration-200 hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)]" {...hint}>
       <div className="mb-1 flex items-center gap-2">
         <Icon className="size-3.5 text-muted-foreground transition-colors duration-200 group-hover/row:text-up" aria-hidden />
         <span className="text-xs">{title}</span>
@@ -392,6 +468,7 @@ function Row({ icon: Icon, title, onHint, children }: { icon: LucideIcon; title:
  * appears that puts it back.
  */
 function SliderRow({
+  hint,
   icon: Icon,
   title,
   unit,
@@ -401,8 +478,8 @@ function SliderRow({
   disabled,
   resetLabel,
   onChange,
-  onHint,
 }: {
+  hint: ReturnType<HintFor>;
   icon: LucideIcon;
   title: string;
   unit?: string;
@@ -412,7 +489,6 @@ function SliderRow({
   disabled: boolean;
   resetLabel: string;
   onChange: (value: string) => void;
-  onHint: () => void;
 }) {
   const { min, max, step } = limits;
   const share = (v: string) => {
@@ -421,11 +497,7 @@ function SliderRow({
   };
   const isChanged = Number(value) !== Number(fallback);
   return (
-    <div
-      className="group/row px-4 pt-1 transition-colors duration-200 hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)]"
-      onPointerEnter={onHint}
-      onFocus={onHint}
-    >
+    <div className="group/row px-4 pt-1 transition-colors duration-200 hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)]" {...hint}>
       <div className="flex h-6 items-center gap-2">
         <Icon className="size-3.5 shrink-0 text-muted-foreground transition-colors duration-200 group-hover/row:text-up" aria-hidden />
         <span className="min-w-0 flex-1 truncate text-xs">{title}</span>
@@ -472,6 +544,88 @@ function SliderRow({
           onChange={(e) => onChange(e.target.value)}
         />
       </div>
+    </div>
+  );
+}
+
+/**
+ * The companies chosen by hand: ten slots that fill as they are picked, a
+ * ticker the window cannot operate in red, and the way into the picker.
+ */
+function Picks({
+  picks,
+  refused,
+  disabled,
+  text,
+  hint,
+  onRemove,
+  onPick,
+}: {
+  picks: string[];
+  refused: Map<string, Refusal>;
+  disabled: boolean;
+  text: Fields["picks"];
+  hint: ReturnType<HintFor>;
+  onRemove: (ticker: string) => void;
+  onPick: () => void;
+}) {
+  const k = 10;
+  return (
+    <div className="group/row px-4 pt-1 pb-2 transition-colors duration-200 hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)]" {...hint}>
+      <div className="mb-1.5 flex items-center gap-2">
+        <ListChecks className="size-3.5 text-muted-foreground transition-colors duration-200 group-hover/row:text-up" aria-hidden />
+        <span className="text-xs">{text.label}</span>
+        <span className={cn("ml-auto font-mono text-[10.5px] tabular-nums", picks.length === k ? "text-up" : "text-muted-foreground")}>
+          {text.count(picks.length, k)}
+        </span>
+      </div>
+      <ol className="grid grid-cols-5 gap-1">
+        {Array.from({ length: k }, (_, i) => {
+          const ticker = picks[i];
+          if (!ticker)
+            return (
+              <li key={`empty-${i}`}>
+                <button
+                  type="button"
+                  disabled={disabled}
+                  onClick={onPick}
+                  aria-label={text.open}
+                  className="grid h-7 w-full place-items-center border border-dashed border-border font-mono text-[10px] text-muted-foreground/60 transition-colors duration-200 hover:border-up hover:text-up"
+                >
+                  +
+                </button>
+              </li>
+            );
+          const bad = refused.has(ticker);
+          return (
+            <li key={ticker} className="animate-[pop_0.35s_var(--ease-spring)]">
+              <button
+                type="button"
+                disabled={disabled}
+                onClick={() => onRemove(ticker)}
+                aria-label={text.remove(ticker)}
+                title={text.remove(ticker)}
+                className={cn(
+                  "group/chip relative grid h-7 w-full place-items-center border bg-background font-mono text-[10.5px] transition-colors duration-200 hover:border-down hover:text-down",
+                  bad ? "border-down text-down" : "border-border",
+                )}
+              >
+                <span className="transition-opacity duration-200 group-hover/chip:opacity-0">{ticker}</span>
+                <X className="absolute size-3 opacity-0 transition-opacity duration-200 group-hover/chip:opacity-100" aria-hidden />
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={onPick}
+        className="mt-2 flex h-8 w-full items-center justify-center gap-2 border border-border bg-background text-xs transition-colors duration-200 hover:border-up hover:text-up disabled:opacity-40"
+      >
+        <ListChecks className="size-3.5" aria-hidden />
+        {picks.length ? text.edit : text.open}
+      </button>
     </div>
   );
 }

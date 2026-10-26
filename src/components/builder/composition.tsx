@@ -35,7 +35,10 @@ export function Composition({
   for (const s of sessions) for (const h of s.portfolio) if (!rows.some((r) => r.ticker === h.ticker)) rows.push(h);
   const weight = (session: number, ticker: string) => sessions[session - 1]?.portfolio.find((h) => h.ticker === ticker)?.weight;
   const max = Math.max(0.01, ...sessions.flatMap((s) => s.portfolio.map((h) => h.weight)));
-  const columns = `minmax(7rem, 11rem) repeat(${dates.length}, minmax(2.25rem, 1fr))`;
+  // Many sessions: narrower columns, a date every few of them.
+  const dense = dates.length > 15;
+  const dateEvery = dense ? Math.ceil(dates.length / 10) : 1;
+  const columns = `minmax(7rem, 11rem) repeat(${dates.length}, minmax(${dense ? "1.5rem" : "2.25rem"}, 1fr))`;
   // Rows share the panel's height, between 24 and 40 px each.
   const grid = { gridTemplateColumns: columns, gridTemplateRows: `auto repeat(${rows.length}, minmax(1.5rem, 1fr))`, maxHeight: `calc(2.5rem + ${rows.length} * 2.5rem)` };
 
@@ -67,7 +70,7 @@ export function Composition({
             )}
           >
             <span>{i + 1}</span>
-            <span className="text-[9px]">{shortDay(d, lang)}</span>
+            <span className={cn("text-[9px] whitespace-nowrap", i % dateEvery !== 0 && "invisible")}>{shortDay(d, lang)}</span>
           </button>
         ))}
         {rows.map((r, ri) => (

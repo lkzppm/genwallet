@@ -123,7 +123,7 @@ export const en = {
   builder: {
     meta: "Build a portfolio: choose the genetic algorithm's starting parameters and operate 10 past B3 sessions in your browser.",
     eyebrow: "Build a portfolio",
-    title: "Operate 10 sessions of the past",
+    title: (n: number) => (n === 1 ? "Operate a session of the past" : `Operate ${n} sessions of the past`),
     lead: "Choose how the genetic algorithm starts and pick an evening in the data. It forms a portfolio of 10 companies and operates it session by session, with the same engine, costs and rules as the live run, here in your browser.",
     data: (tickers: number, first: string, last: string) =>
       `Data: ${tickers} Ibovespa tickers, ${first} to ${last}, adjusted for dividends.`,
@@ -132,16 +132,25 @@ export const en = {
     fields: {
       formation: {
         label: "Formation evening",
-        hint: (first: string, last: string) =>
-          `the portfolio is formed at this close and operated over the 10 sessions after it (${first} to ${last})`,
+        hint: (first: string, last: string) => `the portfolio is formed at this close and operated over the sessions after it (${first} to ${last})`,
       },
+      sessions: { label: "Sessions", hint: "how many sessions the portfolio is operated after the formation; the live run operates 10" },
       capital: { label: "Capital (R$)", hint: "paper money" },
       seed: { label: "Seed", hint: "the same seed gives the same run" },
       mode: {
         label: "Companies",
         free: "Free",
         strict: "Fixed",
-        hint: "free: the algorithm may swap companies every evening, always 10, paying the cost; fixed: the 10 of the formation stay, only the weights change",
+        custom: "Chosen",
+        hint: "free: the algorithm may swap companies every evening, always 10, paying the cost; fixed: the 10 of the formation stay, only the weights change; chosen: you pick the 10 and the algorithm only sets their weights",
+      },
+      picks: {
+        label: "Your companies",
+        hint: "the 10 the portfolio holds from the formation to the last session",
+        open: "Choose the companies",
+        edit: "Edit the choice",
+        count: (n: number, k: number) => `${n} of ${k}`,
+        remove: (ticker: string) => `Remove ${ticker}`,
       },
       fitness: {
         label: "Fitness",
@@ -169,10 +178,34 @@ export const en = {
       bounds: (k: number) =>
         `With ${k} companies the weights must allow a sum of 100%: minimum × ${k} ≤ 100% ≤ maximum × ${k}.`,
       elite: "The elite must be smaller than the population.",
+      picks: (missing: number) => (missing === 1 ? "Choose 1 more company." : `Choose ${missing} more companies.`),
+      refused: (tickers: string) => `${tickers}: no full price history or too little trading in this window. Swap them or change the evening.`,
+    },
+    picker: {
+      title: (k: number) => `Choose ${k} companies`,
+      lead: "From the formation on, the portfolio holds exactly these; every evening the algorithm only decides their weights.",
+      search: "Ticker, company or sector",
+      all: "All",
+      clear: "Clear",
+      random: "Draw the rest",
+      done: "Done",
+      close: "Close",
+      ticker: "Ticker",
+      company: "Company",
+      sector: "Sector",
+      ret: "Return",
+      vol: "Vol. a.y.",
+      traded: "Traded/day",
+      window: (n: number) => `Return and volatility over the ${n} sessions before the formation.`,
+      sectorNote: "Chosen by hand, the cap per sector does not apply.",
+      refused: { history: "no full price history in this window", liquidity: "too little trading in this window" },
+      sibling: (ticker: string) => `same company as ${ticker}`,
+      full: "Already 10: remove one to swap",
+      empty: "Nothing matches the search.",
+      sort: (column: string) => `Sort by ${column}`,
     },
     panes: { label: "Panels", params: "Parameters", result: "Result" },
     sidebar: {
-      hintIdle: "Point at a parameter to see what it does. A green dot marks a value changed from the default.",
       resetGroup: "Restore this group's defaults",
       resetField: "Restore the default",
       modified: (n: number) => (n === 1 ? "1 changed" : `${n} changed`),
@@ -184,7 +217,7 @@ export const en = {
     views: { label: "Views", overview: "Overview", session: "Session", composition: "Composition" },
     stage: {
       emptyHint: "Set the parameters on the left, or run the defaults.",
-      window: "The ten sessions this run will operate",
+      window: (n: number) => (n === 1 ? "The session this run will operate" : `The ${n} sessions this run will operate`),
       download: "Download the run's event log (JSON)",
       keys: "← → move between sessions",
       running: "Evolving",
@@ -202,7 +235,7 @@ export const en = {
       hint: "Each row is a company, each column a session; the stronger the green, the larger the weight. Click a column to open its session.",
       out: "out of the portfolio",
     },
-    run: "Run 10 sessions",
+    run: (n: number) => (n === 1 ? "Run 1 session" : `Run ${n} sessions`),
     again: "Run again",
     cancel: "Cancel",
     reset: "Defaults",
@@ -222,8 +255,8 @@ export const en = {
       seconds: (s: string) => `computed in ${s} s`,
       chart: "Value through the sessions",
       formation: "formation",
-      oneSample:
-        "Ten sessions are one sample: another evening or another seed can give the opposite result. Compare with the benchmarks over the same sessions, not with zero.",
+      oneSample: (n: number) =>
+        `${n === 1 ? "One session is" : `${n} sessions are`} one sample: another evening or another seed can give the opposite result. Compare with the benchmarks over the same sessions, not with zero.`,
     },
     session: {
       tabs: "Sessions",

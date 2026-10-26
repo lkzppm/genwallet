@@ -279,6 +279,17 @@ html {
     scrollbar-color: var(--border) transparent;
   }
 
+  /* Scrolls without showing a bar: the sidebar, where the bar would only take room. */
+  .scroll-none {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+  }
+
+  .scroll-none::-webkit-scrollbar {
+    display: none;
+  }
+
   /* An accordion body: rows animate between 0 and the content's height. */
   .accordion {
     display: grid;

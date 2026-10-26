@@ -5,6 +5,7 @@ import {
   ChartLine,
   ChevronLeft,
   ChevronRight,
+  Database,
   Dna,
   Download,
   Grid3x3,
@@ -15,20 +16,23 @@ import {
   SlidersHorizontal,
   TriangleAlert,
 } from "lucide-react";
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { TerrainField } from "@/components/terrain/terrain-canvas";
 import type { Dictionary } from "@/i18n";
 import { useT } from "@/i18n/LocaleProvider";
+import { DEFAULT_PARAMS } from "@/lib/ga/params";
 import { LIVE_CONFIG } from "@/lib/live/config";
 import type { NavPoint, SessionSummary, SimResult } from "@/lib/sim/simulate";
 import { cn } from "@/lib/utils";
 import { NavChart, ReturnBars, SERIES, Swatch } from "./charts";
 import { Composition } from "./composition";
 import { day, money, percent, shortDay, signClass } from "./format";
-import { defaultForm, toConfig, type FormState } from "./form";
+import { defaultForm, read, toConfig, type FormState } from "./form";
+import { Picker } from "./picker";
 import { SessionView } from "./session-view";
 import { Sidebar } from "./sidebar";
 import { IconButton, Panel, Segmented, label } from "./ui";
+import { refusals } from "./universe";
 import { useSimulator } from "./use-simulator";
 
 const SESSIONS = LIVE_CONFIG.sessions;
@@ -42,7 +46,8 @@ type Pane = "params" | "result";
  * genetic algorithm forms a portfolio on a past evening and operates it
  * over the next sessions in a worker, with the live run's engine and broker;
  * the stage fills in session by session and is browsed in three views, with
- * the ten sessions on a timeline along the bottom.
+ * the sessions on a timeline along the bottom. The companies can be left to
+ * the algorithm or chosen by hand, in a picker that opens over the stage.
  */
 export function Builder() {
   const t = useT();
@@ -54,15 +59,19 @@ export function Builder() {
   const [pane, setPane] = useState<Pane>("params");
   // The session picked on the stage (1-based), and the side the move came from.
   const [pick, setPick] = useState<{ session: number | null; dir: number }>({ session: null, dir: 0 });
+  const [picking, setPicking] = useState(false);
 
-  const lookback = Number(formState?.lookback ?? 252);
-  const formations = useMemo(() => {
-    const lb = Number.isFinite(lookback) ? Math.min(400, Math.max(60, Math.round(lookback))) : 252;
-    return sim.dates.slice(lb, Math.max(lb, sim.dates.length - SESSIONS));
-  }, [sim.dates, lookback]);
+  // The window the form asks for: how many sessions, on how long a history.
+  const lookback = formState ? Math.round(read(formState, "lookback")) : DEFAULT_PARAMS.lookback;
+  const count = formState ? Math.round(read(formState, "sessions")) : SESSIONS;
+  const formations = useMemo(
+    () => sim.dates.slice(lookback, Math.max(lookback, sim.dates.length - count)),
+    [sim.dates, lookback, count],
+  );
 
   // The form starts on the latest evening that still has ten sessions after it.
-  const latest = formations.length ? formations[formations.length - 1] : null;
+  const [latest, setLatest] = useState<string | null>(null);
+  if (!latest && sim.dates.length > DEFAULT_PARAMS.lookback + SESSIONS) setLatest(sim.dates[sim.dates.length - 1 - SESSIONS]);
   const defaults = useMemo(() => (latest ? defaultForm(latest) : null), [latest]);
   const form = formState ?? defaults;
   // A longer lookback can push the chosen evening out of range: keep it inside.
@@ -72,10 +81,15 @@ export function Builder() {
       : (form?.formation ?? "");
   const sessionWindow = useMemo(() => {
     const i = sim.dates.indexOf(formation);
-    return i < 0 ? [] : sim.dates.slice(i + 1, i + 1 + SESSIONS);
-  }, [sim.dates, formation]);
+    return i < 0 ? [] : sim.dates.slice(i + 1, i + 1 + count);
+  }, [sim.dates, formation, count]);
+  // Tickers the engine would refuse on some evening of that window.
+  const refused = useMemo(
+    () => (sim.market && formation ? refusals(sim.market, sim.dates, formation, count, lookback, DEFAULT_PARAMS.minTraded) : new Map()),
+    [sim.market, sim.dates, formation, count, lookback],
+  );
 
-  const { config, problems } = form ? toConfig({ ...form, formation }, t) : { config: null, problems: [] };
+  const { config, problems } = form ? toConfig({ ...form, formation }, t, refused) : { config: null, problems: [] };
   const running = sim.status === "running";
   const sessions = sim.sessions;
   const r = sim.result;
@@ -122,7 +136,7 @@ export function Builder() {
     return () => window.removeEventListener("keydown", onKey);
   }, [sessions.length, pick.session]);
 
-  const totalGenerations = config ? config.formationGenerations + (SESSIONS - 1) * config.dailyGenerations : 1;
+  const totalGenerations = config ? config.formationGenerations + (config.sessions - 1) * config.dailyGenerations : 1;
   const done = sim.progress
     ? (sim.progress.session === 1 ? 0 : (config?.formationGenerations ?? 0) + (sim.progress.session - 2) * (config?.dailyGenerations ?? 0)) +
       sim.progress.gen
@@ -132,15 +146,23 @@ export function Builder() {
   const run = () => {
     if (!config) return;
     setPick({ session: null, dir: 0 });
+    setPicking(false);
     setPane("result");
     sim.run(config);
   };
 
-  const dataLine = sim.dates.length
-    ? b.data(sim.tickers, day(sim.dates[0], lang), day(sim.dates[sim.dates.length - 1], lang))
-    : sim.status === "error"
-      ? (sim.error ?? "")
-      : b.loading;
+  // On a phone the picker takes the result's half, and gives the parameters back when done.
+  const openPicker = () => {
+    setPicking(true);
+    setPane("result");
+  };
+  const closePicker = useCallback(() => {
+    setPicking(false);
+    setPane("params");
+  }, []);
+
+  const dataLine =
+    sim.dates.length && sim.market ? b.data(sim.market.universe.length, day(sim.dates[0], lang), day(sim.dates[sim.dates.length - 1], lang)) : "";
 
   return (
     <main className="page grid h-[calc(100dvh-4rem-1px)] grid-rows-[auto_minmax(0,1fr)] overflow-hidden lg:grid-cols-[22rem_minmax(0,1fr)] lg:grid-rows-1">
@@ -157,7 +179,7 @@ export function Builder() {
         />
       </div>
 
-      <aside className={cn("min-h-0 border-border bg-[color-mix(in_srgb,var(--foreground)_2%,var(--background))] lg:border-r", pane !== "params" && "max-lg:hidden")}>
+      <aside className={cn("relative z-20 min-h-0 border-border bg-[color-mix(in_srgb,var(--foreground)_2%,var(--background))] lg:border-r", pane !== "params" && "max-lg:hidden")}>
         <Sidebar
           form={form ? { ...form, formation } : null}
           defaults={defaults}
@@ -166,10 +188,12 @@ export function Builder() {
           lang={lang}
           formations={formations}
           sessionWindow={sessionWindow}
-          dataLine={dataLine}
+          refused={refused}
+          onPick={openPicker}
           bar={{
             running,
             canRun: !!config && sim.status !== "loading",
+            sessions: count,
             again: !!r,
             fraction,
             progress: sim.progress
@@ -184,10 +208,25 @@ export function Builder() {
       </aside>
 
       <section className={cn("@container relative flex min-h-0 min-w-0 flex-col", pane !== "result" && "max-lg:hidden")}>
+        {picking && sim.market && form && (
+          <Picker
+            market={sim.market}
+            dates={sim.dates}
+            formation={formation}
+            lookback={lookback}
+            refused={refused}
+            picks={form.picks}
+            onChange={(picks) => setForm({ ...form, formation, picks })}
+            onClose={closePicker}
+            t={t}
+            lang={lang}
+          />
+        )}
         {!started ? (
           <EmptyStage
             t={t}
             lang={lang}
+            dataLine={dataLine}
             formation={formation}
             sessionWindow={sessionWindow}
             loading={sim.status === "loading"}
@@ -271,7 +310,11 @@ export function Builder() {
                       title={b.returns}
                       icon={ChartColumn}
                       bodyClassName="pt-8"
-                      actions={<p className="hidden max-w-md truncate text-[10.5px] text-muted-foreground @4xl:block" title={b.results.oneSample}>{b.results.oneSample}</p>}
+                      actions={
+                        <p className="hidden max-w-md truncate text-[10.5px] text-muted-foreground @4xl:block" title={b.results.oneSample(runConfig?.sessions ?? SESSIONS)}>
+                          {b.results.oneSample(runConfig?.sessions ?? SESSIONS)}
+                        </p>
+                      }
                     >
                       <ReturnBars
                         points={points}
@@ -421,6 +464,10 @@ function Timeline({
   const v = t.builder.session;
   const done = points.length - 1;
   const n = Math.max(1, dates.length);
+  // Many sessions: a date every few stops (and on the picked one), the returns left to the tooltip.
+  const every = { wide: n <= 12 ? 1 : Math.ceil(n / 10), narrow: n <= 10 ? 1 : Math.ceil(n / 6) };
+  const labelled = (session: number, step: number) =>
+    step === 1 || session === selected || ((session - 1) % step === 0 && (!selected || Math.abs(session - selected) >= step / 2));
   return (
     <nav aria-label={v.tabs} className="flex h-14 shrink-0 items-center gap-2 border-t border-border px-3 @2xl:h-[4.5rem] @2xl:px-4">
       <IconButton label={v.prev} disabled={!selected || selected <= 1} onClick={() => selected && onSelect(selected - 1)}>
@@ -445,7 +492,7 @@ function Timeline({
                 type="button"
                 disabled={!ready}
                 aria-current={active ? "step" : undefined}
-                title={ready ? day(d, lang) : v.pending}
+                title={ready ? `${day(d, lang)} · ${percent(ret ?? 0, lang, 2, true)}` : v.pending}
                 onClick={() => onSelect(session)}
                 className="group/stop flex flex-col items-center gap-1 disabled:cursor-default"
               >
@@ -462,12 +509,14 @@ function Timeline({
                 </span>
                 {/* Narrow, a stop shows its number; wide, its date and its return. */}
                 <span className={cn("font-mono text-[10px] leading-none transition-colors duration-200", active ? "text-foreground" : "text-muted-foreground group-hover/stop:text-foreground")}>
-                  <span className="@2xl:hidden">{session}</span>
-                  <span className="hidden @2xl:inline">{shortDay(d, lang)}</span>
+                  <span className={cn("@2xl:hidden", !labelled(session, every.narrow) && "invisible")}>{session}</span>
+                  <span className={cn("hidden @2xl:inline", !labelled(session, every.wide) && "invisible")}>{shortDay(d, lang)}</span>
                 </span>
-                <span className={cn("hidden h-3 font-mono text-[10px] leading-none tabular-nums @2xl:block", ret === null ? "text-transparent" : signClass(ret))}>
-                  {ret === null ? "·" : percent(ret, lang, 1, true)}
-                </span>
+                {n <= 12 && (
+                  <span className={cn("hidden h-3 font-mono text-[10px] leading-none tabular-nums @2xl:block", ret === null ? "text-transparent" : signClass(ret))}>
+                    {ret === null ? "·" : percent(ret, lang, 1, true)}
+                  </span>
+                )}
               </button>
             </li>
           );
@@ -484,6 +533,7 @@ function Timeline({
 function EmptyStage({
   t,
   lang,
+  dataLine,
   formation,
   sessionWindow,
   loading,
@@ -493,6 +543,7 @@ function EmptyStage({
 }: {
   t: Dictionary;
   lang: string;
+  dataLine: string;
   formation: string;
   sessionWindow: string[];
   loading: boolean;
@@ -501,6 +552,7 @@ function EmptyStage({
   onRun: () => void;
 }) {
   const b = t.builder;
+  const n = sessionWindow.length;
   return (
     <div className="relative h-full overflow-hidden">
       <TerrainField className="pointer-events-none absolute inset-0 overflow-hidden opacity-80" />
@@ -516,8 +568,14 @@ function EmptyStage({
             </span>
             <p className={label}>{b.eyebrow}</p>
           </div>
-          <h1 className="mt-5 text-3xl font-medium tracking-tight sm:text-4xl">{b.title}</h1>
+          <h1 className="mt-5 text-3xl font-medium tracking-tight sm:text-4xl">{b.title(n || SESSIONS)}</h1>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{b.lead}</p>
+          {dataLine && (
+            <p className="mt-4 flex animate-[fade_0.4s_var(--ease)] gap-2 text-xs leading-snug text-muted-foreground">
+              <Database className="mt-px size-3.5 shrink-0 text-up" aria-hidden />
+              {dataLine}
+            </p>
+          )}
 
           {error ? (
             <p className="mt-6 flex items-center gap-2 text-sm text-down">
@@ -531,27 +589,55 @@ function EmptyStage({
             </p>
           ) : (
             <>
-              <p className={cn(label, "mt-7")}>{b.stage.window}</p>
-              <ol key={formation} className="mt-3 grid grid-cols-5 gap-1.5 sm:grid-cols-[auto_repeat(10,minmax(0,1fr))]">
-                <li className="col-span-5 flex animate-[pop_0.4s_var(--ease-spring)_both] items-center gap-1.5 border border-up/60 px-2 py-1.5 font-mono text-[10px] text-up sm:col-span-1">
+              <p className={cn(label, "mt-7")}>{b.stage.window(n)}</p>
+              <div key={`${formation}-${n}`} className="mt-3 flex flex-col gap-1.5 sm:flex-row">
+                <span className="flex shrink-0 animate-[pop_0.4s_var(--ease-spring)_both] items-center gap-1.5 self-start border border-up/60 px-2 py-1.5 font-mono text-[10px] text-up">
                   <span>{b.results.formation}</span>
                   <span className="text-foreground">{shortDay(formation, lang)}</span>
-                </li>
-                {sessionWindow.map((d, i) => (
-                  <li
-                    key={d}
-                    className="flex animate-[pop_0.4s_var(--ease-spring)_both] flex-col items-center border border-border py-1 font-mono text-[10px] leading-tight"
-                    style={{ animationDelay: `${60 + i * 35}ms` }}
+                </span>
+                {n <= 20 ? (
+                  // Up to twenty, a chip per session, ten to a row.
+                  <ol
+                    className="grid flex-1 grid-cols-[repeat(var(--narrow),minmax(0,1fr))] gap-1.5 sm:grid-cols-[repeat(var(--wide),minmax(0,1fr))]"
+                    style={{ "--narrow": Math.min(n, 5), "--wide": Math.min(n, 10) } as CSSProperties}
                   >
-                    <span className="text-muted-foreground">{i + 1}</span>
-                    <span>{shortDay(d, lang)}</span>
-                  </li>
-                ))}
-              </ol>
+                    {sessionWindow.map((d, i) => (
+                      <li
+                        key={d}
+                        className="flex animate-[pop_0.4s_var(--ease-spring)_both] flex-col items-center border border-border py-1 font-mono text-[10px] leading-tight"
+                        style={{ animationDelay: `${60 + i * 25}ms` }}
+                      >
+                        <span className="text-muted-foreground">{i + 1}</span>
+                        <span>{shortDay(d, lang)}</span>
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  // More, a strip of ticks from the first session to the last.
+                  <div className="flex-1">
+                    <ol className="flex h-7 gap-px">
+                      {sessionWindow.map((d, i) => (
+                        <li
+                          key={d}
+                          title={`${i + 1} · ${day(d, lang)}`}
+                          className="flex-1 origin-bottom animate-[pop_0.4s_var(--ease-spring)_both] border border-border bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)]"
+                          style={{ animationDelay: `${60 + i * 8}ms` }}
+                        />
+                      ))}
+                    </ol>
+                    <p className="mt-1 flex justify-between font-mono text-[10px] text-muted-foreground">
+                      <span>1 · {shortDay(sessionWindow[0], lang)}</span>
+                      <span>
+                        {n} · {shortDay(sessionWindow[n - 1], lang)}
+                      </span>
+                    </p>
+                  </div>
+                )}
+              </div>
               <div className="mt-7 flex flex-wrap items-center gap-4">
                 <button type="button" className="btn btn-primary" disabled={!canRun} onClick={onRun}>
                   <Play className="size-3.5" aria-hidden />
-                  {b.run}
+                  {b.run(n)}
                 </button>
                 <span className="text-xs text-muted-foreground">{b.stage.emptyHint}</span>
               </div>

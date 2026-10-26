@@ -1,5 +1,5 @@
 // The builder's simulation in the terminal, on public/data/market.json.
-//   pnpm simulate [--formation YYYY-MM-DD] [--strict] [--fitness sharpe|sortino|cvar]
+//   pnpm simulate [--formation YYYY-MM-DD] [--sessions N] [--strict] [--companies A,B,...] [--fitness sharpe|sortino|cvar]
 
 import { readFileSync } from "node:fs";
 import { DEFAULT_PARAMS } from "../src/lib/ga";
@@ -10,22 +10,25 @@ import { formationRange, simulate } from "../src/lib/sim/simulate";
 import { flag, has } from "./lib.mts";
 
 const snap = JSON.parse(readFileSync("public/data/market.json", "utf8")) as Snapshot;
+const companies = flag("companies")?.split(",");
+const sessions = Number(flag("sessions") ?? LIVE_CONFIG.sessions);
 const params = {
   ...DEFAULT_PARAMS,
-  strict: has("strict"),
+  strict: has("strict") || !!companies,
   fitness: (flag("fitness") ?? DEFAULT_PARAMS.fitness) as FitnessKind,
 };
-const range = formationRange(snap, params.lookback, LIVE_CONFIG.sessions);
+const range = formationRange(snap, params.lookback, sessions);
 const formation = flag("formation") ?? range[range.length - 1];
 const r = simulate(snap, {
   formation,
-  sessions: LIVE_CONFIG.sessions,
+  sessions,
   capital: LIVE_CONFIG.capital,
   params,
   formationGenerations: LIVE_CONFIG.formationGenerations,
   dailyGenerations: LIVE_CONFIG.dailyGenerations,
   seed: "genwallet",
   orderBuffer: LIVE_CONFIG.orderBuffer,
+  companies,
 });
 for (const s of r.summaries) {
   const changes = s.hold ? "hold" : [...s.entered.map((t) => `+${t}`), ...s.left.map((t) => `-${t}`)].join(" ");

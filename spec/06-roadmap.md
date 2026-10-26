@@ -16,6 +16,7 @@
 - [x] `/montar` reworked into one fixed screen: parameters in a sidebar, a navigable stage with three views and a session timeline (`04-ui-design.md`), checked at 1440, 1280 and 390 px in both themes.
 - [x] Landing cut to three screens with three grounds, the GA figure in tabs (`04-ui-design.md`); one navbar on every page, the home's green name sliding off as the tab underline.
 - [x] IBM Plex for type, the hero's name in red and green, the helix motif in the footer and the checks; the hero's caption removed.
+- [x] `/montar` opened up: 1 to 60 sessions, a third company mode where the visitor picks the 10 in a picker over the stage (strict mode with a given locked set, `SimConfig.companies`); groups that close, a hidden scroll bar, the hint floating beside the parameter. The default run is unchanged (R$ 102,164.01).
 - [ ] The Vercel project.
 
 ## Plan

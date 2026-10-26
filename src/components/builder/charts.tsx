@@ -135,7 +135,8 @@ export function NavChart({
             </g>
           ))}
           {dates.map((d, i) =>
-            i % labelEvery === 0 || i === n ? (
+            // The last date always; a regular one too close to it gives way.
+            (i % labelEvery === 0 && n - i >= labelEvery / 2) || i === n ? (
               <text
                 key={d}
                 x={x(i)}

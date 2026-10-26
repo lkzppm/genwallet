@@ -30,6 +30,17 @@ function median(xs: number[]): number {
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
 }
 
+/** Median daily traded value (R$) of ticker `a` over the 60 sessions ending on `dates[day]`. */
+export function tradedValue(s: Snapshot, a: number, day: number): number {
+  const values: number[] = [];
+  for (let d = Math.max(0, day - 59); d <= day; d++) {
+    const c = s.close[a][d];
+    const v = s.volume[a][d];
+    if (c !== null && v !== null) values.push(c * v);
+  }
+  return median(values);
+}
+
 /** The engine's input for a decision at the close of `dates[day]`. */
 export function problemInput(
   s: Snapshot,
@@ -46,15 +57,7 @@ export function problemInput(
     companies: s.universe.map((u) => u.company),
     sectors: s.universe.map((u) => u.sector),
     prices: s.adjClose.map((row) => row.slice(from, day + 1)),
-    traded: s.universe.map((_, a) => {
-      const values: number[] = [];
-      for (let d = Math.max(0, day - 59); d <= day; d++) {
-        const c = s.close[a][d];
-        const v = s.volume[a][d];
-        if (c !== null && v !== null) values.push(c * v);
-      }
-      return median(values);
-    }),
+    traded: s.universe.map((_, a) => tradedValue(s, a, day)),
     rf: s.cdi[day],
     current,
     ...(locked ? { locked } : {}),

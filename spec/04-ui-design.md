@@ -42,6 +42,12 @@ Each section is about one viewport and has its own ground:
 - **Motion**: views and sessions enter from the side of the move; the portfolio's rows slide to their new ranks; lines draw in from the left; groups open with a height transition.
 - **Phone**: a switch at the top shows the parameters or the result, each on the full screen.
 
+### Free choice of companies and sessions (Decided, 2026-10-26, Lucas)
+
+- **Sessions**: a slider from 1 to 60 (default 10, the live run's). The formation range, the card, the timeline (a date every few stops past 12), the composition (narrower columns past 15) and the run button follow it.
+- **Companies**: a third mode, *Escolhidas*, beside *Livres* and *Fixas*. The visitor picks the 10 in a picker that opens over the stage (search, sector filter, columns sortable by return, volatility over the lookback and median traded value, a sparkline per ticker). The run is then strict mode with the picks as the locked set from the formation, so the engine is unchanged (`SimConfig.companies`); the sector cap does not apply, as in strict mode. A ticker the engine would refuse on some evening of the window (no full lookback, or under the minimum traded value) cannot be picked, and a second share class of a company already in is blocked.
+- **Sidebar**: a second click on the open group closes it; the scroll bar is hidden; the explanation of a parameter floats beside it only while the pointer or the focus is on it (under it on a phone). The data line ("76 papéis do Ibovespa...") moved from the sidebar's header to the card on the stage.
+
 ## Constraints inherited from the sister projects
 
 - Bilingual interface, Portuguese by default, every string in `src/i18n/`; no em dash in visitor text.

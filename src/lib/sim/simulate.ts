@@ -26,6 +26,8 @@ export interface SimConfig {
   /** Seeds are `${seed}|${date}`, so two runs with the same seed are identical. */
   seed: string;
   orderBuffer: number;
+  /** Companies chosen by hand: the portfolio is locked to them from the formation (`params.strict`). */
+  companies?: string[];
 }
 
 export interface SimProgress {
@@ -150,7 +152,7 @@ export function simulate(
 
   const summaries: SessionSummary[] = [];
   let population: { date: string; nextId: number; population: SerializedIndividual[] } | null = null;
-  let locked: string[] | undefined;
+  let locked: string[] | undefined = params.strict ? config.companies : undefined;
   let previous: string[] = [];
 
   for (let k = 0; k < n; k++) {
@@ -170,7 +172,7 @@ export function simulate(
     const nav = money(state.cash + held.reduce((s, [t, q]) => s + q * closes[t], 0));
     const current = Object.fromEntries(held.map(([t, q]) => [t, (q * closes[t]) / nav]));
 
-    // Strict mode picks the companies at formation and only re-weights them after.
+    // Strict mode picks the companies at formation (or takes the ones chosen by hand) and only re-weights them after.
     const effective: GaParams = { ...params, strict: params.strict && locked !== undefined };
     const generations = population ? config.dailyGenerations : config.formationGenerations;
     const archive: DayArchive = {

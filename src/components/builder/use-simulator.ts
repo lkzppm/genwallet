@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { SessionSummary, SimConfig, SimProgress, SimResult } from "@/lib/sim/simulate";
 import type { FromWorker, ToWorker } from "./protocol";
+import type { MarketView } from "./universe";
 
 export type SimStatus = "loading" | "idle" | "running" | "done" | "error";
 
@@ -10,8 +11,8 @@ export interface Simulator {
   status: SimStatus;
   /** Trading dates of the market data, once the worker has loaded it. */
   dates: string[];
-  /** Tickers in the data's universe. */
-  tickers: number;
+  /** The universe with its prices and traded values, for the company picker. */
+  market: MarketView | null;
   /** The configuration of the run in progress or last made. */
   config: SimConfig | null;
   progress: SimProgress | null;
@@ -28,7 +29,7 @@ export function useSimulator(): Simulator {
   const workerRef = useRef<Worker | null>(null);
   const [status, setStatus] = useState<SimStatus>("loading");
   const [dates, setDates] = useState<string[]>([]);
-  const [tickers, setTickers] = useState(0);
+  const [market, setMarket] = useState<MarketView | null>(null);
   const [config, setConfig] = useState<SimConfig | null>(null);
   const [progress, setProgress] = useState<SimProgress | null>(null);
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
@@ -42,7 +43,7 @@ export function useSimulator(): Simulator {
       switch (message.type) {
         case "ready":
           setDates(message.dates);
-          setTickers(message.tickers);
+          setMarket(message.market);
           setStatus((s) => (s === "loading" ? "idle" : s));
           break;
         case "progress":
@@ -92,5 +93,5 @@ export function useSimulator(): Simulator {
     setStatus("idle");
   }, [spawn]);
 
-  return { status, dates, tickers, config, progress, sessions, result, error, run, cancel };
+  return { status, dates, market, config, progress, sessions, result, error, run, cancel };
 }
