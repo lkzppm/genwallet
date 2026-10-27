@@ -20,7 +20,9 @@
 - [x] The terrain moves every 8 s instead of 18 s; the operators figure glides from one operator to the next (a sliding frame, a progress line, cross-faded text), and the pointer on one holds it.
 - [x] `/montar` keeps its state and its running simulation across page changes (module-level store), checked by leaving mid-run and coming back.
 - [x] `/montar`: a draggable, remembered sidebar width; the pre-run card cut to a title, three steps, a dot timeline and the run button.
-- [ ] The Vercel project.
+- [x] The Vercel project: `genwallet`, production from `main` (`genwallet-xi.vercel.app`), 2026-10-26. The alias `genwallet-ufrj.vercel.app` is still to be added.
+- [x] Hyperparameter search (`pnpm tune`, `02-genetic-algorithm.md`), 2026-10-27: five years, 11,079 runs; the builder starts from `TUNED` (`0xfd49e`, the `active` fitness), +0.01% over BOVA11 per held-out window against −0.62% for the old defaults. The live run keeps `DEFAULT_PARAMS`. The builder's default run is now R$ 97,637.08.
+- [ ] Strict mode: carry a locked company that drops below the liquidity floor instead of throwing (`problem.ts`), seen in the search.
 
 ## Plan
 

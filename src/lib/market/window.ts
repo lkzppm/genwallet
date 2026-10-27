@@ -48,6 +48,8 @@ export function problemInput(
   lookback: number,
   current: Record<string, number>,
   locked?: string[],
+  /** Adds BOVA11 over the same window, for the `active` fitness. */
+  bench = false,
 ): ProblemInput {
   const from = day - lookback;
   if (from < 0) throw new Error(`need ${lookback + 1} sessions before ${s.dates[day]}, have ${day + 1}`);
@@ -61,5 +63,6 @@ export function problemInput(
     rf: s.cdi[day],
     current,
     ...(locked ? { locked } : {}),
+    ...(bench ? { bench: s.bova.close.slice(from, day + 1) } : {}),
   };
 }

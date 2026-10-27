@@ -20,6 +20,8 @@ export interface ProblemInput {
   current: Record<string, number>;
   /** Strict mode: the tickers the portfolio is locked to. */
   locked?: string[];
+  /** BOVA11's closes over the same sessions as `prices` (the `active` fitness only). */
+  bench?: (number | null)[];
 }
 
 export interface Problem {
@@ -45,6 +47,10 @@ export interface Problem {
   /** Held asset indices, sorted. */
   held: number[];
   locked: number[] | null;
+  /** BOVA11 over the window, for the `active` fitness: its expected daily return, its variance, its covariance with each asset. */
+  benchMean: number;
+  benchVar: number;
+  benchCov: Float64Array | null;
 }
 
 function intern(names: string[]): { ids: Int32Array; names: string[] } {
@@ -91,13 +97,26 @@ export function buildProblem(input: ProblemInput, params: GaParams): Problem {
     mean[a] = sum / days;
   }
 
+  // The expected returns may leave the latest sessions out (`skip`); the
+  // covariance always uses the whole window.
+  const skip = Math.min(days - 2, Math.max(0, Math.round(params.skip ?? 0)));
+  let signal = mean;
+  if (skip > 0) {
+    signal = new Float64Array(n);
+    for (const a of eligible) {
+      let sum = 0;
+      for (let d = 0; d < days - skip; d++) sum += returns[d * n + a];
+      signal[a] = sum / (days - skip);
+    }
+  }
+
   // Raw means are the noisiest estimate; pulling them toward the average
   // keeps the GA from simply buying last year's winners.
   let grand = 0;
-  for (const a of eligible) grand += mean[a];
+  for (const a of eligible) grand += signal[a];
   grand /= eligible.length || 1;
   const mu = new Float64Array(n);
-  for (const a of eligible) mu[a] = (1 - params.meanShrink) * mean[a] + params.meanShrink * grand;
+  for (const a of eligible) mu[a] = (1 - params.meanShrink) * signal[a] + params.meanShrink * grand;
 
   const sample = new Float64Array(n * n);
   for (let i = 0; i < eligible.length; i++) {
@@ -135,6 +154,35 @@ export function buildProblem(input: ProblemInput, params: GaParams): Problem {
       cov[a * n + b] = (1 - params.covShrink) * sample[a * n + b] + params.covShrink * target;
     }
   }
+
+  // The benchmark, from the same window as the prices (it ends on the decision's close too).
+  let benchMean = 0;
+  let benchVar = 0;
+  let benchCov: Float64Array | null = null;
+  if (input.bench) {
+    const b = input.bench;
+    const br = new Float64Array(days);
+    for (let d = 0; d < days; d++) {
+      const p0 = b[d];
+      const p1 = b[d + 1];
+      br[d] = p0 && p1 ? p1 / p0 - 1 : 0;
+    }
+    let all = 0;
+    for (let d = 0; d < days; d++) all += br[d];
+    all /= days;
+    let recent = 0;
+    for (let d = 0; d < days - skip; d++) recent += br[d];
+    benchMean = recent / (days - skip);
+    for (let d = 0; d < days; d++) benchVar += (br[d] - all) * (br[d] - all);
+    benchVar /= days - 1;
+    benchCov = new Float64Array(n);
+    for (const a of eligible) {
+      let s = 0;
+      for (let d = 0; d < days; d++) s += (returns[d * n + a] - mean[a]) * (br[d] - all);
+      benchCov[a] = s / (days - 1);
+    }
+  }
+  if (params.fitness === "active" && !benchCov) throw new Error("the active fitness needs the benchmark in the input");
 
   const index = new Map(input.tickers.map((t, i) => [t, i]));
   const currentWeight = new Float64Array(n);
@@ -178,5 +226,8 @@ export function buildProblem(input: ProblemInput, params: GaParams): Problem {
     currentSum,
     held,
     locked,
+    benchMean,
+    benchVar,
+    benchCov,
   };
 }

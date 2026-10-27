@@ -13,7 +13,9 @@
     "live:verify": "tsx scripts/verify.mts",
     "evolve": "tsx scripts/evolve.mts",
     "data": "tsx scripts/export-market.mts",
-    "simulate": "tsx scripts/simulate.mts"
+    "simulate": "tsx scripts/simulate.mts",
+    "tune": "tsx scripts/tune.mts",
+    "tune:data": "tsx scripts/tune-data.mts"
   },
   "packageManager": "pnpm@11.25.0",
   "devDependencies": {

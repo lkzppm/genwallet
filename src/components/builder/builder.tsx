@@ -20,7 +20,7 @@ import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "r
 import { TerrainField } from "@/components/terrain/terrain-canvas";
 import type { Dictionary } from "@/i18n";
 import { useT } from "@/i18n/LocaleProvider";
-import { DEFAULT_PARAMS } from "@/lib/ga/params";
+import { TUNED } from "@/lib/ga/params";
 import { LIVE_CONFIG } from "@/lib/live/config";
 import type { NavPoint, SessionSummary, SimResult } from "@/lib/sim/simulate";
 import { cn } from "@/lib/utils";
@@ -64,7 +64,7 @@ export function Builder() {
   const [sidebar, setSidebar] = useSidebarWidth();
 
   // The window the form asks for: how many sessions, on how long a history.
-  const lookback = formState ? Math.round(read(formState, "lookback")) : DEFAULT_PARAMS.lookback;
+  const lookback = formState ? Math.round(read(formState, "lookback")) : TUNED.params.lookback;
   const count = formState ? Math.round(read(formState, "sessions")) : SESSIONS;
   const formations = useMemo(
     () => sim.dates.slice(lookback, Math.max(lookback, sim.dates.length - count)),
@@ -73,7 +73,7 @@ export function Builder() {
 
   // The form starts on the latest evening that still has ten sessions after it.
   const [latest, setLatest] = useState<string | null>(null);
-  if (!latest && sim.dates.length > DEFAULT_PARAMS.lookback + SESSIONS) setLatest(sim.dates[sim.dates.length - 1 - SESSIONS]);
+  if (!latest && sim.dates.length > TUNED.params.lookback + SESSIONS) setLatest(sim.dates[sim.dates.length - 1 - SESSIONS]);
   const defaults = useMemo(() => (latest ? defaultForm(latest) : null), [latest]);
   const form = formState ?? defaults;
   // A longer lookback can push the chosen evening out of range: keep it inside.
@@ -87,7 +87,7 @@ export function Builder() {
   }, [sim.dates, formation, count]);
   // Tickers the engine would refuse on some evening of that window.
   const refused = useMemo(
-    () => (sim.market && formation ? refusals(sim.market, sim.dates, formation, count, lookback, DEFAULT_PARAMS.minTraded) : new Map()),
+    () => (sim.market && formation ? refusals(sim.market, sim.dates, formation, count, lookback, TUNED.params.minTraded) : new Map()),
     [sim.market, sim.dates, formation, count, lookback],
   );
 
@@ -569,7 +569,7 @@ function EmptyStage({
   const st = b.stage.steps;
   const n = sessionWindow.length;
   const steps = [
-    { icon: Dna, verb: st.form.verb, value: st.form.value(DEFAULT_PARAMS.k) },
+    { icon: Dna, verb: st.form.verb, value: st.form.value(TUNED.params.k) },
     { icon: CalendarDays, verb: st.operate.verb, value: st.operate.value(n || SESSIONS) },
     { icon: ChartLine, verb: st.compare.verb, value: st.compare.value },
   ];

@@ -154,8 +154,9 @@ export const en = {
         label: "Fitness",
         sharpe: "Sharpe",
         sortino: "Sortino",
-        cvar: "Return / CVaR",
-        hint: "risk-adjusted return over the CDI, net of the cost of trading from the current portfolio",
+        cvar: "CVaR",
+        active: "vs BOVA11",
+        hint: "Sharpe, Sortino and return over CVaR: risk-adjusted return over the CDI; vs BOVA11: expected return above the index over how far the portfolio strays from it. All net of the cost of trading from the current portfolio",
       },
       population: { label: "Population", hint: "portfolios per generation" },
       formationGenerations: { label: "Generations at formation", hint: "from a random population" },
@@ -171,6 +172,7 @@ export const en = {
       sectorCap: { label: "Companies per sector", hint: "at most, out of 10" },
       lookback: { label: "Lookback (sessions)", hint: "history behind every estimate" },
       meanShrink: { label: "Mean shrinkage", hint: "pull of each stock's mean return toward the average of all" },
+      skip: { label: "Skip (sessions)", hint: "latest sessions left out of each mean return; 12-1 momentum skips about 21, the month that tends to reverse" },
     },
     invalid: {
       bounds: (k: number) =>

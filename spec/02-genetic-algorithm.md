@@ -44,6 +44,16 @@ score    = (μₚ − r_f − cost / H) · 252  /  (σₚ · √252)
 
 `H = 10` sessions amortises the cost of a trade over the horizon of the run, so a swap must pay for itself. Alternatives selectable in the lab: Sortino (downside deviation of the historical portfolio series) and return over CVaR 95% (historical simulation).
 
+**Against the index (Decided, 2026-10-26, Lucas: "make the GA beat BOVA11")**: `fitness: "active"` scores the expected return above BOVA11 over the tracking error, an information ratio net of the same costs:
+
+```
+active   = μₚ − μ_BOVA − cost / H
+tracking = √( w'Σw − 2 w'c + σ²_BOVA )      c = covariance of each asset with BOVA11, floored at 10⁻⁸
+score    = active · √252 / tracking
+```
+
+BOVA11's closes enter the problem only for this fitness (`ProblemInput.bench`), cut on the same window as the stock prices, so it ends on the decision's close like everything else. `skip` (0 by default) leaves the latest sessions out of every expected return, the benchmark's included (12-1 momentum skips about 21); the covariances keep the whole window. With `fitness` other than `active` and `skip` 0 the arithmetic is the one recorded before, bit for bit: the live run that started on 2026-10-26 with Sharpe replays unchanged. Only the score changes: selection, crossover, mutation, repair and the carried population are the same GA.
+
 ## Operators
 
 | Operator | Default |
@@ -69,6 +79,31 @@ score    = (μₚ − r_f − cost / H) · 252  /  (σₚ · √252)
 `rng.ts` is a seeded sfc32 with the seed hashed from `genwallet|<date>`. Ties in sorting break on the individual's id. Given the archived inputs of a day (`03-live-run.md`) and the previous day's population, the champion is reproducible to the last digit, in Node and in the browser.
 
 **No transcendental `Math` in the engine** (Decided, 2026-10-26). `Math.exp`, `log`, `sin`, `cos` and `tanh` return different last bits in Node 26 and Chromium 1243 (measured; `sqrt` and `pow` agreed), which made a browser replay drift from the job at the 7th session. The engine uses `dexp`/`dlog` (`src/lib/ga/math.ts`: range reduction plus series, only + − × ÷), and normals come from Marsaglia's polar method instead of Box-Muller. Checked on 2026-10-26: the two dry-run evenings replayed in Node and in Chromium give the same champion, score and final population bit for bit; `dexp`/`dlog` stay within 8e-16 relative of `Math`.
+
+## Tuning the defaults (Decided, 2026-10-26)
+
+`pnpm tune` searches the knobs the assignment leaves open (everything in `GaParams` but `k`, the liquidity floor and the costs, plus the generations of the formation and of each evening) by replaying the live run with the builder's simulator over past windows.
+
+- **History**: `pnpm tune:data` writes five years of the frozen universe to `.cache/market-5y.json` (1,248 sessions on 2026-10-26). Today's constituents looked back are survivors, so absolute returns are flattered; comparisons between configs much less.
+- **Windows**: a formation every 10 sessions from session 252 on (so every lookback up to 252 sees the same windows), each operated 10 sessions. The last quarter by time, after a one-window gap, is held out until the end.
+- **Search**: 160 random configs plus the defaults, successive halving on the training windows (12 windows × 1 seed, the best third on 24 × 2, the best third of those on all × 3), 4 mutants of each of the best 4, then the best 5 and the defaults on the held-out windows.
+- **Objective**: by default the 10-session return over BOVA11 on the same sessions, averaged over windows (seeds first) and divided by its spread across windows; `--objective sharpe` (over the CDI) or `mean` for the alternatives. The space includes the `active` fitness and `skip`.
+- **No look-ahead, checked**: before searching, every price, volume, index level and CDI rate after a decision's close is scrambled, and the decisions of the formation and of the next evening must come out identical for every fitness; scrambling from the decision day itself does change them (checked on 2026-10-26), so the test can see a one-day leak.
+- **Running**: one process per core but one (threads of one process queue on the allocator: nine ran no faster than one). One to two runs a second on this machine, awake and on mains power; the 2026-10-26 search took 11,079 runs and about four hours awake, resumable from `.cache/tune/<name>/results.jsonl`, reported in `report.md`.
+- A config replaces the defaults only if it also beats them on the held-out windows. The live run is not affected: it reads its parameters from its own start event.
+
+**Result (Decided, 2026-10-27)**: the builder starts from `TUNED` (`src/lib/ga/params.ts`, config `0xfd49e`); `DEFAULT_PARAMS` stays the object the live run recorded. Per 10-session window, averaged:
+
+| config | over BOVA11, train | over BOVA11, held out | beats BOVA11, held out | worst, held out |
+|---|---|---|---|---|
+| old defaults (`DEFAULT_PARAMS`, 400/200 generations) | +0.33% | −0.62% | 44% | −7.15% |
+| `15n0ra5` (the report's winner, strict) | +0.46% | +0.02% | 52% | −7.12% |
+| `0xfd49e` (the same, free swaps): adopted | +0.38% | +0.01% | 60% | −6.58% |
+
+- What changed: the `active` fitness, at most 2 companies per sector and 14% per company (from 3 and 20%), `skip` 3, `lookback` 240, `meanShrink` 0.21, `horizon` 17, a population of 260 with 9 elites, almost no transfer mutation, and 300 / 150 generations.
+- Read honestly: about 0.6 points per window better than the old defaults on the held-out year, and level with BOVA11 there, not ahead of it. The history is survivors, which flatters every config alike.
+- `15n0ra5` and `0xfd49e` differ only in strict mode and tie on the held-out windows; free swaps were taken because strict mode throws when a locked company later drops below the liquidity floor (`locked ticker … is not eligible`), which failed 21 of the search's runs in 8 strict configs (failed runs were left out of their scores; neither adopted config had one).
+- The builder's default run (formation 2026-10-08) now gives R$ 97,637.08 (−2.36% against BOVA11's −1.49%), in Node and in Chromium to the cent: one window, against an average over 25.
 
 ## What the engine reports per generation
 

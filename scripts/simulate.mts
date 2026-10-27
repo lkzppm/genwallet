@@ -1,8 +1,8 @@
 // The builder's simulation in the terminal, on public/data/market.json.
-//   pnpm simulate [--formation YYYY-MM-DD] [--sessions N] [--strict] [--companies A,B,...] [--fitness sharpe|sortino|cvar]
+//   pnpm simulate [--formation YYYY-MM-DD] [--sessions N] [--strict] [--companies A,B,...] [--fitness sharpe|sortino|cvar|active]
 
 import { readFileSync } from "node:fs";
-import { DEFAULT_PARAMS } from "../src/lib/ga";
+import { TUNED } from "../src/lib/ga";
 import type { FitnessKind } from "../src/lib/ga";
 import { LIVE_CONFIG } from "../src/lib/live/config";
 import type { Snapshot } from "../src/lib/market/snapshot";
@@ -13,9 +13,9 @@ const snap = JSON.parse(readFileSync("public/data/market.json", "utf8")) as Snap
 const companies = flag("companies")?.split(",");
 const sessions = Number(flag("sessions") ?? LIVE_CONFIG.sessions);
 const params = {
-  ...DEFAULT_PARAMS,
+  ...TUNED.params,
   strict: has("strict") || !!companies,
-  fitness: (flag("fitness") ?? DEFAULT_PARAMS.fitness) as FitnessKind,
+  fitness: (flag("fitness") ?? TUNED.params.fitness) as FitnessKind,
 };
 const range = formationRange(snap, params.lookback, sessions);
 const formation = flag("formation") ?? range[range.length - 1];
@@ -24,8 +24,8 @@ const r = simulate(snap, {
   sessions,
   capital: LIVE_CONFIG.capital,
   params,
-  formationGenerations: LIVE_CONFIG.formationGenerations,
-  dailyGenerations: LIVE_CONFIG.dailyGenerations,
+  formationGenerations: TUNED.formationGenerations,
+  dailyGenerations: TUNED.dailyGenerations,
   seed: "genwallet",
   orderBuffer: LIVE_CONFIG.orderBuffer,
   companies,
