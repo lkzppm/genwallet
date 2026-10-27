@@ -1,0 +1,822 @@
+[
+ {
+  "type": "start",
+  "date": "2026-10-26",
+  "capital": 100000,
+  "universe": [
+   {
+    "ticker": "ABEV3",
+    "company": "AMBEV S/A",
+    "sector": "Consumo não Cíclico"
+   },
+   {
+    "ticker": "ALOS3",
+    "company": "ALLOS",
+    "sector": "Financeiro"
+   },
+   {
+    "ticker": "ASAI3",
+    "company": "ASSAI",
+    "sector": "Consumo não Cíclico"
+   },
+   {
+    "ticker": "AURE3",
+    "company": "AUREN",
+    "sector": "Utilidade Pública"
+   },
+   {
+    "ticker": "AXIA3",
+    "company": "AXIA ENERGIA",
+    "sector": "Utilidade Pública"
+   },
+   {
+    "ticker": "AZZA3",
+    "company": "AZZAS 2154",
+    "sector": "Consumo Cíclico"
+   },
+   {
+    "ticker": "B3SA3",
+    "company": "B3",
+    "sector": "Financeiro"
+   },
+   {
+    "ticker": "BBAS3",
+    "company": "BRASIL",
+    "sector": "Financeiro"
+   },
+   {
+    "ticker": "BBDC3",
+    "company": "BRADESCO",
+    "sector": "Financeiro"
+   },
+   {
+    "ticker": "BBDC4",
+    "company": "BRADESCO",
+    "sector": "Financeiro"
+   },
+   {
+    "ticker": "BBSE3",
+    "company": "BBSEGURIDADE",
+    "sector": "Financeiro"
+   },
+   {
+    "ticker": "BEEF3",
+    "company": "MINERVA",
+    "sector": "Consumo não Cíclico"
+   },
+   {
+    "ticker": "BPAC11",
+    "company": "BTGP BANCO",
+    "sector": "Financeiro"
+   },
+   {
+    "ticker": "BRAP4",
+    "company": "BRADESPAR",
+    "sector": "Materiais Básicos"
+   },
+   {
+    "ticker": "BRAV3",
+    "company": "BRAVA",
+    "sector": "Petróleo, Gás e Biocombustíveis"
+   },
+   {
+    "ticker": "CEAB3",
+    "company": "CEA MODAS",
+    "sector": "Consumo Cíclico"
+   },
+   {
+    "ticker": "CMIG4",
+    "company": "CEMIG",
+    "sector": "Utilidade Pública"
+   },
+   {
+    "ticker": "CMIN3",
+    "company": "CSNMINERACAO",
+    "sector": "Materiais Básicos"
+   },
+   {
+    "ticker": "COGN3",
+    "company": "COGNA ON",
+    "sector": "Diversos"
+   },
+   {
+    "ticker": "CPFE3",
+    "company": "CPFL ENERGIA",
+    "sector": "Utilidade Pública"
+   },
+   {
+    "ticker": "CPLE3",
+    "company": "COPEL",
+    "sector": "Utilidade Pública"
+   },
+   {
+    "ticker": "CSAN3",
+    "company": "COSAN",
+    "sector": "Petróleo, Gás e Biocombustíveis"
+   },
+   {
+    "ticker": "CSMG3",
+    "company": "COPASA",
+    "sector": "Utilidade Pública"
+   },
+   {
+    "ticker": "CSNA3",
+    "company": "SID NACIONAL",
+    "sector": "Materiais Básicos"
+   },
+   {
+    "ticker": "CURY3",
+    "company": "CURY S/A",
+    "sector": "Consumo Cíclico"
+   },
+   {
+    "ticker": "CXSE3",
+    "company": "CAIXA SEGURI",
+    "sector": "Financeiro"
+   },
+   {
+    "ticker": "CYRE3",
+    "company": "CYRELA REALT",
+    "sector": "Consumo Cíclico"
+   },
+   {
+    "ticker": "DIRR3",
+    "company": "DIRECIONAL",
+    "sector": "Consumo Cíclico"
+   },
+   {
+    "ticker": "EGIE3",
+    "company": "ENGIE BRASIL",
+    "sector": "Utilidade Pública"
+   },
+   {
+    "ticker": "EMBJ3",
+    "company": "EMBRAER",
+    "sector": "Bens Industriais"
+   },
+   {
+    "ticker": "ENEV3",
+    "company": "ENEVA",
+    "sector": "Utilidade Pública"
+   },
+   {
+    "ticker": "ENGI11",
+    "company": "ENERGISA",
+    "sector": "Utilidade Pública"
+   },
+   {
+    "ticker": "EQTL3",
+    "company": "EQUATORIAL",
+    "sector": "Utilidade Pública"
+   },
+   {
+    "ticker": "FLRY3",
+    "company": "FLEURY",
+    "sector": "Saúde"
+   },
+   {
+    "ticker": "GGBR4",
+    "company": "GERDAU",
+    "sector": "Materiais Básicos"
+   },
+   {
+    "ticker": "GOAU4",
+    "company": "GERDAU MET",
+    "sector": "Materiais Básicos"
+   },
+   {
+    "ticker": "HAPV3",
+    "company": "HAPVIDA",
+    "sector": "Saúde"
+   },
+   {
+    "ticker": "HYPE3",
+    "company": "HYPERA",
+    "sector": "Saúde"
+   },
+   {
+    "ticker": "IGTI11",
+    "company": "IGUATEMI S.A",
+    "sector": "Financeiro"
+   },
+   {
+    "ticker": "ISAE4",
+    "company": "ISA ENERGIA",
+    "sector": "Utilidade Pública"
+   },
+   {
+    "ticker": "ITSA4",
+    "company": "ITAUSA",
+    "sector": "Financeiro"
+   },
+   {
+    "ticker": "ITUB4",
+    "company": "ITAUUNIBANCO",
+    "sector": "Financeiro"
+   },
+   {
+    "ticker": "KLBN11",
+    "company": "KLABIN S/A",
+    "sector": "Materiais Básicos"
+   },
+   {
+    "ticker": "LREN3",
+    "company": "LOJAS RENNER",
+    "sector": "Consumo Cíclico"
+   },
+   {
+    "ticker": "MBRF3",
+    "company": "MARFRIG",
+    "sector": "Consumo não Cíclico"
+   },
+   {
+    "ticker": "MGLU3",
+    "company": "MAGAZ LUIZA",
+    "sector": "Consumo Cíclico"
+   },
+   {
+    "ticker": "MOTV3",
+    "company": "MOTIVA SA",
+    "sector": "Bens Industriais"
+   },
+   {
+    "ticker": "MRVE3",
+    "company": "MRV",
+    "sector": "Consumo Cíclico"
+   },
+   {
+    "ticker": "MULT3",
+    "company": "MULTIPLAN",
+    "sector": "Financeiro"
+   },
+   {
+    "ticker": "NATU3",
+    "company": "NATURA",
+    "sector": "Consumo não Cíclico"
+   },
+   {
+    "ticker": "PETR3",
+    "company": "PETROBRAS",
+    "sector": "Petróleo, Gás e Biocombustíveis"
+   },
+   {
+    "ticker": "PETR4",
+    "company": "PETROBRAS",
+    "sector": "Petróleo, Gás e Biocombustíveis"
+   },
+   {
+    "ticker": "POMO4",
+    "company": "MARCOPOLO",
+    "sector": "Bens Industriais"
+   },
+   {
+    "ticker": "PRIO3",
+    "company": "PRIO",
+    "sector": "Petróleo, Gás e Biocombustíveis"
+   },
+   {
+    "ticker": "PSSA3",
+    "company": "PORTO SEGURO",
+    "sector": "Financeiro"
+   },
+   {
+    "ticker": "RADL3",
+    "company": "RAIADROGASIL",
+    "sector": "Saúde"
+   },
+   {
+    "ticker": "RAIL3",
+    "company": "RUMO S.A.",
+    "sector": "Bens Industriais"
+   },
+   {
+    "ticker": "RDOR3",
+    "company": "REDE D OR",
+    "sector": "Saúde"
+   },
+   {
+    "ticker": "RENT3",
+    "company": "LOCALIZA",
+    "sector": "Diversos"
+   },
+   {
+    "ticker": "SANB11",
+    "company": "SANTANDER BR",
+    "sector": "Financeiro"
+   },
+   {
+    "ticker": "SBSP3",
+    "company": "SABESP",
+    "sector": "Utilidade Pública"
+   },
+   {
+    "ticker": "SMFT3",
+    "company": "SMART FIT",
+    "sector": "Consumo Cíclico"
+   },
+   {
+    "ticker": "SUZB3",
+    "company": "SUZANO S.A.",
+    "sector": "Materiais Básicos"
+   },
+   {
+    "ticker": "TAEE11",
+    "company": "TAESA",
+    "sector": "Utilidade Pública"
+   },
+   {
+    "ticker": "TEND3",
+    "company": "TENDA",
+    "sector": "Consumo Cíclico"
+   },
+   {
+    "ticker": "TIMS3",
+    "company": "TIM",
+    "sector": "Telecomunicação"
+   },
+   {
+    "ticker": "TOTS3",
+    "company": "TOTVS",
+    "sector": "Tecnologia da Informação"
+   },
+   {
+    "ticker": "UGPA3",
+    "company": "ULTRAPAR",
+    "sector": "Petróleo, Gás e Biocombustíveis"
+   },
+   {
+    "ticker": "USIM5",
+    "company": "USIMINAS",
+    "sector": "Materiais Básicos"
+   },
+   {
+    "ticker": "VALE3",
+    "company": "VALE",
+    "sector": "Materiais Básicos"
+   },
+   {
+    "ticker": "VAMO3",
+    "company": "VAMOS",
+    "sector": "Diversos"
+   },
+   {
+    "ticker": "VBBR3",
+    "company": "VIBRA",
+    "sector": "Petróleo, Gás e Biocombustíveis"
+   },
+   {
+    "ticker": "VIVA3",
+    "company": "VIVARA S.A.",
+    "sector": "Consumo Cíclico"
+   },
+   {
+    "ticker": "VIVT3",
+    "company": "TELEF BRASIL",
+    "sector": "Telecomunicação"
+   },
+   {
+    "ticker": "WEGE3",
+    "company": "WEG",
+    "sector": "Bens Industriais"
+   },
+   {
+    "ticker": "YDUQ3",
+    "company": "YDUQS PART",
+    "sector": "Diversos"
+   }
+  ],
+  "sessions": [
+   "2026-10-27",
+   "2026-10-28",
+   "2026-10-29",
+   "2026-10-30",
+   "2026-11-03",
+   "2026-11-04",
+   "2026-11-05",
+   "2026-11-06",
+   "2026-11-09",
+   "2026-11-10"
+  ],
+  "params": {
+   "k": 10,
+   "wMin": 0.03,
+   "wMax": 0.2,
+   "sectorCap": 3,
+   "populationSize": 200,
+   "elite": 4,
+   "tournament": 3,
+   "crossoverRate": 0.9,
+   "blxAlpha": 0.3,
+   "swapRate": 0.25,
+   "weightRate": 0.35,
+   "weightSigma": 0.25,
+   "transferRate": 0.25,
+   "hyperFactor": 3,
+   "diversityFloor": 0.15,
+   "immigrantRate": 0.15,
+   "lookback": 252,
+   "meanShrink": 0.5,
+   "covShrink": 0.3,
+   "minTraded": 20000000,
+   "fee": 0.0003,
+   "slippage": 0.0005,
+   "horizon": 10,
+   "fitness": "sharpe",
+   "strict": false
+  },
+  "config": {
+   "capital": 100000,
+   "sessions": 10,
+   "formationGenerations": 400,
+   "dailyGenerations": 200,
+   "orderBuffer": 0.002,
+   "historyEvery": 10
+  }
+ },
+ {
+  "type": "decision",
+  "date": "2026-10-26",
+  "session": 1,
+  "executeOn": "2026-10-27",
+  "seed": "genwallet|2026-10-26",
+  "inputsHash": "17a3f54ba8c3ec7d3f0a29460186e9b6cb606c7415a4b2d3b607f662fa557efe",
+  "hold": false,
+  "champion": {
+   "id": 75667,
+   "origin": "cross",
+   "weights": {
+    "BBSE3": 0.1619689214356719,
+    "CXSE3": 0.13898882493946121,
+    "EMBJ3": 0.03000104171507441,
+    "ENEV3": 0.03001955885279145,
+    "FLRY3": 0.03000250669460757,
+    "GGBR4": 0.03000119354556477,
+    "GOAU4": 0.04527982978146728,
+    "PETR3": 0.19999997516299928,
+    "PRIO3": 0.19437113448588855,
+    "UGPA3": 0.13936701338647367
+   },
+   "score": 1.1188032095408351,
+   "mean": 0.0014158776646094587,
+   "vol": 0.011748317602331316,
+   "turnover": 1.0000000000000002,
+   "cost": 0.0008000000000000001
+  },
+  "targetShares": {
+   "BBSE3": 374,
+   "CXSE3": 657,
+   "EMBJ3": 31,
+   "ENEV3": 112,
+   "FLRY3": 135,
+   "GGBR4": 117,
+   "GOAU4": 392,
+   "PETR3": 328,
+   "PRIO3": 272,
+   "UGPA3": 394
+  },
+  "refPrices": {
+   "BBSE3": 43.14,
+   "CXSE3": 21.1,
+   "EMBJ3": 96.2,
+   "ENEV3": 26.67,
+   "FLRY3": 22.1,
+   "GGBR4": 25.45,
+   "GOAU4": 11.52,
+   "PETR3": 60.8,
+   "PRIO3": 71.14,
+   "UGPA3": 35.24
+  },
+  "nav": 100000,
+  "generations": 400,
+  "history": [
+   {
+    "gen": 0,
+    "best": 0.33886555991690104,
+    "mean": -0.10410053435543881,
+    "diversity": 0.9208303233574133,
+    "hyper": false,
+    "championId": 79
+   },
+   {
+    "gen": 10,
+    "best": 0.9873800928759513,
+    "mean": 0.7162846475179815,
+    "diversity": 0.7588028565002245,
+    "hyper": false,
+    "championId": 2074
+   },
+   {
+    "gen": 20,
+    "best": 1.106753777467071,
+    "mean": 1.0119593400415183,
+    "diversity": 0.23233266733266855,
+    "hyper": false,
+    "championId": 4048
+   },
+   {
+    "gen": 30,
+    "best": 1.1135723278841283,
+    "mean": 0.9349420352836989,
+    "diversity": 0.25537296037296153,
+    "hyper": true,
+    "championId": 5827
+   },
+   {
+    "gen": 40,
+    "best": 1.1159596175175421,
+    "mean": 0.9256008967086942,
+    "diversity": 0.2735547785547794,
+    "hyper": true,
+    "championId": 7787
+   },
+   {
+    "gen": 50,
+    "best": 1.1165482722369462,
+    "mean": 1.0256715183528644,
+    "diversity": 0.15389277389277534,
+    "hyper": false,
+    "championId": 8443
+   },
+   {
+    "gen": 60,
+    "best": 1.1165482722369462,
+    "mean": 0.9911936834891304,
+    "diversity": 0.2659507159507164,
+    "hyper": false,
+    "championId": 8443
+   },
+   {
+    "gen": 70,
+    "best": 1.1177324882595943,
+    "mean": 1.0372360373321703,
+    "diversity": 0.15804195804195986,
+    "hyper": false,
+    "championId": 13591
+   },
+   {
+    "gen": 80,
+    "best": 1.1181817789746327,
+    "mean": 0.9916310682370004,
+    "diversity": 0.26173160173160315,
+    "hyper": false,
+    "championId": 15264
+   },
+   {
+    "gen": 90,
+    "best": 1.1181817789746331,
+    "mean": 1.0110317667762099,
+    "diversity": 0.24358308358308478,
+    "hyper": false,
+    "championId": 16125
+   },
+   {
+    "gen": 100,
+    "best": 1.1183652830015463,
+    "mean": 0.9369041198054348,
+    "diversity": 0.26902097902097966,
+    "hyper": true,
+    "championId": 18873
+   },
+   {
+    "gen": 110,
+    "best": 1.1183652830015463,
+    "mean": 1.0306716478594409,
+    "diversity": 0.15647352647352786,
+    "hyper": false,
+    "championId": 18873
+   },
+   {
+    "gen": 120,
+    "best": 1.118499941409778,
+    "mean": 1.023942984401172,
+    "diversity": 0.22030636030636164,
+    "hyper": false,
+    "championId": 22503
+   },
+   {
+    "gen": 130,
+    "best": 1.1185258965154865,
+    "mean": 0.9548663738654336,
+    "diversity": 0.24602564102564228,
+    "hyper": true,
+    "championId": 25082
+   },
+   {
+    "gen": 140,
+    "best": 1.1185545792456835,
+    "mean": 1.0537740117603602,
+    "diversity": 0.105559440559442,
+    "hyper": false,
+    "championId": 27609
+   },
+   {
+    "gen": 150,
+    "best": 1.118554579245684,
+    "mean": 1.0357865714204157,
+    "diversity": 0.15617715617715744,
+    "hyper": false,
+    "championId": 29202
+   },
+   {
+    "gen": 160,
+    "best": 1.118656556211395,
+    "mean": 1.0424513815028749,
+    "diversity": 0.1255244755244772,
+    "hyper": false,
+    "championId": 31326
+   },
+   {
+    "gen": 170,
+    "best": 1.118656556211395,
+    "mean": 1.0372231324905803,
+    "diversity": 0.1305627705627722,
+    "hyper": false,
+    "championId": 31326
+   },
+   {
+    "gen": 180,
+    "best": 1.118669747586001,
+    "mean": 1.0276467269560106,
+    "diversity": 0.16058608058608215,
+    "hyper": false,
+    "championId": 35396
+   },
+   {
+    "gen": 190,
+    "best": 1.118669747586001,
+    "mean": 1.0373185832130107,
+    "diversity": 0.14822843822843967,
+    "hyper": false,
+    "championId": 35396
+   },
+   {
+    "gen": 200,
+    "best": 1.1186697475860012,
+    "mean": 1.011975316026697,
+    "diversity": 0.21682484182484274,
+    "hyper": false,
+    "championId": 38587
+   },
+   {
+    "gen": 210,
+    "best": 1.1186697475860012,
+    "mean": 0.997046339227364,
+    "diversity": 0.21930402930403037,
+    "hyper": false,
+    "championId": 38587
+   },
+   {
+    "gen": 220,
+    "best": 1.1186741264286486,
+    "mean": 1.0254741594064674,
+    "diversity": 0.1574259074259089,
+    "hyper": false,
+    "championId": 42160
+   },
+   {
+    "gen": 230,
+    "best": 1.1187544289147295,
+    "mean": 1.0035699430276257,
+    "diversity": 0.23147852147852288,
+    "hyper": false,
+    "championId": 43810
+   },
+   {
+    "gen": 240,
+    "best": 1.1187897265533442,
+    "mean": 0.9452204500002303,
+    "diversity": 0.25081585081585156,
+    "hyper": true,
+    "championId": 46950
+   },
+   {
+    "gen": 250,
+    "best": 1.1187939720165034,
+    "mean": 1.0396283491896943,
+    "diversity": 0.1476939726939741,
+    "hyper": false,
+    "championId": 48155
+   },
+   {
+    "gen": 260,
+    "best": 1.1187939720165034,
+    "mean": 1.0337119813480455,
+    "diversity": 0.14506993006993152,
+    "hyper": false,
+    "championId": 48155
+   },
+   {
+    "gen": 270,
+    "best": 1.1187939720165034,
+    "mean": 1.0419726479848181,
+    "diversity": 0.13226107226107375,
+    "hyper": false,
+    "championId": 48155
+   },
+   {
+    "gen": 280,
+    "best": 1.1187939720165037,
+    "mean": 1.0357961988275697,
+    "diversity": 0.1380536130536143,
+    "hyper": false,
+    "championId": 54177
+   },
+   {
+    "gen": 290,
+    "best": 1.1187950515757121,
+    "mean": 1.0245608078956905,
+    "diversity": 0.17392940392940592,
+    "hyper": false,
+    "championId": 56338
+   },
+   {
+    "gen": 300,
+    "best": 1.1187951606474,
+    "mean": 0.9916587871567748,
+    "diversity": 0.21319513819513924,
+    "hyper": false,
+    "championId": 57622
+   },
+   {
+    "gen": 310,
+    "best": 1.1187951606474,
+    "mean": 0.9240194712263482,
+    "diversity": 0.27558441558441626,
+    "hyper": true,
+    "championId": 57622
+   },
+   {
+    "gen": 320,
+    "best": 1.1187953861950646,
+    "mean": 1.012168684893462,
+    "diversity": 0.2056110556110573,
+    "hyper": false,
+    "championId": 62082
+   },
+   {
+    "gen": 330,
+    "best": 1.118797025297848,
+    "mean": 0.943951061463362,
+    "diversity": 0.25618048618048705,
+    "hyper": true,
+    "championId": 63316
+   },
+   {
+    "gen": 340,
+    "best": 1.1188003285424877,
+    "mean": 1.0017606695250347,
+    "diversity": 0.2187362637362651,
+    "hyper": false,
+    "championId": 66775
+   },
+   {
+    "gen": 350,
+    "best": 1.1188006316523276,
+    "mean": 0.9512386841279573,
+    "diversity": 0.2652614052614062,
+    "hyper": true,
+    "championId": 68496
+   },
+   {
+    "gen": 360,
+    "best": 1.1188012786123798,
+    "mean": 0.9371817395801427,
+    "diversity": 0.2464568764568773,
+    "hyper": true,
+    "championId": 69540
+   },
+   {
+    "gen": 370,
+    "best": 1.1188012786123798,
+    "mean": 1.0597010252829735,
+    "diversity": 0.11248584748584856,
+    "hyper": false,
+    "championId": 69540
+   },
+   {
+    "gen": 380,
+    "best": 1.1188012786123798,
+    "mean": 1.0395005094450445,
+    "diversity": 0.17842823842823963,
+    "hyper": false,
+    "championId": 69540
+   },
+   {
+    "gen": 390,
+    "best": 1.1188032095408351,
+    "mean": 1.0425500307310218,
+    "diversity": 0.12916083916084076,
+    "hyper": false,
+    "championId": 75667
+   },
+   {
+    "gen": 400,
+    "best": 1.1188032095408351,
+    "mean": 1.0444081730332995,
+    "diversity": 0.16277722277722417,
+    "hyper": false,
+    "championId": 75667
+   }
+  ]
+ }
+]
