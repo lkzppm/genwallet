@@ -2,7 +2,7 @@
 // they become a simulation. No markup here; the controls are in sidebar.tsx.
 import type { Dictionary } from "@/i18n";
 import type { FitnessKind, GaParams } from "@/lib/ga/params";
-import { DEFAULT_PARAMS } from "@/lib/ga/params";
+import { TUNED } from "@/lib/ga/params";
 import { LIVE_CONFIG } from "@/lib/live/config";
 import type { SimConfig } from "@/lib/sim/simulate";
 import type { Refusal } from "./universe";
@@ -34,6 +34,7 @@ export interface FormState {
   sectorCap: string;
   lookback: string;
   meanShrink: string;
+  skip: string;
 }
 
 const pct = (x: number) => String(Math.round(x * 1000) / 10);
@@ -46,7 +47,7 @@ export function randomSeed(): string {
 }
 
 export function defaultForm(formation: string): FormState {
-  const p = DEFAULT_PARAMS;
+  const p = TUNED.params;
   return {
     formation,
     sessions: String(LIVE_CONFIG.sessions),
@@ -56,8 +57,8 @@ export function defaultForm(formation: string): FormState {
     picks: [],
     fitness: p.fitness,
     populationSize: String(p.populationSize),
-    formationGenerations: String(LIVE_CONFIG.formationGenerations),
-    dailyGenerations: String(LIVE_CONFIG.dailyGenerations),
+    formationGenerations: String(TUNED.formationGenerations),
+    dailyGenerations: String(TUNED.dailyGenerations),
     crossoverRate: pct(p.crossoverRate),
     swapRate: pct(p.swapRate),
     weightRate: pct(p.weightRate),
@@ -69,6 +70,7 @@ export function defaultForm(formation: string): FormState {
     sectorCap: String(p.sectorCap),
     lookback: String(p.lookback),
     meanShrink: pct(p.meanShrink),
+    skip: String(p.skip ?? 0),
   };
 }
 
@@ -79,17 +81,18 @@ export const LIMITS = {
   populationSize: { min: 20, max: 1_000, step: 10 },
   formationGenerations: { min: 10, max: 2_000, step: 10 },
   dailyGenerations: { min: 0, max: 2_000, step: 10 },
-  crossoverRate: { min: 0, max: 100, step: 5 },
-  swapRate: { min: 0, max: 100, step: 5 },
-  weightRate: { min: 0, max: 100, step: 5 },
-  immigrantRate: { min: 0, max: 50, step: 5 },
+  crossoverRate: { min: 0, max: 100, step: 0.1 },
+  swapRate: { min: 0, max: 100, step: 0.1 },
+  weightRate: { min: 0, max: 100, step: 0.1 },
+  immigrantRate: { min: 0, max: 50, step: 0.1 },
   elite: { min: 0, max: 50, step: 1 },
   tournament: { min: 1, max: 10, step: 1 },
-  wMin: { min: 0, max: 10, step: 0.5 },
+  wMin: { min: 0, max: 10, step: 0.1 },
   wMax: { min: 10, max: 100, step: 1 },
   sectorCap: { min: 1, max: 10, step: 1 },
   lookback: { min: 60, max: 400, step: 10 },
-  meanShrink: { min: 0, max: 100, step: 5 },
+  meanShrink: { min: 0, max: 100, step: 0.1 },
+  skip: { min: 0, max: 60, step: 1 },
 } satisfies Partial<Record<keyof FormState, { min: number; max: number; step: number }>>;
 
 export type NumericKey = keyof typeof LIMITS;
@@ -109,10 +112,10 @@ export function toConfig(
   t: Dictionary,
   refused: Map<string, Refusal>,
 ): { config: SimConfig | null; problems: string[] } {
-  const k = DEFAULT_PARAMS.k;
+  const k = TUNED.params.k;
   const custom = form.mode === "custom";
   const params: GaParams = {
-    ...DEFAULT_PARAMS,
+    ...TUNED.params,
     strict: form.mode !== "free",
     fitness: form.fitness,
     populationSize: Math.round(read(form, "populationSize")),
@@ -127,6 +130,7 @@ export function toConfig(
     sectorCap: Math.round(read(form, "sectorCap")),
     lookback: Math.round(read(form, "lookback")),
     meanShrink: read(form, "meanShrink") / 100,
+    skip: Math.round(read(form, "skip")),
   };
   const problems: string[] = [];
   if (params.wMin * k > 1 + 1e-9 || params.wMax * k < 1 - 1e-9) problems.push(t.builder.invalid.bounds(k));

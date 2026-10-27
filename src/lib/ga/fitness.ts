@@ -1,6 +1,8 @@
 // Scores are risk-adjusted excess returns net of the cost of moving from the
 // current portfolio, with the cost amortised over `horizon` sessions so a
-// swap must pay for itself before the run ends.
+// swap must pay for itself before the run ends. Over the CDI (Sharpe,
+// Sortino, return over CVaR), or over BOVA11 (`active`: the expected return
+// above the index over the tracking error, an information ratio).
 
 import type { GaParams } from "./params";
 import type { Problem } from "./problem";
@@ -39,6 +41,16 @@ export function evaluate(p: Problem, params: GaParams, g: Genome): Evaluation {
   }
   const vol = Math.sqrt(Math.max(variance, 0));
   const cost = (params.fee + params.slippage) * turnover;
+
+  if (params.fitness === "active") {
+    // Var(portfolio − index) = w'Σw − 2 w'c + σ²ᵢ, floored so a near-copy of the index cannot divide by zero.
+    let c = 0;
+    for (let i = 0; i < k; i++) c += g.weights[i] * p.benchCov![g.assets[i]];
+    const tracking = Math.sqrt(Math.max(variance - 2 * c + p.benchVar, 1e-8));
+    const score = ((mean - p.benchMean - cost / params.horizon) * SQRT_252) / tracking;
+    return { score: Number.isFinite(score) ? score : -Infinity, mean, vol, turnover, cost };
+  }
+
   const excess = mean - p.rf - cost / params.horizon;
 
   let risk = vol;

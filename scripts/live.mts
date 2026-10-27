@@ -124,7 +124,7 @@ const archive: DayArchive = {
   seed: seedFor(date),
   generations: prevPop ? config.dailyGenerations : config.formationGenerations,
   params,
-  input: problemInput(snap, day, params.lookback, current),
+  input: problemInput(snap, day, params.lookback, current, undefined, params.fitness === "active"),
   seededFrom: prevPop?.date ?? null,
   nextId: prevPop?.nextId ?? 1,
 };

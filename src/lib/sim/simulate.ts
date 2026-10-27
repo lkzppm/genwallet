@@ -182,7 +182,7 @@ export function simulate(
       seed: `${config.seed}|${date}`,
       generations,
       params: effective,
-      input: problemInput(snap, day, params.lookback, current, effective.strict ? locked : undefined),
+      input: problemInput(snap, day, params.lookback, current, effective.strict ? locked : undefined, params.fitness === "active"),
       seededFrom: population?.date ?? null,
       nextId: population?.nextId ?? 1,
     };
