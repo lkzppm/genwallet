@@ -26,7 +26,7 @@ pnpm tune                 # the hyperparameter search (02-genetic-algorithm.md)
 
 ## Hosting (Decided, 2026-10-26)
 
-Vercel project `genwallet` in the team `lucas-pachecos-projects-68b6e0dc`, connected to `lkzppm/genwallet`: production builds from `main`, previews from the other branches. Both pages are static; the worker fetches `/data/market.json`. First production deploy on 2026-10-26 (`genwallet-xi.vercel.app`), the default replay checked there to the cent.
+Vercel project `genwallet` in the team `lucas-pachecos-projects-68b6e0dc`, connected to `lkzppm/genwallet`: production builds from `main`, previews from the other branches. Both pages are static; the worker fetches `/data/market.json`. First production deploy on 2026-10-26; served at `genwallet-ufrj.vercel.app` since 2026-10-27, the default replay checked there to the cent (R$ 97,637.08 with the tuned defaults).
 
 ## Environment
 
