@@ -1,7 +1,8 @@
 // The knobs of the genetic algorithm. Defaults are spec/02-genetic-algorithm.md;
 // the live run records the exact object it used in its start event.
 
-export type FitnessKind = "sharpe" | "sortino" | "cvar";
+/** Sharpe, Sortino and return over CVaR measure the CDI; `active` measures BOVA11 (an information ratio). */
+export type FitnessKind = "sharpe" | "sortino" | "cvar" | "active";
 
 export interface GaParams {
   /** Companies per portfolio. */
@@ -28,6 +29,12 @@ export interface GaParams {
   lookback: number;
   /** Shrinkage of each mean toward the cross-sectional mean. */
   meanShrink: number;
+  /**
+   * The latest sessions left out of each expected return (12-1 momentum
+   * skips about 21, the month that tends to reverse). Absent or 0: the whole
+   * lookback, as the runs recorded before 2026-10-26 had it.
+   */
+  skip?: number;
   /** Shrinkage of the covariance toward constant correlation. */
   covShrink: number;
   /** Median daily traded value (R$) over the last 60 sessions. */
@@ -60,6 +67,7 @@ export const DEFAULT_PARAMS: GaParams = {
   immigrantRate: 0.15,
   lookback: 252,
   meanShrink: 0.5,
+  skip: 0,
   covShrink: 0.3,
   minTraded: 20_000_000,
   fee: 0.0003,
@@ -67,4 +75,39 @@ export const DEFAULT_PARAMS: GaParams = {
   horizon: 10,
   fitness: "sharpe",
   strict: false,
+};
+
+/**
+ * The builder's starting point: the hyperparameter search's pick (pnpm tune on
+ * five years, 2026-10-27; spec/02). The live run keeps DEFAULT_PARAMS, the
+ * object its start event recorded.
+ */
+export const TUNED = {
+  params: {
+    ...DEFAULT_PARAMS,
+    wMin: 0.021,
+    wMax: 0.14,
+    sectorCap: 2,
+    populationSize: 260,
+    elite: 9,
+    tournament: 3,
+    crossoverRate: 0.675,
+    blxAlpha: 0.484,
+    swapRate: 0.077,
+    weightRate: 0.271,
+    weightSigma: 0.139,
+    transferRate: 0.002,
+    hyperFactor: 4.926,
+    diversityFloor: 0.236,
+    immigrantRate: 0.151,
+    lookback: 240,
+    meanShrink: 0.206,
+    skip: 3,
+    covShrink: 0.297,
+    horizon: 17,
+    fitness: "active",
+    strict: false,
+  } satisfies GaParams as GaParams,
+  formationGenerations: 300,
+  dailyGenerations: 150,
 };

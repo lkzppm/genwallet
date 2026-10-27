@@ -18,7 +18,15 @@
 pnpm live                 # nightly step: fill, mark, decide (idempotent)
 pnpm live:verify <date>   # re-run a day's GA from its archived inputs
 pnpm evolve --date <d>    # one GA run in the terminal, no side effects
+pnpm data                 # public/data/market.json, the builder's two years
+pnpm simulate             # the builder's replay in the terminal (--sessions, --companies, --strict)
+pnpm tune:data            # .cache/market-5y.json, five years for the search
+pnpm tune                 # the hyperparameter search (02-genetic-algorithm.md)
 ```
+
+## Hosting (Decided, 2026-10-26)
+
+Vercel project `genwallet` in the team `lucas-pachecos-projects-68b6e0dc`, connected to `lkzppm/genwallet`: production builds from `main`, previews from the other branches. Both pages are static; the worker fetches `/data/market.json`. First production deploy on 2026-10-26 (`genwallet-xi.vercel.app`), the default replay checked there to the cent.
 
 ## Environment
 

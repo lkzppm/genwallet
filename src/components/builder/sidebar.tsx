@@ -28,6 +28,7 @@ import {
   ShieldCheck,
   Shrink,
   Shuffle,
+  SkipForward,
   SlidersHorizontal,
   Sprout,
   Square,
@@ -78,6 +79,7 @@ const CONSTRAINTS: SliderDef[] = [
   { key: "sectorCap", icon: Factory, text: "sectorCap" },
   { key: "lookback", icon: History, text: "lookback" },
   { key: "meanShrink", icon: Shrink, text: "meanShrink", percent: true },
+  { key: "skip", icon: SkipForward, text: "skip" },
 ];
 
 const GROUP_KEYS: Record<GroupKey, (keyof FormState)[]> = {
@@ -325,7 +327,7 @@ export function Sidebar({
               value={form.fitness}
               disabled={disabled}
               onChange={(v) => set("fitness", v)}
-              options={(["sharpe", "sortino", "cvar"] as const).map((k) => ({ value: k, label: f.fitness[k] }))}
+              options={(["sharpe", "sortino", "cvar", "active"] as const).map((k) => ({ value: k, label: f.fitness[k] }))}
             />
           </Row>
           {ALGORITHM.map((d) => slider(d))}
