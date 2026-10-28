@@ -1,5 +1,5 @@
 // The builder's simulation in the terminal, on public/data/market.json.
-//   pnpm simulate [--formation YYYY-MM-DD] [--sessions N] [--strict] [--companies A,B,...] [--fitness sharpe|sortino|cvar|active|goal] [--goal 0.005]
+//   pnpm simulate [--formation YYYY-MM-DD] [--sessions N] [--strict] [--companies A,B,...] [--fitness sharpe|sortino|cvar|active|goal] [--goal 0.005] [--trend 50 --exposure 0.3]
 
 import { readFileSync } from "node:fs";
 import { TUNED } from "../src/lib/ga";
@@ -17,6 +17,7 @@ const params = {
   strict: has("strict") || !!companies,
   fitness: (flag("fitness") ?? TUNED.params.fitness) as FitnessKind,
   ...(flag("goal") ? { goal: Number(flag("goal")) } : {}),
+  ...(flag("trend") ? { trendWindow: Number(flag("trend")), exposureDown: Number(flag("exposure") ?? 0) } : {}),
 };
 const range = formationRange(snap, params.lookback, sessions);
 const formation = flag("formation") ?? range[range.length - 1];

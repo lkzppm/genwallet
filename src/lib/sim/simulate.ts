@@ -13,7 +13,7 @@ import { decisionEvent, runDecision } from "../live/decide";
 import type { DecisionEvent, FillEvent, LiveEvent, MarkEvent, StartEvent } from "../live/events";
 import { money, reduce } from "../live/reduce";
 import type { Snapshot, UniverseEntry } from "../market/snapshot";
-import { problemInput } from "../market/window";
+import { cashRule, exposureOn, problemInput } from "../market/window";
 
 export interface SimConfig {
   /** The evening the first portfolio is formed (a date of the snapshot). */
@@ -182,7 +182,15 @@ export function simulate(
       seed: `${config.seed}|${date}`,
       generations,
       params: effective,
-      input: problemInput(snap, day, params.lookback, current, effective.strict ? locked : undefined, params.fitness === "active"),
+      input: problemInput(
+        snap,
+        day,
+        params.lookback,
+        current,
+        effective.strict ? locked : undefined,
+        params.fitness === "active",
+        cashRule(params) ? (state.decisions[state.decisions.length - 1]?.exposure ?? 1) : undefined,
+      ),
       seededFrom: population?.date ?? null,
       nextId: population?.nextId ?? 1,
     };
@@ -201,6 +209,7 @@ export function simulate(
       nav,
       buffer: config.orderBuffer,
       historyEvery: 1,
+      ...(cashRule(params) ? { exposure: exposureOn(snap, day, params) } : {}),
     });
     append(decision);
     if (params.strict && !locked) locked = Object.keys(decision.champion.weights);

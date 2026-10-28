@@ -22,6 +22,8 @@ export function SessionView({ s, before, t, lang }: { s: SessionSummary; before:
   const [rowsRef, rowsBox] = useSize<HTMLDivElement>();
   const row = Math.max(ROW, rowsBox.height / Math.max(1, s.portfolio.length));
   const maxWeight = Math.max(...s.portfolio.map((h) => h.weight));
+  // Under the cash rule the weights sum to the exposure; the rest sits in cash.
+  const invested = s.portfolio.reduce((sum, h) => sum + h.weight, 0);
   const ret = s.mark.nav / before - 1;
   const metrics = [
     { label: v.score, value: number(s.score, lang, 3) },
@@ -56,7 +58,13 @@ export function SessionView({ s, before, t, lang }: { s: SessionSummary; before:
       </div>
 
       <div className="grid min-h-0 flex-1 auto-rows-[minmax(16rem,auto)] gap-3 overflow-y-auto @4xl:grid-cols-2 @4xl:grid-rows-[minmax(0,1.25fr)_minmax(0,1fr)] @4xl:overflow-visible">
-        <Panel title={v.portfolio} icon={Briefcase} className="@4xl:row-span-2" bodyClassName="scroll-thin flex flex-col">
+        <Panel
+          title={v.portfolio}
+          icon={Briefcase}
+          actions={invested < 0.995 ? <span className="font-mono text-[11px] text-muted-foreground tabular-nums">{v.cash(percent(1 - invested, lang, 0))}</span> : undefined}
+          className="@4xl:row-span-2"
+          bodyClassName="scroll-thin flex flex-col"
+        >
           <div ref={rowsRef} className="relative min-h-0 flex-1" style={{ minHeight: s.portfolio.length * ROW }}>
             {[...s.portfolio]
               .sort((a, b) => a.ticker.localeCompare(b.ticker))

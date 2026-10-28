@@ -67,21 +67,30 @@ export function decisionEvent(args: {
   nav: number;
   buffer: number;
   historyEvery: number;
+  /**
+   * The cash rule's share of the NAV in stocks (`exposureOn`); the weights
+   * and the target shares are scaled by it. Absent: the rule is off and the
+   * order is the champion as it is. A change of exposure is never a hold.
+   */
+  exposure?: number;
 }): DecisionEvent {
   const { day, problem, result, closes, nav } = args;
   const c = result.champion;
-  const hold = result.hold !== null && c.id === result.hold.id;
+  const e = args.exposure ?? 1;
+  const held = Object.values(args.shares).reduce((s, q, i) => s + q * closes[Object.keys(args.shares)[i]], 0) / (nav || 1);
+  const hold = result.hold !== null && c.id === result.hold.id && (args.exposure === undefined || Math.abs(held - e) < 0.05);
   const weights: Record<string, number> = {};
   const targetShares: Record<string, number> = {};
   const refPrices: Record<string, number> = {};
   c.assets.forEach((a, i) => {
     const t = problem.tickers[a];
-    weights[t] = c.weights[i];
+    weights[t] = c.weights[i] * e;
     refPrices[t] = closes[t];
-    targetShares[t] = Math.floor((c.weights[i] * nav * (1 - args.buffer)) / closes[t]);
+    targetShares[t] = Math.floor((c.weights[i] * e * nav * (1 - args.buffer)) / closes[t]);
   });
   return {
     type: "decision",
+    ...(args.exposure !== undefined ? { exposure: e } : {}),
     date: day.date,
     session: day.session,
     executeOn: day.executeOn,
