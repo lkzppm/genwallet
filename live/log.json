@@ -818,5 +818,398 @@
     "championId": 75667
    }
   ]
+ },
+ {
+  "type": "fill",
+  "date": "2026-10-27",
+  "session": 1,
+  "trades": [
+   {
+    "ticker": "BBSE3",
+    "side": "buy",
+    "qty": null,
+    "price": 0,
+    "value": null,
+    "fee": null
+   },
+   {
+    "ticker": "CXSE3",
+    "side": "buy",
+    "qty": null,
+    "price": 0,
+    "value": null,
+    "fee": null
+   },
+   {
+    "ticker": "EMBJ3",
+    "side": "buy",
+    "qty": null,
+    "price": 0,
+    "value": null,
+    "fee": null
+   },
+   {
+    "ticker": "ENEV3",
+    "side": "buy",
+    "qty": null,
+    "price": 0,
+    "value": null,
+    "fee": null
+   },
+   {
+    "ticker": "FLRY3",
+    "side": "buy",
+    "qty": null,
+    "price": 0,
+    "value": null,
+    "fee": null
+   },
+   {
+    "ticker": "GGBR4",
+    "side": "buy",
+    "qty": null,
+    "price": 0,
+    "value": null,
+    "fee": null
+   },
+   {
+    "ticker": "GOAU4",
+    "side": "buy",
+    "qty": null,
+    "price": 0,
+    "value": null,
+    "fee": null
+   },
+   {
+    "ticker": "PETR3",
+    "side": "buy",
+    "qty": null,
+    "price": 0,
+    "value": null,
+    "fee": null
+   },
+   {
+    "ticker": "PRIO3",
+    "side": "buy",
+    "qty": null,
+    "price": 0,
+    "value": null,
+    "fee": null
+   },
+   {
+    "ticker": "UGPA3",
+    "side": "buy",
+    "qty": null,
+    "price": 0,
+    "value": null,
+    "fee": null
+   }
+  ],
+  "dividends": []
+ },
+ {
+  "type": "mark",
+  "date": "2026-10-27",
+  "session": 1,
+  "nav": null,
+  "cash": null,
+  "interest": null,
+  "cdi": 0.00050788,
+  "positions": [
+   {
+    "ticker": "BBSE3",
+    "shares": null,
+    "close": 42.79,
+    "value": null
+   },
+   {
+    "ticker": "CXSE3",
+    "shares": null,
+    "close": 21.59,
+    "value": null
+   },
+   {
+    "ticker": "EMBJ3",
+    "shares": null,
+    "close": 97.38,
+    "value": null
+   },
+   {
+    "ticker": "ENEV3",
+    "shares": null,
+    "close": 26.93,
+    "value": null
+   },
+   {
+    "ticker": "FLRY3",
+    "shares": null,
+    "close": 22.92,
+    "value": null
+   },
+   {
+    "ticker": "GGBR4",
+    "shares": null,
+    "close": 24.75,
+    "value": null
+   },
+   {
+    "ticker": "GOAU4",
+    "shares": null,
+    "close": 11,
+    "value": null
+   },
+   {
+    "ticker": "PETR3",
+    "shares": null,
+    "close": 59.64,
+    "value": null
+   },
+   {
+    "ticker": "PRIO3",
+    "shares": null,
+    "close": 70.43,
+    "value": null
+   },
+   {
+    "ticker": "UGPA3",
+    "shares": null,
+    "close": 34.23,
+    "value": null
+   }
+  ],
+  "ibov": {
+   "open": 0,
+   "close": 175710.05
+  },
+  "bova": {
+   "open": 0,
+   "close": 173
+  }
+ },
+ {
+  "type": "decision",
+  "date": "2026-10-27",
+  "session": 2,
+  "executeOn": "2026-10-28",
+  "seed": "genwallet|2026-10-27",
+  "inputsHash": "41bd43e32caebc4af1dac8cc173b0d84673af336fbd550987ccff06a4af55efa",
+  "hold": false,
+  "champion": {
+   "id": 112782,
+   "origin": "mutant",
+   "weights": {
+    "BBSE3": 0.1285228416583742,
+    "CXSE3": 0.18725954163227537,
+    "EMBJ3": 0.030005895354165833,
+    "ENEV3": 0.0303177314113313,
+    "FLRY3": 0.055553797481629245,
+    "GGBR4": 0.030060942785159372,
+    "GOAU4": 0.030746879540570492,
+    "PETR3": 0.2,
+    "PRIO3": 0.19936968066769592,
+    "UGPA3": 0.10816268946879848
+   },
+   "score": 1.1135884670149743,
+   "mean": 0.001411699107718507,
+   "vol": 0.011743766475072477,
+   "turnover": 1,
+   "cost": 0.0007999999999999999
+  },
+  "targetShares": {
+   "BBSE3": null,
+   "CXSE3": null,
+   "EMBJ3": null,
+   "ENEV3": null,
+   "FLRY3": null,
+   "GGBR4": null,
+   "GOAU4": null,
+   "PETR3": null,
+   "PRIO3": null,
+   "UGPA3": null
+  },
+  "refPrices": {
+   "BBSE3": 42.79,
+   "CXSE3": 21.59,
+   "EMBJ3": 97.38,
+   "ENEV3": 26.93,
+   "FLRY3": 22.92,
+   "GGBR4": 24.75,
+   "GOAU4": 11,
+   "PETR3": 59.64,
+   "PRIO3": 70.43,
+   "UGPA3": 34.23
+  },
+  "nav": null,
+  "generations": 200,
+  "history": [
+   {
+    "gen": 0,
+    "best": 1.1082295832382647,
+    "mean": 0.9001006173078737,
+    "diversity": 0.3118657340251775,
+    "hyper": false,
+    "championId": 77823
+   },
+   {
+    "gen": 10,
+    "best": 1.111445062594889,
+    "mean": 0.9207484284188463,
+    "diversity": 0.2622727272727283,
+    "hyper": true,
+    "championId": 79844
+   },
+   {
+    "gen": 20,
+    "best": 1.1123336427723427,
+    "mean": 0.9415165022249208,
+    "diversity": 0.22706293706293845,
+    "hyper": true,
+    "championId": 82164
+   },
+   {
+    "gen": 30,
+    "best": 1.1128135508606845,
+    "mean": 0.9346927021612969,
+    "diversity": 0.26920745920746025,
+    "hyper": true,
+    "championId": 82938
+   },
+   {
+    "gen": 40,
+    "best": 1.1128135508606845,
+    "mean": 0.9989366565043022,
+    "diversity": 0.17292873792873886,
+    "hyper": false,
+    "championId": 82938
+   },
+   {
+    "gen": 50,
+    "best": 1.1128135508606845,
+    "mean": 0.9353451922522789,
+    "diversity": 0.261631701631703,
+    "hyper": true,
+    "championId": 82938
+   },
+   {
+    "gen": 60,
+    "best": 1.1132479990486364,
+    "mean": 1.0249058868360514,
+    "diversity": 0.1537412587412601,
+    "hyper": false,
+    "championId": 89533
+   },
+   {
+    "gen": 70,
+    "best": 1.1135177357399546,
+    "mean": 1.043174045484264,
+    "diversity": 0.11173659673659808,
+    "hyper": false,
+    "championId": 92315
+   },
+   {
+    "gen": 80,
+    "best": 1.1135177357399546,
+    "mean": 1.0157778151662287,
+    "diversity": 0.2036430236430249,
+    "hyper": false,
+    "championId": 92315
+   },
+   {
+    "gen": 90,
+    "best": 1.1135177357399546,
+    "mean": 1.0388592735290485,
+    "diversity": 0.13904428904429078,
+    "hyper": false,
+    "championId": 92315
+   },
+   {
+    "gen": 100,
+    "best": 1.1135177357399546,
+    "mean": 1.0093654315392853,
+    "diversity": 0.17488344988345117,
+    "hyper": false,
+    "championId": 92315
+   },
+   {
+    "gen": 110,
+    "best": 1.1135570983409162,
+    "mean": 0.9902389090583503,
+    "diversity": 0.25647852147852235,
+    "hyper": false,
+    "championId": 98415
+   },
+   {
+    "gen": 120,
+    "best": 1.1135570983409162,
+    "mean": 1.0309150658605832,
+    "diversity": 0.15073426573426685,
+    "hyper": false,
+    "championId": 98415
+   },
+   {
+    "gen": 130,
+    "best": 1.1135642861300077,
+    "mean": 1.0059554791519403,
+    "diversity": 0.23067932067932173,
+    "hyper": false,
+    "championId": 103395
+   },
+   {
+    "gen": 140,
+    "best": 1.1135642861300077,
+    "mean": 1.0492383106052057,
+    "diversity": 0.11351981351981466,
+    "hyper": false,
+    "championId": 103395
+   },
+   {
+    "gen": 150,
+    "best": 1.1135642861300077,
+    "mean": 1.0325965928392018,
+    "diversity": 0.15728438228438368,
+    "hyper": false,
+    "championId": 103395
+   },
+   {
+    "gen": 160,
+    "best": 1.1135642861300077,
+    "mean": 1.0423904403318063,
+    "diversity": 0.11146853146853275,
+    "hyper": false,
+    "championId": 103395
+   },
+   {
+    "gen": 170,
+    "best": 1.1135843436103872,
+    "mean": 0.9929865201104198,
+    "diversity": 0.26727272727272866,
+    "hyper": false,
+    "championId": 110342
+   },
+   {
+    "gen": 180,
+    "best": 1.1135884670149743,
+    "mean": 0.9341864936301674,
+    "diversity": 0.25657342657342785,
+    "hyper": true,
+    "championId": 112782
+   },
+   {
+    "gen": 190,
+    "best": 1.1135884670149743,
+    "mean": 1.0307027968037115,
+    "diversity": 0.1595571095571109,
+    "hyper": false,
+    "championId": 112782
+   },
+   {
+    "gen": 200,
+    "best": 1.1135884670149743,
+    "mean": 1.0447406297590305,
+    "diversity": 0.1264335664335683,
+    "hyper": false,
+    "championId": 112782
+   }
+  ]
  }
 ]
