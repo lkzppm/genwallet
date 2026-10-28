@@ -71,6 +71,8 @@ type Knob =
 const SPACE: Knob[] = [
   { key: "fitness", kind: "choice", values: ["sharpe", "sortino", "cvar", "active", "goal"] },
   { key: "goal", kind: "real", min: 0.001, max: 0.01 },
+  { key: "trendWindow", kind: "choice", values: [0, 0, 20, 50, 100] },
+  { key: "exposureDown", kind: "real", min: 0, max: 0.6 },
   { key: "strict", kind: "choice", values: [false, true] },
   { key: "populationSize", kind: "int", min: 80, max: 300, step: 20 },
   { key: "formationGenerations", kind: "int", min: 150, max: 600, step: 50 },
@@ -353,7 +355,7 @@ function leakTest(): void {
       cdi: snap.cdi.map((x, d) => (d > cut ? x * noise.range(0.5, 1.5) : x)),
     };
     for (const fitness of ["sharpe", "sortino", "cvar", "active", "goal"] as const) {
-      const c: Candidate = { ...DEFAULT, params: { ...DEFAULT.params, fitness, skip: 21, goal: 0.005 } };
+      const c: Candidate = { ...DEFAULT, params: { ...DEFAULT.params, fitness, skip: 21, goal: 0.005, trendWindow: 50, exposureDown: 0.3 } };
       const config = { ...simConfig(c, formation, 0), sessions: evening + 1 };
       const clean = simulate(snap, config).summaries[evening].portfolio;
       const dirty = simulate(poisoned, config).summaries[evening].portfolio;

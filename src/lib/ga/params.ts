@@ -57,6 +57,15 @@ export interface GaParams {
   goal?: number;
   /** Strict mode: the asset set never changes, only weights evolve. */
   strict: boolean;
+  /**
+   * The cash rule: when BOVA11 closes below its mean over the last
+   * `trendWindow` sessions, only `exposureDown` of the NAV is in stocks and
+   * the rest sits in cash at the CDI; otherwise all of it. Absent or 0: off,
+   * every run before 2026-10-29. The GA still chooses the stocks and their
+   * relative weights; the rule scales the order.
+   */
+  trendWindow?: number;
+  exposureDown?: number;
 }
 
 export const DEFAULT_PARAMS: GaParams = {

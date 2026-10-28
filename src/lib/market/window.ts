@@ -1,6 +1,7 @@
 // Pure helpers over a snapshot: no network, safe for the browser (the
 // builder's worker) as well as the nightly job.
 
+import type { GaParams } from "../ga/params";
 import type { ProblemInput } from "../ga/problem";
 import type { Snapshot } from "./snapshot";
 
@@ -41,6 +42,31 @@ export function tradedValue(s: Snapshot, a: number, day: number): number {
   return median(values);
 }
 
+/** Whether the cash rule is on. */
+export const cashRule = (p: GaParams) => (p.trendWindow ?? 0) > 0;
+
+/**
+ * The share of the NAV the order of the close of `dates[day]` puts in stocks:
+ * `exposureDown` when BOVA11 closed below its mean over the last `trendWindow`
+ * sessions, 1 otherwise. Closes up to `day` only.
+ */
+export function exposureOn(s: Snapshot, day: number, p: GaParams): number {
+  if (!cashRule(p)) return 1;
+  const n = Math.round(p.trendWindow!);
+  const last = s.bova.close[day];
+  let sum = 0;
+  let count = 0;
+  for (let d = Math.max(0, day - n + 1); d <= day; d++) {
+    const c = s.bova.close[d];
+    if (c !== null) {
+      sum += c;
+      count++;
+    }
+  }
+  if (last === null || !count) return 1;
+  return last < sum / count ? Math.min(1, Math.max(0, p.exposureDown ?? 0)) : 1;
+}
+
 /** The engine's input for a decision at the close of `dates[day]`. */
 export function problemInput(
   s: Snapshot,
@@ -50,6 +76,8 @@ export function problemInput(
   locked?: string[],
   /** Adds BOVA11 over the same window, for the `active` fitness. */
   bench = false,
+  /** The cash rule's exposure of the order in force (`DecisionEvent.exposure`). */
+  exposure?: number,
 ): ProblemInput {
   const from = day - lookback;
   if (from < 0) throw new Error(`need ${lookback + 1} sessions before ${s.dates[day]}, have ${day + 1}`);
@@ -64,5 +92,6 @@ export function problemInput(
     current,
     ...(locked ? { locked } : {}),
     ...(bench ? { bench: s.bova.close.slice(from, day + 1) } : {}),
+    ...(exposure !== undefined ? { exposure } : {}),
   };
 }

@@ -28,6 +28,8 @@ export interface StartEvent {
 
 export interface DecisionEvent {
   type: "decision";
+  /** The cash rule's share of the NAV in stocks, when the rule is on (`GaParams.trendWindow`). */
+  exposure?: number;
   date: string;
   /** The session (1-based) this order fills on. */
   session: number;

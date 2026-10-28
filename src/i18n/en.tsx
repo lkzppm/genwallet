@@ -150,6 +150,14 @@ export const en = {
         count: (n: number, k: number) => `${n} of ${k}`,
         remove: (ticker: string) => `Remove ${ticker}`,
       },
+      cash: {
+        label: "Cash",
+        off: "Off",
+        on: "On",
+        hint: "on: when BOVA11 closes below its mean over the trend window, only the exposure below stays in stocks and the rest earns the CDI; the algorithm still picks the stocks and their relative weights",
+      },
+      trendWindow: { label: "Trend window (sessions)", hint: "BOVA11's close against its mean over these sessions" },
+      exposureDown: { label: "Exposure in a fall", hint: "share of the capital kept in stocks while BOVA11 is below its mean, %" },
       fitness: {
         label: "Fitness",
         sharpe: "Sharpe",
@@ -279,6 +287,7 @@ export const en = {
       diversity: "diversity",
       generation: "generation",
       portfolio: "Portfolio",
+      cash: (share: string) => `Cash ${share}`,
       ticker: "Ticker",
       company: "Company",
       sector: "Sector",

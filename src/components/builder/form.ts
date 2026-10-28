@@ -9,6 +9,8 @@ import type { Refusal } from "./universe";
 
 /** Who picks the companies: the algorithm every evening, the algorithm once, or the visitor. */
 export type CompanyMode = "free" | "strict" | "custom";
+/** The cash rule: off, or on with the two fields below. */
+export type CashMode = "off" | "on";
 
 /** What the form holds: numbers as typed (strings), so a half-typed value never jumps. */
 export interface FormState {
@@ -19,6 +21,10 @@ export interface FormState {
   mode: CompanyMode;
   /** The companies chosen by hand, in the order they were picked. */
   picks: string[];
+  cash: CashMode;
+  /** Sessions of BOVA11's mean the rule compares its close with, and the share in stocks below it (%). */
+  trendWindow: string;
+  exposureDown: string;
   fitness: FitnessKind;
   /** The goal fitness's hurdle, % per session. */
   goal: string;
@@ -59,6 +65,9 @@ export function defaultForm(formation: string): FormState {
     seed: "genwallet",
     mode: p.strict ? "strict" : "free",
     picks: [],
+    cash: (p.trendWindow ?? 0) > 0 ? "on" : "off",
+    trendWindow: String(p.trendWindow || 50),
+    exposureDown: pct(p.exposureDown ?? 0.3),
     fitness: p.fitness,
     goal: pct(p.goal ?? 0.005),
     k: String(p.k),
@@ -84,6 +93,8 @@ export function defaultForm(formation: string): FormState {
 export const LIMITS = {
   sessions: { min: 1, max: 60, step: 1 },
   capital: { min: 1_000, max: 100_000_000, step: 1_000 },
+  trendWindow: { min: 5, max: 200, step: 5 },
+  exposureDown: { min: 0, max: 90, step: 5 },
   goal: { min: 0, max: 3, step: 0.05 },
   k: { min: 2, max: 30, step: 1 },
   populationSize: { min: 20, max: 1_000, step: 10 },
@@ -143,6 +154,8 @@ export function toConfig(
     lookback: Math.round(read(form, "lookback")),
     meanShrink: read(form, "meanShrink") / 100,
     skip: Math.round(read(form, "skip")),
+    // Off, the keys are absent: the run is the one recorded without the rule.
+    ...(form.cash === "on" ? { trendWindow: Math.round(read(form, "trendWindow")), exposureDown: read(form, "exposureDown") / 100 } : {}),
   };
   const problems: string[] = [];
   if (params.wMin * k > 1 + 1e-9 || params.wMax * k < 1 - 1e-9) problems.push(t.builder.invalid.bounds(k));
