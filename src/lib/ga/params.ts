@@ -90,14 +90,16 @@ export const DEFAULT_PARAMS: GaParams = {
 
 /**
  * The builder's starting point: the hyperparameter search's pick (pnpm tune on
- * five years, 2026-10-27; spec/02). The live run keeps DEFAULT_PARAMS, the
- * object its start event recorded.
+ * five years, 2026-10-27; spec/02), with the goal fitness at 0.4% a session
+ * and a 20% weight cap since 2026-10-28 (Lucas: the class challenge rewards
+ * the tail). The live run keeps DEFAULT_PARAMS, the object its start event
+ * recorded.
  */
 export const TUNED = {
   params: {
     ...DEFAULT_PARAMS,
     wMin: 0.021,
-    wMax: 0.14,
+    wMax: 0.2,
     sectorCap: 2,
     populationSize: 260,
     elite: 9,
@@ -116,7 +118,8 @@ export const TUNED = {
     skip: 3,
     covShrink: 0.297,
     horizon: 17,
-    fitness: "active",
+    fitness: "goal",
+    goal: 0.004,
     strict: false,
   } satisfies GaParams as GaParams,
   formationGenerations: 300,

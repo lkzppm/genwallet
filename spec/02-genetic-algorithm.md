@@ -94,7 +94,7 @@ BOVA11's closes enter the problem only for this fitness (`ProblemInput.bench`), 
 - **Running**: one process per core but one (threads of one process queue on the allocator: nine ran no faster than one). One to two runs a second on this machine, awake and on mains power; the 2026-10-26 search took 11,079 runs and about four hours awake, resumable from `.cache/tune/<name>/results.jsonl`, reported in `report.md`.
 - A config replaces the defaults only if it also beats them on the held-out windows. The live run is not affected: it reads its parameters from its own start event.
 
-**Result (Decided, 2026-10-27)**: the builder starts from `TUNED` (`src/lib/ga/params.ts`, config `0xfd49e`); `DEFAULT_PARAMS` stays the object the live run recorded. Per 10-session window, averaged:
+**Result (Decided, 2026-10-27)**: the builder starts from `TUNED` (`src/lib/ga/params.ts`, config `0xfd49e`); `DEFAULT_PARAMS` stays the object the live run recorded. **Since 2026-10-28 (Lucas: "deixe o Meta como fitness padrão")** `TUNED` carries the goal fitness at 0.4% a session and a 20% weight cap, the grid's balanced pick (`1032i85`): one held-out window in five finishes 3 points over BOVA11, the mean is 0.35% below it, the worst window −11%. The search's numbers below are the `active` fitness's. Per 10-session window, averaged:
 
 | config | over BOVA11, train | over BOVA11, held out | beats BOVA11, held out | worst, held out |
 |---|---|---|---|---|
