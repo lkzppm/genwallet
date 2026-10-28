@@ -4,7 +4,11 @@
 //
 //   pnpm tune [--data .cache/market-5y.json] [--configs 160] [--stride 10]
 //             [--holdout 0.25] [--objective bova|sharpe|mean] [--workers N]
-//             [--mutants 4] [--name run] [--seed tune]
+//             [--mutants 4] [--name run] [--seed tune] [--grid grid.json]
+//
+// With --grid, the random search is replaced by the listed configs (each a
+// set of overrides on today's defaults), all run on every training window
+// and then on the held-out ones: a controlled test of one idea.
 //
 // 0. Leak test: every price after a decision is scrambled, and the decision
 //    must come out the same. If it does not, the search stops.
@@ -45,6 +49,7 @@ const OBJECTIVE = (flag("objective") ?? "bova") as "sharpe" | "mean" | "bova";
 const WORKERS = Number(flag("workers") ?? Math.max(1, availableParallelism() - 1));
 const NAME = flag("name") ?? "run";
 const SEED = flag("seed") ?? "tune";
+const GRID = flag("grid");
 const SESSIONS = LIVE_CONFIG.sessions;
 const DIR = `.cache/tune/${NAME}`;
 
@@ -60,11 +65,12 @@ interface Candidate {
 type Knob =
   | { key: keyof GaParams | "formationGenerations" | "dailyGenerations"; kind: "int"; min: number; max: number; step?: number }
   | { key: keyof GaParams; kind: "real"; min: number; max: number; log?: boolean }
-  | { key: keyof GaParams; kind: "choice"; values: readonly (string | boolean)[] };
+  | { key: keyof GaParams; kind: "choice"; values: readonly (string | boolean | number)[] };
 
 // k, the liquidity floor and the costs are the assignment's and the market's, not knobs.
 const SPACE: Knob[] = [
-  { key: "fitness", kind: "choice", values: ["sharpe", "sortino", "cvar", "active"] },
+  { key: "fitness", kind: "choice", values: ["sharpe", "sortino", "cvar", "active", "goal"] },
+  { key: "goal", kind: "real", min: 0.001, max: 0.01 },
   { key: "strict", kind: "choice", values: [false, true] },
   { key: "populationSize", kind: "int", min: 80, max: 300, step: 20 },
   { key: "formationGenerations", kind: "int", min: 150, max: 600, step: 50 },
@@ -257,6 +263,12 @@ interface Score {
   /** Share of windows that beat BOVA11, and the worst window. */
   beatBova: number;
   worst: number;
+  /** Mean over BOVA11 in the windows where BOVA11 fell, and where it rose. */
+  down: number;
+  up: number;
+  /** A contest is won by the tail: the share of windows at least 3 points over BOVA11, and the 90th percentile of the return. */
+  big: number;
+  p90: number;
   objective: number;
 }
 
@@ -280,6 +292,7 @@ function score(c: Candidate, windows: string[], seeds: number): Score {
       ret: mean(rs.map((r) => r.ret)),
       overCdi: mean(rs.map((r) => r.ret - r.cdi)),
       overBova: mean(rs.map((r) => r.ret - (r.bova ?? r.cdi))),
+      bova: mean(rs.map((r) => r.bova ?? r.cdi)),
     }));
   const overCdi = byWindow.map((w) => w.overCdi);
   const overBova = byWindow.map((w) => w.overBova);
@@ -292,6 +305,10 @@ function score(c: Candidate, windows: string[], seeds: number): Score {
     sharpe,
     beatBova: mean(overBova.map((x) => (x > 0 ? 1 : 0))),
     worst: Math.min(...byWindow.map((w) => w.ret)),
+    down: mean(byWindow.filter((w) => w.bova < 0).map((w) => w.overBova)),
+    up: mean(byWindow.filter((w) => w.bova >= 0).map((w) => w.overBova)),
+    big: mean(overBova.map((x) => (x >= 0.03 ? 1 : 0))),
+    p90: [...byWindow.map((w) => w.ret)].sort((a, b) => a - b)[Math.min(byWindow.length - 1, Math.floor(0.9 * byWindow.length))] ?? 0,
     objective: 0,
   };
   s.objective = OBJECTIVE === "sharpe" ? s.sharpe : OBJECTIVE === "mean" ? s.overCdi : s.overBova / (sd(overBova) || 1);
@@ -335,8 +352,8 @@ function leakTest(): void {
       bova: { open: scramble(snap.bova.open), close: scramble(snap.bova.close) },
       cdi: snap.cdi.map((x, d) => (d > cut ? x * noise.range(0.5, 1.5) : x)),
     };
-    for (const fitness of ["sharpe", "sortino", "cvar", "active"] as const) {
-      const c: Candidate = { ...DEFAULT, params: { ...DEFAULT.params, fitness, skip: 21 } };
+    for (const fitness of ["sharpe", "sortino", "cvar", "active", "goal"] as const) {
+      const c: Candidate = { ...DEFAULT, params: { ...DEFAULT.params, fitness, skip: 21, goal: 0.005 } };
       const config = { ...simConfig(c, formation, 0), sessions: evening + 1 };
       const clean = simulate(snap, config).summaries[evening].portfolio;
       const dirty = simulate(poisoned, config).summaries[evening].portfolio;
@@ -352,58 +369,86 @@ function leakTest(): void {
 
 console.log(
   `${DATA}: ${snapDates[0]} to ${snapDates[snapDates.length - 1]} · ${train.length} training windows, ${holdout.length} held out ` +
-    `(${holdout[0]} on) · ${CONFIGS} configs · ${WORKERS} workers · objective ${OBJECTIVE}`,
+    `(${holdout[0]} on) · ${GRID ? `grid ${GRID}` : `${CONFIGS} configs`} · ${WORKERS} workers · objective ${OBJECTIVE}`,
 );
 if (train.length < 12 || !holdout.length) throw new Error("too little history for the windows: fetch more with pnpm tune:data");
 leakTest();
 
 const rng = createRng(`${SEED}-space`);
-let field: Candidate[] = [DEFAULT, ...Array.from({ length: CONFIGS }, () => sample(rng))];
+const all = { windows: spread, seeds: 3 };
+let field: Candidate[];
+let finalists: Candidate[];
+let method: string;
 
-const rungs = [
-  { windows: spread.slice(0, 12), seeds: 1 },
-  { windows: spread.slice(0, 24), seeds: 2 },
-  { windows: spread, seeds: 3 },
-];
-for (const [i, rung] of rungs.entries()) {
-  await runAll(`rung ${i + 1}/${rungs.length} (${field.length} configs × ${rung.windows.length} windows × ${rung.seeds} seeds)`, jobs(field, rung.windows, rung.seeds));
-  if (i < rungs.length - 1) field = best(field, rung.windows, rung.seeds, Math.max(4, Math.ceil(field.length / 3)));
+if (GRID) {
+  const overrides = JSON.parse(readFileSync(GRID, "utf8")) as Record<string, unknown>[];
+  field = [
+    DEFAULT,
+    ...overrides.map((o) => {
+      const c = structuredClone(DEFAULT);
+      for (const [key, value] of Object.entries(o)) {
+        if (key === "formationGenerations" || key === "dailyGenerations") c[key] = value as number;
+        else (c.params as unknown as Record<string, unknown>)[key] = value;
+      }
+      if (!valid(c)) throw new Error(`invalid grid config: ${JSON.stringify(o)}`);
+      return c;
+    }),
+  ];
+  await runAll(`grid (${field.length} configs × ${spread.length} windows × 3 seeds)`, jobs(field, all.windows, all.seeds));
+  // Every config goes to the holdout, ranked on training: the pick is still made before looking.
+  finalists = best(field, all.windows, all.seeds, field.length);
+  method = `a grid of ${overrides.length} configs (${GRID}) plus the defaults, all on every window`;
+} else {
+  field = [DEFAULT, ...Array.from({ length: CONFIGS }, () => sample(rng))];
+  const rungs = [
+    { windows: spread.slice(0, 12), seeds: 1 },
+    { windows: spread.slice(0, 24), seeds: 2 },
+    { windows: spread, seeds: 3 },
+  ];
+  for (const [i, rung] of rungs.entries()) {
+    await runAll(`rung ${i + 1}/${rungs.length} (${field.length} configs × ${rung.windows.length} windows × ${rung.seeds} seeds)`, jobs(field, rung.windows, rung.seeds));
+    if (i < rungs.length - 1) field = best(field, rung.windows, rung.seeds, Math.max(4, Math.ceil(field.length / 3)));
+  }
+
+  const parents = best(field, all.windows, all.seeds, 4).filter((c) => id(c) !== id(DEFAULT));
+  const mutants = parents.flatMap((p) => Array.from({ length: MUTANTS }, () => mutant(p, rng)));
+  await runAll(`refine (${mutants.length} mutants of the best ${parents.length})`, jobs(mutants, all.windows, all.seeds));
+  field = [...field, ...mutants];
+  finalists = best(field, all.windows, all.seeds, 5);
+  method = `${CONFIGS} random configs plus the defaults, successive halving, ${mutants.length} mutants of the best ${parents.length}`;
 }
 
-const all = { windows: spread, seeds: 3 };
-const parents = best(field, all.windows, all.seeds, 4).filter((c) => id(c) !== id(DEFAULT));
-const mutants = parents.flatMap((p) => Array.from({ length: MUTANTS }, () => mutant(p, rng)));
-await runAll(`refine (${mutants.length} mutants of the best ${parents.length})`, jobs(mutants, all.windows, all.seeds));
-field = [...field, ...mutants];
-
-const finalists = best(field, all.windows, all.seeds, 5);
 await runAll(`holdout (${finalists.length} configs × ${holdout.length} windows × 3 seeds)`, jobs(finalists, holdout, 3));
 for (const w of pool) w.kill();
 
 // ── Report ───────────────────────────────────────────────────────────────
 
 const pct = (x: number) => `${x >= 0 ? "+" : ""}${(x * 100).toFixed(2)}%`;
+// Every key either side sets (a grid may set ones outside the space, k among them).
+const keys = (c: Candidate) => ["formationGenerations", "dailyGenerations", ...Object.keys(c.params)] as Knob["key"][];
 const changes = (c: Candidate) =>
-  SPACE.filter((k) => get(c, k.key) !== get(DEFAULT, k.key))
-    .map((k) => `${k.key} ${String(get(DEFAULT, k.key))} → ${String(get(c, k.key))}`)
+  [...new Set([...keys(DEFAULT), ...keys(c)])]
+    .filter((k) => (get(c, k) ?? 0) !== (get(DEFAULT, k) ?? 0))
+    .map((k) => `${k} ${String(get(DEFAULT, k) ?? 0)} → ${String(get(c, k))}`)
     .join(", ") || "(defaults)";
 
 const rows = finalists.map((c) => ({ c, train: score(c, all.windows, all.seeds), held: score(c, holdout, 3) }));
 const base = rows.find((r) => id(r.c) === id(DEFAULT))!;
 const winner = rows.find((r) => id(r.c) !== id(DEFAULT))!;
-const line = (s: Score) => `${pct(s.ret)} | ${pct(s.overCdi)} | ${pct(s.overBova)} | ${s.sharpe.toFixed(2)} | ${(s.beatBova * 100).toFixed(0)}% | ${pct(s.worst)}`;
+const line = (s: Score) =>
+  `${pct(s.ret)} | ${pct(s.overCdi)} | ${pct(s.overBova)} | ${pct(s.down)} | ${pct(s.up)} | ${s.sharpe.toFixed(2)} | ${(s.beatBova * 100).toFixed(0)}% | ${(s.big * 100).toFixed(0)}% | ${pct(s.p90)} | ${pct(s.worst)}`;
 
 const report = [
   `# Tuning run "${NAME}"`,
   "",
   `${DATA}, ${snapDates[0]} to ${snapDates[snapDates.length - 1]}. A formation every ${STRIDE} sessions, each operated ${SESSIONS} sessions with the live run's costs.`,
   `${train.length} training windows (${train[0]} to ${train[train.length - 1]}), ${holdout.length} held out (${holdout[0]} to ${holdout[holdout.length - 1]}).`,
-  `${CONFIGS} random configs plus the defaults, successive halving, ${mutants.length} mutants of the best ${parents.length}; objective: ${OBJECTIVE}. ${done.size} runs on file.`,
+  `${method}; objective: ${OBJECTIVE}. ${done.size} runs on file.`,
   "",
-  "Returns are per 10-session window, averaged over windows (seeds of a window averaged first). Sharpe: mean over the CDI / its spread across windows.",
+  "Returns are per 10-session window, averaged over windows (seeds of a window averaged first). Sharpe: mean over the CDI / its spread across windows. \"When BOVA11 fell / rose\": the mean over BOVA11 in those windows only. \"Big wins\": windows at least 3 points over BOVA11; p90: the 90th percentile of the window return.",
   "",
-  "| config | set | return | over CDI | over BOVA11 | Sharpe | beats BOVA11 | worst |",
-  "|---|---|---|---|---|---|---|---|",
+  "| config | set | return | over CDI | over BOVA11 | when BOVA11 fell | when it rose | Sharpe | beats BOVA11 | big wins | p90 | worst |",
+  "|---|---|---|---|---|---|---|---|---|---|---|---|",
   ...rows.flatMap((r) => [
     `| \`${id(r.c)}\`${id(r.c) === id(DEFAULT) ? " (defaults)" : ""} | train | ${line(r.train)} |`,
     `| | holdout | ${line(r.held)} |`,

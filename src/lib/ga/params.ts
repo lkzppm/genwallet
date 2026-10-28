@@ -1,8 +1,12 @@
 // The knobs of the genetic algorithm. Defaults are spec/02-genetic-algorithm.md;
 // the live run records the exact object it used in its start event.
 
-/** Sharpe, Sortino and return over CVaR measure the CDI; `active` measures BOVA11 (an information ratio). */
-export type FitnessKind = "sharpe" | "sortino" | "cvar" | "active";
+/**
+ * Sharpe, Sortino and return over CVaR measure the CDI; `active` measures
+ * BOVA11 (an information ratio); `goal` measures a hurdle above the CDI, the
+ * probability of reaching it by the end of the run (Browne, 1999).
+ */
+export type FitnessKind = "sharpe" | "sortino" | "cvar" | "active" | "goal";
 
 export interface GaParams {
   /** Companies per portfolio. */
@@ -44,6 +48,13 @@ export interface GaParams {
   /** Sessions over which the cost of a trade is amortised. */
   horizon: number;
   fitness: FitnessKind;
+  /**
+   * The `goal` fitness's hurdle: a daily return. Above what any portfolio can
+   * expect, the score (mean − goal) / vol rises with the vol, so the GA
+   * concentrates on the names most likely to get there; below it, it
+   * diversifies as Sharpe would. Absent: 0, which is Sharpe over 0.
+   */
+  goal?: number;
   /** Strict mode: the asset set never changes, only weights evolve. */
   strict: boolean;
 }

@@ -15,6 +15,7 @@ Capital: R$ 100,000 of paper money. B3 trades 10:00–17:00 BRT while the US is 
 
 - Decide after the close of day `t` with data up to `t`; fill at the **open** of `t+1`; mark at the close of `t+1`.
 - The job refuses to run while the day's bar is not final (now < `regular.end` + 30 min).
+- The job refuses to fill or mark a day whose opens Yahoo has not published (2026-10-28): a price of 0 reads as missing (`yahoo.ts`), and a day without an open for `^BVSP` or BOVA11 stops the run until the next slot. **Incident, 2026-10-27**: at 22:30 BRT Yahoo served the day's closes with every open at 0; the job filled session 1 at price 0 (shares `NaN`, written as `null`), marked NAV `null` and decided session 2 from `current: null`. The real opens were on Yahoo by the morning of 2026-10-28.
 - The job refuses to decide once the open of the target session has passed. That session is logged as `missed` and the portfolio rides unchanged.
 - Each evening archives its inputs (`live/days/<date>.json`: the price window, eligibility, sectors, companies, CDI, current holdings, parameters, seed) and the final population (`live/population/<date>.json`). `pnpm live:verify <date>` re-runs the GA from them and must reproduce the champion exactly.
 - The nightly commit lands on the public repository before the open: its timestamp is the proof.
@@ -38,7 +39,10 @@ decision  date, session, executeOn, seed, inputsHash, champion {weights, score, 
 fill      date, session, trades [{ticker, side, qty, price, value, fee}], dividends
 mark      date, session, nav, cash, positions, ibov {open, close}, interest
 missed    date, session, reason
+params    date (the evening of the first decision made with them), at, params, reason
 ```
+
+**Changing the parameters mid-run (2026-10-28)**: `pnpm live --params <file.json> --reason "..."` appends a `params` event and every decision from that evening on uses it (`reduce()` keeps the parameters in force). The commit before the open that decision trades on is the proof, as for any order; the reason stays in the record. The start event keeps the parameters the run began with.
 
 ## The nightly job (Proposed)
 

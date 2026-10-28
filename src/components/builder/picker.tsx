@@ -39,7 +39,7 @@ function Sparkline({ series }: { series: number[] }) {
 }
 
 /**
- * The company picker, over the stage: ten slots on top that fill as the
+ * The company picker, over the stage: k slots on top that fill as the
  * visitor picks, and the whole universe below, searchable, filtered by
  * sector and sorted by any column, each with its year in a sparkline. A
  * ticker the window cannot operate, or a second share class of a company
@@ -50,6 +50,7 @@ export function Picker({
   dates,
   formation,
   lookback,
+  k,
   refused,
   picks,
   onChange,
@@ -61,6 +62,8 @@ export function Picker({
   dates: string[];
   formation: string;
   lookback: number;
+  /** Companies per portfolio: how many to pick. */
+  k: number;
   refused: Map<string, Refusal>;
   picks: string[];
   onChange: (picks: string[]) => void;
@@ -69,7 +72,6 @@ export function Picker({
   lang: string;
 }) {
   const p = t.builder.picker;
-  const k = 10;
   const [query, setQuery] = useKept("builder.picker.query", "");
   const [sector, setSector] = useKept<string | null>("builder.picker.sector", null);
   const [sort, setSort] = useKept<{ key: SortKey; dir: 1 | -1 }>("builder.picker.sort", { key: "traded", dir: -1 });
@@ -167,7 +169,7 @@ export function Picker({
         </div>
       </header>
 
-      {/* The ten slots, filling in the order of the picks. */}
+      {/* The k slots, filling in the order of the picks. */}
       <div className="shrink-0 border-b border-border px-3 py-3 sm:px-4">
         <div className="relative mb-3 h-0.5 bg-border">
           <span className="absolute inset-y-0 left-0 bg-up transition-[width] duration-500 ease-[var(--ease)]" style={{ width: `${(picks.length / k) * 100}%` }} />
