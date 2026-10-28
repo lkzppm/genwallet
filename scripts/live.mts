@@ -18,6 +18,7 @@ import type { GaParams } from "../src/lib/ga";
 import { DEFAULT_PARAMS, seedFor } from "../src/lib/ga";
 import type { Snapshot } from "../src/lib/market/snapshot";
 import { problemInput, truncate } from "../src/lib/market/snapshot";
+import { cashRule, exposureOn } from "../src/lib/market/window";
 import { fill, mark } from "../src/lib/live/broker";
 import { brtDate, decisionDeadline, sessionsAfter } from "../src/lib/live/calendar";
 import { FORMATION_DATE, LIVE_CONFIG } from "../src/lib/live/config";
@@ -151,7 +152,15 @@ const archive: DayArchive = {
   seed: seedFor(date),
   generations: prevPop ? config.dailyGenerations : config.formationGenerations,
   params,
-  input: problemInput(snap, day, params.lookback, current, undefined, params.fitness === "active"),
+  input: problemInput(
+    snap,
+    day,
+    params.lookback,
+    current,
+    undefined,
+    params.fitness === "active",
+    cashRule(params) ? (prev?.exposure ?? 1) : undefined,
+  ),
   seededFrom: prevPop?.date ?? null,
   nextId: prevPop?.nextId ?? 1,
 };
@@ -174,6 +183,7 @@ const decision = decisionEvent({
   nav,
   buffer: config.orderBuffer,
   historyEvery: config.historyEvery,
+  ...(cashRule(params) ? { exposure: exposureOn(snap, day, params) } : {}),
 });
 append(decision);
 writeJson(logPath, events);

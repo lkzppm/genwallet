@@ -149,6 +149,14 @@ export const pt: Dictionary = {
         count: (n, k) => `${n} de ${k}`,
         remove: (ticker) => `Tirar ${ticker}`,
       },
+      cash: {
+        label: "Caixa",
+        off: "Desligado",
+        on: "Ligado",
+        hint: "ligado: quando o BOVA11 fecha abaixo da média da janela de tendência, só a exposição abaixo fica em ações e o resto rende CDI; o algoritmo continua escolhendo as ações e os pesos relativos",
+      },
+      trendWindow: { label: "Janela de tendência (pregões)", hint: "fechamento do BOVA11 contra a média desses pregões" },
+      exposureDown: { label: "Exposição na queda", hint: "parte do capital que fica em ações enquanto o BOVA11 está abaixo da média, %" },
       fitness: {
         label: "Fitness",
         sharpe: "Sharpe",
@@ -276,6 +284,7 @@ export const pt: Dictionary = {
       diversity: "diversidade",
       generation: "geração",
       portfolio: "Carteira",
+      cash: (share) => `Caixa ${share}`,
       ticker: "Papel",
       company: "Empresa",
       sector: "Setor",

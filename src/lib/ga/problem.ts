@@ -20,6 +20,8 @@ export interface ProblemInput {
   current: Record<string, number>;
   /** Strict mode: the tickers the portfolio is locked to. */
   locked?: string[];
+  /** The cash rule's exposure of the order in force: the holdings are read relative to it. */
+  exposure?: number;
   /** BOVA11's closes over the same sessions as `prices` (the `active` fitness only). */
   bench?: (number | null)[];
 }
@@ -196,6 +198,12 @@ export function buildProblem(input: ProblemInput, params: GaParams): Problem {
     held.push(a);
   }
   held.sort((x, y) => x - y);
+  // Under the cash rule the holdings are `exposure` of the NAV: the GA
+  // compares its weights, which sum to 1, with the holdings as a share of it.
+  if (input.exposure !== undefined && input.exposure > 0 && input.exposure < 1) {
+    for (const a of held) currentWeight[a] /= input.exposure;
+    currentSum /= input.exposure;
+  }
 
   let locked: number[] | null = null;
   if (params.strict) {

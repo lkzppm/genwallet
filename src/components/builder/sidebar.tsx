@@ -4,7 +4,10 @@ import {
   ArrowDownToLine,
   ArrowLeftRight,
   ArrowUpToLine,
+  Banknote,
   Boxes,
+  ChartLine,
+  ChartPie,
   Building2,
   CalendarDays,
   CalendarRange,
@@ -48,7 +51,7 @@ import type { Dictionary } from "@/i18n";
 import type { FitnessKind } from "@/lib/ga/params";
 import { cn } from "@/lib/utils";
 import { day } from "./format";
-import { LIMITS, randomSeed, read, type CompanyMode, type FormState, type NumericKey } from "./form";
+import { LIMITS, randomSeed, read, type CashMode, type CompanyMode, type FormState, type NumericKey } from "./form";
 import { IconButton, Segmented, input } from "./ui";
 import type { Refusal } from "./universe";
 
@@ -86,7 +89,7 @@ const CONSTRAINTS: SliderDef[] = [
 ];
 
 const GROUP_KEYS: Record<GroupKey, (keyof FormState)[]> = {
-  run: ["formation", "sessions", "capital", "seed", "mode", "picks"],
+  run: ["formation", "sessions", "capital", "seed", "mode", "picks", "cash", "trendWindow", "exposureDown"],
   algorithm: ["fitness", "goal", ...ALGORITHM.map((d) => d.key)],
   constraints: CONSTRAINTS.map((d) => d.key),
 };
@@ -314,6 +317,24 @@ export function Sidebar({
                 onRemove={(ticker) => set("picks", form.picks.filter((x) => x !== ticker))}
                 onPick={onPick}
               />
+            </div>
+          </div>
+          <Row icon={Banknote} title={f.cash.label} hint={hintFor(f.cash.hint)}>
+            <Segmented<CashMode>
+              label={f.cash.label}
+              value={form.cash}
+              disabled={disabled}
+              onChange={(v) => set("cash", v)}
+              options={[
+                { value: "off", label: f.cash.off },
+                { value: "on", label: f.cash.on },
+              ]}
+            />
+          </Row>
+          <div className="accordion" data-open={form.cash === "on" || undefined} inert={form.cash !== "on"}>
+            <div>
+              {slider({ key: "trendWindow", icon: ChartLine, text: "trendWindow" })}
+              {slider({ key: "exposureDown", icon: ChartPie, text: "exposureDown", percent: true })}
             </div>
           </div>
         </>

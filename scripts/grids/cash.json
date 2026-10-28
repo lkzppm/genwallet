@@ -1,0 +1,16 @@
+[
+  { "trendWindow": 20, "exposureDown": 0 },
+  { "trendWindow": 20, "exposureDown": 0.3 },
+  { "trendWindow": 20, "exposureDown": 0.5 },
+  { "trendWindow": 50, "exposureDown": 0 },
+  { "trendWindow": 50, "exposureDown": 0.3 },
+  { "trendWindow": 50, "exposureDown": 0.5 },
+  { "trendWindow": 100, "exposureDown": 0 },
+  { "trendWindow": 100, "exposureDown": 0.3 },
+  { "trendWindow": 100, "exposureDown": 0.5 },
+  { "fitness": "active", "wMax": 0.14 },
+  { "fitness": "active", "wMax": 0.14, "trendWindow": 50, "exposureDown": 0 },
+  { "fitness": "active", "wMax": 0.14, "trendWindow": 50, "exposureDown": 0.3 },
+  { "fitness": "active", "wMax": 0.14, "trendWindow": 100, "exposureDown": 0 },
+  { "fitness": "active", "wMax": 0.14, "trendWindow": 100, "exposureDown": 0.3 }
+]
