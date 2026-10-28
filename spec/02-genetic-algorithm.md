@@ -52,6 +52,8 @@ tracking = √( w'Σw − 2 w'c + σ²_BOVA )      c = covariance of each asset 
 score    = active · √252 / tracking
 ```
 
+**A goal to reach (Proposed, 2026-10-28, Lucas: "I wanna win" the class challenge)**: `fitness: "goal"` scores the chance of reaching a daily return `goal` by the deadline, Browne's (1999) criterion for beating a target: `score = (μₚ − goal − cost / H) · √252 / σₚ`. With a goal above what any portfolio can expect, the numerator is negative and the score rises with the volatility, so the GA concentrates (up to `wMax`) on the names most likely to get there; with a low goal it is Sharpe over a hurdle. A contest ranked on results rewards exactly that: a rank prize pays for variance, not for the mean. Tested on the tuner's windows with two new columns, big wins (windows at least 3 points over BOVA11) and the 90th percentile (`scripts/grids/goal.json`).
+
 BOVA11's closes enter the problem only for this fitness (`ProblemInput.bench`), cut on the same window as the stock prices, so it ends on the decision's close like everything else. `skip` (0 by default) leaves the latest sessions out of every expected return, the benchmark's included (12-1 momentum skips about 21); the covariances keep the whole window. With `fitness` other than `active` and `skip` 0 the arithmetic is the one recorded before, bit for bit: the live run that started on 2026-10-26 with Sharpe replays unchanged. Only the score changes: selection, crossover, mutation, repair and the carried population are the same GA.
 
 ## Operators

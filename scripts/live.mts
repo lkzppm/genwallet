@@ -8,10 +8,13 @@
 //                                               with the data cut at --date
 //
 // --now <ISO instant> overrides the clock for the finality and deadline guards.
+// --params <file.json> --reason "..." changes the GA's parameters from
+// tonight's decision on, as an event in the log (spec/03).
 
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import type { GaParams } from "../src/lib/ga";
 import { DEFAULT_PARAMS, seedFor } from "../src/lib/ga";
 import type { Snapshot } from "../src/lib/market/snapshot";
 import { problemInput, truncate } from "../src/lib/market/snapshot";
@@ -52,7 +55,23 @@ const start: StartEvent = state.start ?? {
   params: DEFAULT_PARAMS,
   config: LIVE_CONFIG,
 };
-const { params, config, sessions } = start;
+const { config, sessions } = start;
+
+// A change of parameters applies from the next decision on and is in the
+// record with its reason and its time; the commit before the open proves it.
+const paramsFile = flag("params");
+if (paramsFile) {
+  const next = readJson<GaParams>(paramsFile);
+  const reason = flag("reason");
+  if (!reason) throw new Error("--params needs --reason");
+  if (JSON.stringify(next) !== JSON.stringify(state.params)) {
+    // The first evening whose decision is still to be made: tonight's, or the next session's if tonight's is done.
+    const last = state.lastDate!;
+    const evening = state.decisions.some((d) => d.date === last) ? (sessions[sessions.indexOf(last) + 1] ?? last) : last;
+    append({ type: "params", date: evening, at: new Date(now).toISOString(), params: next, reason });
+  }
+}
+const params = state.params ?? start.params;
 
 let snap: Snapshot = await snapshot(start.universe, has("cache"));
 if (asOf) snap = truncate(snap, asOf);
@@ -74,6 +93,14 @@ for (const [i, date] of sessions.entries()) {
   const day = snap.dates.indexOf(date);
   if (day < 0) throw new Error(`session ${date} is missing from the data: a holiday not in the calendar?`);
   const session = i + 1;
+  // Yahoo publishes a day's closes before its opens are right: at 22:30 BRT
+  // on 2026-10-27 every open of the day, the index's included, still read 0.
+  // A single stock without an open is a suspension and the fill handles it;
+  // the index without one is data that is not there yet.
+  if (snap.ibov.open[day] === null || snap.bova.open[day] === null) {
+    writeJson(logPath, events);
+    stop(`the opens of ${date} are not published yet: nothing filled or marked`);
+  }
   if (state.pending?.executeOn === date) {
     append(fill(state, state.pending, snap, day, params, config.orderBuffer));
   } else if (!state.missed.some((m) => m.session === session)) {

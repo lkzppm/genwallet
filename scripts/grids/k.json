@@ -1,0 +1,7 @@
+[
+  { "k": 5, "sectorCap": 2, "wMax": 0.25 },
+  { "k": 15, "sectorCap": 2 },
+  { "k": 15, "sectorCap": 3 },
+  { "k": 20, "sectorCap": 3 },
+  { "k": 20, "sectorCap": 4, "wMin": 0.015, "wMax": 0.1 }
+]

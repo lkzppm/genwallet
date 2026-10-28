@@ -91,7 +91,9 @@ export function Builder() {
     [sim.market, sim.dates, formation, count, lookback],
   );
 
-  const { config, problems } = form ? toConfig({ ...form, formation }, t, refused) : { config: null, problems: [] };
+  const sectors = useMemo(() => new Set(sim.market?.universe.map((u) => u.sector)).size, [sim.market]);
+  const k = formState ? Math.round(read(formState, "k")) : TUNED.params.k;
+  const { config, problems } = form ? toConfig({ ...form, formation }, t, refused, sectors) : { config: null, problems: [] };
   const running = sim.status === "running";
   const sessions = sim.sessions;
   const r = sim.result;
@@ -221,6 +223,7 @@ export function Builder() {
             dates={sim.dates}
             formation={formation}
             lookback={lookback}
+            k={k}
             refused={refused}
             picks={form.picks}
             onChange={(picks) => setForm({ ...form, formation, picks })}
@@ -233,6 +236,7 @@ export function Builder() {
           <EmptyStage
             t={t}
             lang={lang}
+            k={k}
             dataLine={dataLine}
             formation={formation}
             sessionWindow={sessionWindow}
@@ -551,6 +555,7 @@ function Timeline({
 function EmptyStage({
   t,
   lang,
+  k,
   dataLine,
   formation,
   sessionWindow,
@@ -559,6 +564,7 @@ function EmptyStage({
 }: {
   t: Dictionary;
   lang: string;
+  k: number;
   dataLine: string;
   formation: string;
   sessionWindow: string[];
@@ -569,7 +575,7 @@ function EmptyStage({
   const st = b.stage.steps;
   const n = sessionWindow.length;
   const steps = [
-    { icon: Dna, verb: st.form.verb, value: st.form.value(TUNED.params.k) },
+    { icon: Dna, verb: st.form.verb, value: st.form.value(k) },
     { icon: CalendarDays, verb: st.operate.verb, value: st.operate.value(n || SESSIONS) },
     { icon: ChartLine, verb: st.compare.verb, value: st.compare.value },
   ];

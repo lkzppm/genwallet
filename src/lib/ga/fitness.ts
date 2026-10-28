@@ -2,7 +2,10 @@
 // current portfolio, with the cost amortised over `horizon` sessions so a
 // swap must pay for itself before the run ends. Over the CDI (Sharpe,
 // Sortino, return over CVaR), or over BOVA11 (`active`: the expected return
-// above the index over the tracking error, an information ratio).
+// above the index over the tracking error, an information ratio), or over a
+// hurdle (`goal`: the chance of reaching a daily return by the deadline; when
+// no portfolio expects to, more volatility is more chance, so the GA
+// concentrates).
 
 import type { GaParams } from "./params";
 import type { Problem } from "./problem";
@@ -51,10 +54,10 @@ export function evaluate(p: Problem, params: GaParams, g: Genome): Evaluation {
     return { score: Number.isFinite(score) ? score : -Infinity, mean, vol, turnover, cost };
   }
 
-  const excess = mean - p.rf - cost / params.horizon;
+  const excess = mean - (params.fitness === "goal" ? params.goal ?? 0 : p.rf) - cost / params.horizon;
 
   let risk = vol;
-  if (params.fitness !== "sharpe") {
+  if (params.fitness !== "sharpe" && params.fitness !== "goal") {
     const series = new Float64Array(p.days);
     for (let d = 0; d < p.days; d++) {
       let r = 0;
