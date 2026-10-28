@@ -48,9 +48,15 @@ function localDate(ts: number, gmtoffset: number): string {
 
 const clean = (x: number | null | undefined) => (typeof x === "number" && Number.isFinite(x) ? x : null);
 // Yahoo serves B3 prices as float32 (16.68000030517578); B3 ticks in cents.
+// A price of 0 is a missing one: on 2026-10-27 at 22:30 BRT every open of
+// the day read 0, the real opens came hours later (spec/03).
 const cents = (x: number | null | undefined) => {
   const v = clean(x);
-  return v === null ? null : Math.round(v * 100) / 100;
+  return v === null || v <= 0 ? null : Math.round(v * 100) / 100;
+};
+const price = (x: number | null | undefined) => {
+  const v = clean(x);
+  return v === null || v <= 0 ? null : v;
 };
 
 export function yahooSymbol(ticker: string): string {
@@ -98,7 +104,7 @@ export async function fetchChart(ticker: string, range = "2y"): Promise<Chart> {
     }
     chart.open[at] = cents(q.open[i]);
     chart.close[at] = cents(q.close[i]);
-    chart.adjClose[at] = clean(adj[i]);
+    chart.adjClose[at] = price(adj[i]);
     chart.volume[at] = clean(q.volume[i]);
   });
   return chart;

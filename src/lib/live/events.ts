@@ -108,4 +108,18 @@ export interface MissedEvent {
   reason: string;
 }
 
-export type LiveEvent = StartEvent | DecisionEvent | FillEvent | MarkEvent | MissedEvent;
+/**
+ * A change of the GA's parameters from the decision of `date` on, committed
+ * before the open that decision trades on, with the reason in the record.
+ */
+export interface ParamsEvent {
+  type: "params";
+  /** The evening of the first decision made with them. */
+  date: string;
+  /** When the change was made (ISO instant). */
+  at: string;
+  params: GaParams;
+  reason: string;
+}
+
+export type LiveEvent = StartEvent | DecisionEvent | FillEvent | MarkEvent | MissedEvent | ParamsEvent;

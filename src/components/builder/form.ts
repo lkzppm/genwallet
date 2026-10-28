@@ -20,6 +20,10 @@ export interface FormState {
   /** The companies chosen by hand, in the order they were picked. */
   picks: string[];
   fitness: FitnessKind;
+  /** The goal fitness's hurdle, % per session. */
+  goal: string;
+  /** Companies per portfolio. */
+  k: string;
   populationSize: string;
   formationGenerations: string;
   dailyGenerations: string;
@@ -56,6 +60,8 @@ export function defaultForm(formation: string): FormState {
     mode: p.strict ? "strict" : "free",
     picks: [],
     fitness: p.fitness,
+    goal: pct(p.goal ?? 0.005),
+    k: String(p.k),
     populationSize: String(p.populationSize),
     formationGenerations: String(TUNED.formationGenerations),
     dailyGenerations: String(TUNED.dailyGenerations),
@@ -78,6 +84,8 @@ export function defaultForm(formation: string): FormState {
 export const LIMITS = {
   sessions: { min: 1, max: 60, step: 1 },
   capital: { min: 1_000, max: 100_000_000, step: 1_000 },
+  goal: { min: 0, max: 3, step: 0.05 },
+  k: { min: 2, max: 30, step: 1 },
   populationSize: { min: 20, max: 1_000, step: 10 },
   formationGenerations: { min: 10, max: 2_000, step: 10 },
   dailyGenerations: { min: 0, max: 2_000, step: 10 },
@@ -111,13 +119,17 @@ export function toConfig(
   form: FormState,
   t: Dictionary,
   refused: Map<string, Refusal>,
+  /** Sectors in the universe: with the cap per sector they bound the portfolio's size. */
+  sectors: number,
 ): { config: SimConfig | null; problems: string[] } {
-  const k = TUNED.params.k;
+  const k = Math.round(read(form, "k"));
   const custom = form.mode === "custom";
   const params: GaParams = {
     ...TUNED.params,
+    k,
     strict: form.mode !== "free",
     fitness: form.fitness,
+    goal: read(form, "goal") / 100,
     populationSize: Math.round(read(form, "populationSize")),
     crossoverRate: read(form, "crossoverRate") / 100,
     swapRate: read(form, "swapRate") / 100,
@@ -135,8 +147,10 @@ export function toConfig(
   const problems: string[] = [];
   if (params.wMin * k > 1 + 1e-9 || params.wMax * k < 1 - 1e-9) problems.push(t.builder.invalid.bounds(k));
   if (params.elite >= params.populationSize) problems.push(t.builder.invalid.elite);
+  if (params.sectorCap * sectors < k) problems.push(t.builder.invalid.sectors(k, sectors));
   const out = custom ? form.picks.filter((ticker) => refused.has(ticker)) : [];
   if (out.length) problems.push(t.builder.invalid.refused(out.join(", ")));
+  if (custom && form.picks.length > k) problems.push(t.builder.invalid.extra(form.picks.length - k));
   // Too few picks is said in the picker, not listed here, but it still keeps the run from starting.
   if (problems.length || (custom && form.picks.length < k)) return { config: null, problems };
   return {

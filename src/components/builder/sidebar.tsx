@@ -4,6 +4,7 @@ import {
   ArrowDownToLine,
   ArrowLeftRight,
   ArrowUpToLine,
+  Boxes,
   Building2,
   CalendarDays,
   CalendarRange,
@@ -14,6 +15,7 @@ import {
   Dices,
   Dna,
   Factory,
+  Flag,
   GitMerge,
   History,
   Info,
@@ -46,7 +48,7 @@ import type { Dictionary } from "@/i18n";
 import type { FitnessKind } from "@/lib/ga/params";
 import { cn } from "@/lib/utils";
 import { day } from "./format";
-import { LIMITS, randomSeed, type CompanyMode, type FormState, type NumericKey } from "./form";
+import { LIMITS, randomSeed, read, type CompanyMode, type FormState, type NumericKey } from "./form";
 import { IconButton, Segmented, input } from "./ui";
 import type { Refusal } from "./universe";
 
@@ -74,6 +76,7 @@ const ALGORITHM: SliderDef[] = [
 ];
 
 const CONSTRAINTS: SliderDef[] = [
+  { key: "k", icon: Boxes, text: "k" },
   { key: "wMin", icon: ArrowDownToLine, text: "wMin", percent: true },
   { key: "wMax", icon: ArrowUpToLine, text: "wMax", percent: true },
   { key: "sectorCap", icon: Factory, text: "sectorCap" },
@@ -84,7 +87,7 @@ const CONSTRAINTS: SliderDef[] = [
 
 const GROUP_KEYS: Record<GroupKey, (keyof FormState)[]> = {
   run: ["formation", "sessions", "capital", "seed", "mode", "picks"],
-  algorithm: ["fitness", ...ALGORITHM.map((d) => d.key)],
+  algorithm: ["fitness", "goal", ...ALGORITHM.map((d) => d.key)],
   constraints: CONSTRAINTS.map((d) => d.key),
 };
 
@@ -288,8 +291,8 @@ export function Sidebar({
               disabled={disabled}
               onChange={(v) => {
                 set("mode", v);
-                // Choosing by hand opens the picker until the ten are there; leaving that mode closes it.
-                if (v === "custom" && form.picks.length < 10) onPick();
+                // Choosing by hand opens the picker until the k are there; leaving that mode closes it.
+                if (v === "custom" && form.picks.length < Math.round(read(form, "k"))) onPick();
                 if (v !== "custom") onUnpick();
               }}
               options={[
@@ -302,6 +305,7 @@ export function Sidebar({
           <div className="accordion" data-open={form.mode === "custom" || undefined} inert={form.mode !== "custom"}>
             <div>
               <Picks
+                k={Math.round(read(form, "k"))}
                 picks={form.picks}
                 refused={refused}
                 disabled={disabled}
@@ -327,9 +331,12 @@ export function Sidebar({
               value={form.fitness}
               disabled={disabled}
               onChange={(v) => set("fitness", v)}
-              options={(["sharpe", "sortino", "cvar", "active"] as const).map((k) => ({ value: k, label: f.fitness[k] }))}
+              options={(["sharpe", "sortino", "cvar", "active", "goal"] as const).map((k) => ({ value: k, label: f.fitness[k] }))}
             />
           </Row>
+          <div className="accordion" data-open={form.fitness === "goal" || undefined} inert={form.fitness !== "goal"}>
+            <div>{slider({ key: "goal", icon: Flag, text: "goal", percent: true })}</div>
+          </div>
           {ALGORITHM.map((d) => slider(d))}
         </>
       ),
@@ -567,10 +574,11 @@ function SliderRow({
 }
 
 /**
- * The companies chosen by hand: ten slots that fill as they are picked, a
+ * The companies chosen by hand: k slots that fill as they are picked, a
  * ticker the window cannot operate in red, and the way into the picker.
  */
 function Picks({
+  k,
   picks,
   refused,
   disabled,
@@ -579,6 +587,7 @@ function Picks({
   onRemove,
   onPick,
 }: {
+  k: number;
   picks: string[];
   refused: Map<string, Refusal>;
   disabled: boolean;
@@ -587,7 +596,6 @@ function Picks({
   onRemove: (ticker: string) => void;
   onPick: () => void;
 }) {
-  const k = 10;
   return (
     <div className="group/row px-4 pt-1 pb-2 transition-colors duration-200 hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)]" {...hint}>
       <div className="mb-1.5 flex items-center gap-2">

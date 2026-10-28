@@ -1,0 +1,14 @@
+[
+  { "fitness": "goal", "goal": 0.002 },
+  { "fitness": "goal", "goal": 0.004 },
+  { "fitness": "goal", "goal": 0.006 },
+  { "fitness": "goal", "goal": 0.01 },
+  { "fitness": "goal", "goal": 0.004, "wMax": 0.2 },
+  { "fitness": "goal", "goal": 0.006, "wMax": 0.2 },
+  { "fitness": "goal", "goal": 0.01, "wMax": 0.2 },
+  { "fitness": "goal", "goal": 0.006, "wMax": 0.3 },
+  { "fitness": "goal", "goal": 0.01, "wMax": 0.3 },
+  { "fitness": "sharpe" },
+  { "fitness": "sharpe", "wMax": 0.3 },
+  { "wMax": 0.3 }
+]
