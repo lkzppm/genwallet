@@ -1,7 +1,7 @@
 // One GA run in the terminal for any past date, from cash, no writes.
 //   pnpm evolve --date 2026-10-23 [--generations 400] [--fitness sharpe|sortino|cvar] [--cache]
 
-import { DEFAULT_PARAMS, buildProblem, evolve, seedFor } from "../src/lib/ga";
+import { DEFAULT_PARAMS, evolve, seedFor } from "../src/lib/ga";
 import type { FitnessKind } from "../src/lib/ga";
 import { problemInput, truncate } from "../src/lib/market/snapshot";
 import { currentUniverse, flag, has, snapshot } from "./lib.mts";
@@ -15,10 +15,8 @@ const s = truncate(await snapshot(await currentUniverse(), has("cache")), date);
 const day = s.dates.length - 1;
 const input = problemInput(s, day, params.lookback, {});
 const t0 = performance.now();
-const problem = buildProblem(input, params);
+const { problem, result } = evolve(input, params, { generations, seed: seedFor(s.dates[day]), label: s.dates[day] });
 const t1 = performance.now();
-const result = evolve(problem, params, { generations, seed: seedFor(s.dates[day]), label: s.dates[day] });
-const t2 = performance.now();
 
 console.log(`decision day ${s.dates[day]}, ${problem.eligible.length}/${problem.n} eligible, fitness ${params.fitness}`);
 for (const h of result.history) {
@@ -41,4 +39,4 @@ c.assets.forEach((a, i) =>
       `${input.companies[a]} · ${input.sectors[a]}`,
   ),
 );
-console.log(`\nproblem ${(t1 - t0).toFixed(0)} ms, evolve ${(t2 - t1).toFixed(0)} ms for ${generations} generations`);
+console.log(`\n${(t1 - t0).toFixed(0)} ms for ${generations} generations`);

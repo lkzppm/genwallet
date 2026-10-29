@@ -30,3 +30,23 @@ jobs:
       - run: pnpm build
         env:
           NEXT_TELEMETRY_DISABLED: "1"
+
+  engine:
+    name: engine · rust tests · bit-identity with the reference
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # The toolchain of engine/rust-toolchain.toml, with the wasm target.
+      - run: rustup toolchain install
+        working-directory: engine
+      - run: cargo test --release
+        working-directory: engine
+      # The committed WebAssembly against the TypeScript engine it replaced.
+      - run: pnpm engine:check --cases 150 --data public/data/market.json

@@ -25,7 +25,7 @@ Lucas wants to go beyond it, make it interactive and deploy it on Vercel. Projec
 - **The code decides, deterministically.** A seeded PRNG (seed derived from the date) and archived inputs make every run replayable to the last digit. No `Math.random` in the engine.
 - **No look-ahead.** A decision uses data up to the close of its day and fills at the next open. A decision committed after the open it targets is void and the session is logged as missed.
 - **Honesty over hype.** In-sample fitness is never presented as a forecast; realised results are always shown next to random portfolios and the index.
-- **One engine.** The nightly job, the lab and the study import the same `src/lib/ga/`. Nothing is computed twice in two ways.
+- **One engine.** The nightly job, the lab and the study run the same WebAssembly binary (`engine/src`, through `src/lib/ga/`). Nothing is computed twice in two ways.
 
 ## Success criteria
 

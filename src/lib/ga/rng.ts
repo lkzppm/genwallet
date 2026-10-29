@@ -1,6 +1,7 @@
-// Seeded randomness for the engine. Every random choice in a GA run goes
-// through one Rng built from a string seed, so a run is reproducible to the
-// last digit in Node and in the browser. Never use Math.random in src/lib/ga.
+// Seeded randomness: sfc32 seeded by cyrb128 of a string. The engine has
+// the same generator in Rust (engine/src/rng.rs, the same stream for a
+// seed); this one serves the site's figures, the tuner's leak test and the
+// reference engine. Never use Math.random in src/lib/ga.
 
 import { dlog } from "./math";
 
