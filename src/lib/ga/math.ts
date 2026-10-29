@@ -1,8 +1,10 @@
-// exp and log that give the same bits everywhere. The engine must replay in
+// exp and log that give the same bits everywhere. The engine had to replay in
 // the browser exactly as it ran in the nightly job, and Math.exp, log, sin,
 // cos and tanh do not: Node 26 and Chromium 1243 disagree in the last bits
 // (measured on 2026-10-26; sqrt and pow agreed). These use only + − × ÷ and
-// comparisons, which IEEE 754 rounds identically on every engine.
+// comparisons, which IEEE 754 rounds identically on every engine. The engine
+// itself is now Rust (engine/src/math.rs, the same series); this copy serves
+// rng.ts and the reference engine.
 
 // fdlibm's split of ln 2: the high part has trailing zero bits, so k × LN2_HI is exact.
 const LN2_HI = 6.93147180369123816490e-1;

@@ -40,6 +40,7 @@ export function Footer() {
       heading: t.footer.stack,
       body: (
         <>
+          <span>Rust · WebAssembly</span>
           <span>TypeScript · Next.js 16</span>
           <span>vgpu (WebGPU)</span>
           <span>GitHub Actions · Vercel</span>

@@ -1,9 +1,25 @@
-import type { Evaluation } from "./fitness";
-import type { Problem } from "./problem";
-import type { Genome } from "./repair";
+// The individuals the engine hands back, and their form in a population file.
 
 /** How an individual entered the population. Elites keep theirs. */
 export type Origin = "random" | "immigrant" | "hold" | "cross" | "mutant";
+
+/** Asset indices into the evening's universe, sorted, and their weights. */
+export interface Genome {
+  assets: number[];
+  weights: number[];
+}
+
+export interface Evaluation {
+  score: number;
+  /** Expected daily return. */
+  mean: number;
+  /** Daily volatility. */
+  vol: number;
+  /** Σ|wᵢ − hᵢ|: buys plus sells as a share of the portfolio. */
+  turnover: number;
+  /** Fees and slippage of the turnover, as a share of the portfolio. */
+  cost: number;
+}
 
 export interface Individual extends Genome {
   id: number;
@@ -27,7 +43,7 @@ export interface SerializedIndividual {
   score: number;
 }
 
-export function serialize(p: Problem, ind: Individual): SerializedIndividual {
+export function serialize(p: { tickers: string[] }, ind: Individual): SerializedIndividual {
   return {
     id: ind.id,
     tickers: ind.assets.map((a) => p.tickers[a]),
@@ -38,24 +54,4 @@ export function serialize(p: Problem, ind: Individual): SerializedIndividual {
     origin: ind.origin,
     score: ind.eval.score,
   };
-}
-
-/** Back to indices of `p`; unknown tickers are dropped (repair refills them). */
-export function deserialize(p: Problem, s: SerializedIndividual): Omit<Individual, "eval"> {
-  const index = new Map(p.tickers.map((t, i) => [t, i]));
-  const assets: number[] = [];
-  const weights: number[] = [];
-  s.tickers.forEach((t, i) => {
-    const a = index.get(t);
-    if (a !== undefined) {
-      assets.push(a);
-      weights.push(s.weights[i]);
-    }
-  });
-  return { id: s.id, assets, weights, parents: s.parents, born: s.born, bornOn: s.bornOn, origin: s.origin };
-}
-
-/** Best first; ties break on the smaller id so every sort is deterministic. */
-export function byScore(x: Individual, y: Individual): number {
-  return y.eval.score - x.eval.score || x.id - y.id;
 }

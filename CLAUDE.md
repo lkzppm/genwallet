@@ -6,7 +6,7 @@ A genetic algorithm that builds a 10-company portfolio from the Ibovespa and ope
 
 ## Rules
 
-- The engine (`src/lib/ga/`) is deterministic: a seeded PRNG, ties broken by id, no `Math.random`. The nightly job, the lab and the study share it.
+- The engine (Rust in `engine/src`, compiled to WebAssembly and embedded in `src/lib/ga/engine-wasm.ts`; `src/lib/ga/` is its TypeScript face) is deterministic: a seeded PRNG, ties broken by id, no `Math.random`. The nightly job, the lab and the study share the one binary. After any change to `engine/src`: `pnpm engine:build`, then `pnpm engine:check`, which requires the result of `engine/reference` (the TypeScript engine it replaced) to the last bit.
 - No look-ahead: decide on the close of `t`, fill at the open of `t+1`. Never edit `live/` by hand; it is the record of the run.
 - The whole codebase is English (code, comments, commits, docs). The UI is bilingual, Portuguese by default; no em dash in anything the visitor reads.
 - Branches `main` ← `dev` ← `feat/*`; the bot writes only to `live`. Commit with `/commit`, integrate with `/merge`.

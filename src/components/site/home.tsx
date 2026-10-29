@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight, ChevronDown, Dices, EyeOff, Receipt, RotateCcw } from "lucide-react";
-import { siGithubactions, siNextdotjs, siTypescript, siVercel, siWebgpu } from "simple-icons";
+import { siGithubactions, siNextdotjs, siRust, siTypescript, siVercel, siWebassembly, siWebgpu } from "simple-icons";
 import { TerrainField } from "@/components/terrain/terrain-canvas";
 import { useT } from "@/i18n/LocaleProvider";
 import { BRAND } from "@/lib/brand";
@@ -19,6 +19,8 @@ import { Reveal } from "./reveal";
 const SESSIONS = sessionsAfter(FORMATION_DATE, LIVE_CONFIG.sessions);
 
 const STACK = [
+  { icon: siRust, label: "Rust", href: "https://www.rust-lang.org" },
+  { icon: siWebassembly, label: "WebAssembly", href: "https://webassembly.org" },
   { icon: siTypescript, label: "TypeScript", href: "https://www.typescriptlang.org" },
   { icon: siNextdotjs, label: "Next.js", href: "https://nextjs.org" },
   { icon: siWebgpu, label: "WebGPU · vgpu", href: "https://vgpu.sh" },

@@ -1,13 +1,13 @@
 // Selection, crossover and mutation. Operators may produce infeasible
 // genomes; the caller always repairs before evaluating.
 
-import { dexp, dlog } from "./math";
+import { dexp, dlog } from "../../src/lib/ga/math";
 import type { Individual } from "./individual";
 import { byScore } from "./individual";
-import type { GaParams } from "./params";
+import type { GaParams } from "../../src/lib/ga/params";
 import type { Problem } from "./problem";
 import type { Genome } from "./repair";
-import type { Rng } from "./rng";
+import type { Rng } from "../../src/lib/ga/rng";
 
 export function tournament(pop: Individual[], size: number, rng: Rng): Individual {
   let best = pop[rng.int(pop.length)];

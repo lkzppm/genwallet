@@ -7,7 +7,6 @@ import type { SerializedIndividual } from "../ga/individual";
 import { serialize } from "../ga/individual";
 import type { GaParams } from "../ga/params";
 import type { Problem, ProblemInput } from "../ga/problem";
-import { buildProblem } from "../ga/problem";
 import type { DecisionEvent } from "./events";
 
 /** Everything a decision depends on (`live/days/<date>.json`). */
@@ -34,20 +33,19 @@ export interface PopulationFile {
 export function runDecision(
   day: DayArchive,
   seedPopulation?: SerializedIndividual[],
-  onGeneration?: EvolveOptions["onGeneration"],
+  onProgress?: EvolveOptions["onProgress"],
 ): {
   problem: Problem;
   result: EvolveResult;
   population: PopulationFile;
 } {
-  const problem = buildProblem(day.input, day.params);
-  const result = evolve(problem, day.params, {
+  const { problem, result } = evolve(day.input, day.params, {
     generations: day.generations,
     seed: day.seed,
     label: day.date,
     seedPopulation,
     nextId: day.nextId,
-    onGeneration,
+    onProgress,
   });
   return {
     problem,

@@ -194,8 +194,8 @@ export function simulate(
       seededFrom: population?.date ?? null,
       nextId: population?.nextId ?? 1,
     };
-    const { problem, result, population: next } = runDecision(archive, population?.population, (stat) =>
-      onProgress?.({ session, sessions: n, gen: stat.gen, generations, best: stat.best }),
+    const { problem, result, population: next } = runDecision(archive, population?.population, (gen, best) =>
+      onProgress?.({ session, sessions: n, gen, generations, best }),
     );
     population = next;
 

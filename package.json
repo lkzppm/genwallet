@@ -15,7 +15,9 @@
     "data": "tsx scripts/export-market.mts",
     "simulate": "tsx scripts/simulate.mts",
     "tune": "tsx scripts/tune.mts",
-    "tune:data": "tsx scripts/tune-data.mts"
+    "tune:data": "tsx scripts/tune-data.mts",
+    "engine:build": "tsx scripts/engine-build.mts",
+    "engine:check": "tsx scripts/engine-check.mts"
   },
   "packageManager": "pnpm@11.25.0",
   "devDependencies": {
