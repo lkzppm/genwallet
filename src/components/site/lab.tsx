@@ -11,7 +11,7 @@ import { ChartLine, Dna, GitCommitHorizontal, GitMerge, Shuffle, Sunrise, Sunset
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useT } from "@/i18n/LocaleProvider";
 import { DEFAULT_PARAMS } from "@/lib/ga/params";
-import { projectWeights } from "@/lib/ga/repair";
+import { projectWeights } from "@/lib/ga/weights";
 import { createRng } from "@/lib/ga/rng";
 import { LIVE_CONFIG } from "@/lib/live/config";
 import { cn } from "@/lib/utils";

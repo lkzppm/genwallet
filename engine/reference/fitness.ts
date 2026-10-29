@@ -7,7 +7,7 @@
 // no portfolio expects to, more volatility is more chance, so the GA
 // concentrates).
 
-import type { GaParams } from "./params";
+import type { GaParams } from "../../src/lib/ga/params";
 import type { Problem } from "./problem";
 import type { Genome } from "./repair";
 
