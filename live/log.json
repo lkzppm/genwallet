@@ -1246,5 +1246,148 @@
    "strict": false
   },
   "reason": "Switch to the goal fitness (0.4% a session) from session 3 on, decided on 2026-10-28 for the class challenge: a rank prize rewards variance (spec/02, spec/06); the weight cap stays 20%"
+ },
+ {
+  "type": "fill",
+  "date": "2026-10-28",
+  "session": 2,
+  "trades": [
+   {
+    "ticker": "EMBJ3",
+    "side": "sell",
+    "qty": 1,
+    "price": 96.5517,
+    "value": 96.55,
+    "fee": 0.03
+   },
+   {
+    "ticker": "PETR3",
+    "side": "sell",
+    "qty": 2,
+    "price": 59.7701,
+    "value": 119.54,
+    "fee": 0.04
+   },
+   {
+    "ticker": "PRIO3",
+    "side": "sell",
+    "qty": 3,
+    "price": 70.9645,
+    "value": 212.89,
+    "fee": 0.06
+   },
+   {
+    "ticker": "BBSE3",
+    "side": "buy",
+    "qty": 2,
+    "price": 42.591285,
+    "value": 85.18,
+    "fee": 0.03
+   },
+   {
+    "ticker": "CXSE3",
+    "side": "buy",
+    "qty": 6,
+    "price": 21.370679999999997,
+    "value": 128.22,
+    "fee": 0.04
+   },
+   {
+    "ticker": "GGBR4",
+    "side": "buy",
+    "qty": 2,
+    "price": 24.63231,
+    "value": 49.26,
+    "fee": 0.01
+   },
+   {
+    "ticker": "GOAU4",
+    "side": "buy",
+    "qty": 3,
+    "price": 10.875434999999998,
+    "value": 32.63,
+    "fee": 0.01
+   }
+  ],
+  "dividends": []
+ },
+ {
+  "type": "mark",
+  "date": "2026-10-28",
+  "session": 2,
+  "nav": 98122.4,
+  "cash": 538.68,
+  "interest": 0.27,
+  "cdi": 0.00050788,
+  "positions": [
+   {
+    "ticker": "BBSE3",
+    "shares": 376,
+    "close": 41.35,
+    "value": 15547.6
+   },
+   {
+    "ticker": "CXSE3",
+    "shares": 663,
+    "close": 21.26,
+    "value": 14095.38
+   },
+   {
+    "ticker": "EMBJ3",
+    "shares": 30,
+    "close": 97.29,
+    "value": 2918.7
+   },
+   {
+    "ticker": "ENEV3",
+    "shares": 112,
+    "close": 26.38,
+    "value": 2954.56
+   },
+   {
+    "ticker": "FLRY3",
+    "shares": 134,
+    "close": 21.84,
+    "value": 2926.56
+   },
+   {
+    "ticker": "GGBR4",
+    "shares": 120,
+    "close": 24.09,
+    "value": 2890.8
+   },
+   {
+    "ticker": "GOAU4",
+    "shares": 394,
+    "close": 10.65,
+    "value": 4196.1
+   },
+   {
+    "ticker": "PETR3",
+    "shares": 328,
+    "close": 59.03,
+    "value": 19361.84
+   },
+   {
+    "ticker": "PRIO3",
+    "shares": 273,
+    "close": 71.7,
+    "value": 19574.1
+   },
+   {
+    "ticker": "UGPA3",
+    "shares": 398,
+    "close": 32.96,
+    "value": 13118.08
+   }
+  ],
+  "ibov": {
+   "open": 175711,
+   "close": 171006
+  },
+  "bova": {
+   "open": 172.11,
+   "close": 168.47
+  }
  }
 ]
