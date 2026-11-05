@@ -96,8 +96,9 @@ for (const [i, date] of sessions.entries()) {
   const session = i + 1;
   // Yahoo publishes a day's closes before its opens are right: at 22:30 BRT
   // on 2026-10-27 every open of the day, the index's included, still read 0.
-  // A single stock without an open is a suspension and the fill handles it;
-  // the index without one is data that is not there yet.
+  // fetchChart takes those from the day's first 5-minute bar. A single stock
+  // without an open is a suspension and the fill handles it; the index without
+  // one is data that is not there yet, by either route.
   if (snap.ibov.open[day] === null || snap.bova.open[day] === null) {
     writeJson(logPath, events);
     stop(`the opens of ${date} are not published yet: nothing filled or marked`);
