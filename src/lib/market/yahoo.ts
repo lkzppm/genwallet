@@ -49,7 +49,7 @@ function localDate(ts: number, gmtoffset: number): string {
 const clean = (x: number | null | undefined) => (typeof x === "number" && Number.isFinite(x) ? x : null);
 // Yahoo serves B3 prices as float32 (16.68000030517578); B3 ticks in cents.
 // A price of 0 is a missing one: on 2026-10-27 at 22:30 BRT every open of
-// the day read 0, the real opens came hours later (spec/03).
+// the day read 0, the real opens came hours later (spec/03; fillLateOpens).
 const cents = (x: number | null | undefined) => {
   const v = clean(x);
   return v === null || v <= 0 ? null : Math.round(v * 100) / 100;
@@ -107,7 +107,47 @@ export async function fetchChart(ticker: string, range = "2y"): Promise<Chart> {
     chart.adjClose[at] = price(adj[i]);
     chart.volume[at] = clean(q.volume[i]);
   });
+  await fillLateOpens(chart);
   return chart;
+}
+
+// How far back a missing open is looked for; the 5d range of 5-minute bars covers it.
+const RECENT_SESSIONS = 3;
+
+/**
+ * The daily bar's open can lag its close by more than a day (it read 0 for the
+ * sessions of 2026-10-28, 10-29 and 11-03 on the last run before the next
+ * deadline), while the day's first 5-minute bar already has it: the two agreed
+ * on 120 of 120 ticker-days checked on 2026-11-04 (spec/03). A stock with no
+ * intraday bars was suspended and keeps its null. If the request fails the
+ * open stays null, and the job's guard waits for the next slot.
+ */
+async function fillLateOpens(chart: Chart): Promise<void> {
+  const from = Math.max(0, chart.dates.length - RECENT_SESSIONS);
+  const late = chart.dates.slice(from).filter((d, i) => chart.open[from + i] === null);
+  if (late.length === 0) return;
+
+  const symbol = yahooSymbol(chart.symbol);
+  let result;
+  try {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=5d&interval=5m`;
+    result = (await fetchJson<RawChart>(url)).chart.result?.[0];
+  } catch (err) {
+    console.error(`${symbol}: no intraday bars for the opens of ${late.join(", ")}: ${String(err)}`);
+    return;
+  }
+  if (!result) return;
+
+  const off = result.meta.gmtoffset;
+  const open = result.indicators.quote[0].open;
+  (result.timestamp ?? []).forEach((ts, i) => {
+    const date = localDate(ts, off);
+    const at = chart.dates.indexOf(date);
+    const value = cents(open[i]);
+    if (!late.includes(date) || chart.open[at] !== null || value === null) return;
+    chart.open[at] = value;
+    console.error(`${symbol}: open of ${date} from its first 5-minute bar: ${value}`);
+  });
 }
 
 export function fetchCharts(tickers: string[], range = "2y", concurrency = 4): Promise<Chart[]> {
