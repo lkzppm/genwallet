@@ -2805,5 +2805,398 @@
     "championId": 233790
    }
   ]
+ },
+ {
+  "type": "fill",
+  "date": "2026-11-09",
+  "session": 9,
+  "trades": [
+   {
+    "ticker": "ASAI3",
+    "side": "sell",
+    "qty": 41,
+    "price": 8.885555000000002,
+    "value": 364.31,
+    "fee": 0.11
+   },
+   {
+    "ticker": "BPAC11",
+    "side": "sell",
+    "qty": 2,
+    "price": 55.972,
+    "value": 111.94,
+    "fee": 0.03
+   },
+   {
+    "ticker": "CYRE3",
+    "side": "sell",
+    "qty": 2,
+    "price": 19.49025,
+    "value": 38.98,
+    "fee": 0.01
+   },
+   {
+    "ticker": "MGLU3",
+    "side": "sell",
+    "qty": 4,
+    "price": 5.647175000000001,
+    "value": 22.59,
+    "fee": 0.01
+   },
+   {
+    "ticker": "RENT3",
+    "side": "sell",
+    "qty": 3,
+    "price": 30.82458,
+    "value": 92.47,
+    "fee": 0.03
+   },
+   {
+    "ticker": "B3SA3",
+    "side": "buy",
+    "qty": 26,
+    "price": 14.537264999999998,
+    "value": 377.97,
+    "fee": 0.11
+   },
+   {
+    "ticker": "ENEV3",
+    "side": "buy",
+    "qty": 1,
+    "price": 27.093539999999997,
+    "value": 27.09,
+    "fee": 0.01
+   },
+   {
+    "ticker": "FLRY3",
+    "side": "buy",
+    "qty": 6,
+    "price": 20.240115,
+    "value": 121.44,
+    "fee": 0.04
+   },
+   {
+    "ticker": "VAMO3",
+    "side": "buy",
+    "qty": 8,
+    "price": 2.7113549999999997,
+    "value": 21.69,
+    "fee": 0.01
+   },
+   {
+    "ticker": "YDUQ3",
+    "side": "buy",
+    "qty": 4,
+    "price": 9.364679999999998,
+    "value": 37.46,
+    "fee": 0.01
+   }
+  ],
+  "dividends": []
+ },
+ {
+  "type": "mark",
+  "date": "2026-11-09",
+  "session": 9,
+  "nav": 107989.83,
+  "cash": 397.05,
+  "interest": 0.2,
+  "cdi": 0.00050788,
+  "positions": [
+   {
+    "ticker": "ASAI3",
+    "shares": 2407,
+    "close": 8.98,
+    "value": 21614.86
+   },
+   {
+    "ticker": "B3SA3",
+    "shares": 1472,
+    "close": 14.85,
+    "value": 21859.2
+   },
+   {
+    "ticker": "BPAC11",
+    "shares": 57,
+    "close": 57.45,
+    "value": 3274.65
+   },
+   {
+    "ticker": "CYRE3",
+    "shares": 197,
+    "close": 19.08,
+    "value": 3758.76
+   },
+   {
+    "ticker": "ENEV3",
+    "shares": 118,
+    "close": 27.4,
+    "value": 3233.2
+   },
+   {
+    "ticker": "FLRY3",
+    "shares": 158,
+    "close": 20.96,
+    "value": 3311.68
+   },
+   {
+    "ticker": "MGLU3",
+    "shares": 3788,
+    "close": 5.84,
+    "value": 22121.92
+   },
+   {
+    "ticker": "RENT3",
+    "shares": 151,
+    "close": 30.83,
+    "value": 4655.33
+   },
+   {
+    "ticker": "VAMO3",
+    "shares": 7897,
+    "close": 2.59,
+    "value": 20453.23
+   },
+   {
+    "ticker": "YDUQ3",
+    "shares": 343,
+    "close": 9.65,
+    "value": 3309.95
+   }
+  ],
+  "ibov": {
+   "open": 168499,
+   "close": 172236
+  },
+  "bova": {
+   "open": 166.6,
+   "close": null
+  }
+ },
+ {
+  "type": "decision",
+  "date": "2026-11-09",
+  "session": 10,
+  "executeOn": "2026-11-10",
+  "seed": "genwallet|2026-11-09",
+  "inputsHash": "0cbeceaf739691518dd7bc17a5dd5356d206ee251a83b24dc6c7d6b67c60267e",
+  "hold": false,
+  "champion": {
+   "id": 274611,
+   "origin": "cross",
+   "weights": {
+    "ASAI3": 0.2,
+    "B3SA3": 0.2,
+    "BPAC11": 0.034247843935549055,
+    "CEAB3": 0.032177283854337796,
+    "CYRE3": 0.03518124984756657,
+    "FLRY3": 0.030670692366590327,
+    "MGLU3": 0.2,
+    "RENT3": 0.03756074184621977,
+    "VAMO3": 0.2,
+    "YDUQ3": 0.030162188149736514
+   },
+   "score": -1.3802587401193924,
+   "mean": 0.0006325310689326872,
+   "vol": 0.03881288496654215,
+   "turnover": 0.09048443362925526,
+   "cost": 0.0000723875469034042
+  },
+  "targetShares": {
+   "ASAI3": 2400,
+   "B3SA3": 1451,
+   "BPAC11": 64,
+   "CEAB3": 429,
+   "CYRE3": 198,
+   "FLRY3": 157,
+   "MGLU3": 3690,
+   "RENT3": 131,
+   "VAMO3": 8322,
+   "YDUQ3": 336
+  },
+  "refPrices": {
+   "ASAI3": 8.98,
+   "B3SA3": 14.85,
+   "BPAC11": 57.45,
+   "CEAB3": 8.07,
+   "CYRE3": 19.08,
+   "FLRY3": 20.96,
+   "MGLU3": 5.84,
+   "RENT3": 30.83,
+   "VAMO3": 2.59,
+   "YDUQ3": 9.65
+  },
+  "nav": 107989.83,
+  "generations": 200,
+  "history": [
+   {
+    "gen": 0,
+    "best": -1.3818903305716383,
+    "mean": -1.6877987237859267,
+    "diversity": 0.39802125420159473,
+    "hyper": false,
+    "championId": 233790
+   },
+   {
+    "gen": 10,
+    "best": -1.3818894474277148,
+    "mean": -1.447530854481943,
+    "diversity": 0.14616716616716774,
+    "hyper": false,
+    "championId": 237124
+   },
+   {
+    "gen": 20,
+    "best": -1.3818894474277148,
+    "mean": -1.4530505099344513,
+    "diversity": 0.15843989343989495,
+    "hyper": false,
+    "championId": 237124
+   },
+   {
+    "gen": 30,
+    "best": -1.3818894474277148,
+    "mean": -1.4747313653516119,
+    "diversity": 0.20837495837495923,
+    "hyper": false,
+    "championId": 237124
+   },
+   {
+    "gen": 40,
+    "best": -1.3818894474277148,
+    "mean": -1.4532943674330838,
+    "diversity": 0.1727972027972039,
+    "hyper": false,
+    "championId": 237124
+   },
+   {
+    "gen": 50,
+    "best": -1.3814037979310652,
+    "mean": -1.4491276409818337,
+    "diversity": 0.1962987012987023,
+    "hyper": false,
+    "championId": 245201
+   },
+   {
+    "gen": 60,
+    "best": -1.3805901517912031,
+    "mean": -1.4496013290280596,
+    "diversity": 0.22858641358641507,
+    "hyper": false,
+    "championId": 247156
+   },
+   {
+    "gen": 70,
+    "best": -1.3804739284323846,
+    "mean": -1.4513763028473898,
+    "diversity": 0.1913636363636375,
+    "hyper": false,
+    "championId": 248007
+   },
+   {
+    "gen": 80,
+    "best": -1.3804739284323846,
+    "mean": -1.482429957909861,
+    "diversity": 0.2560289710289716,
+    "hyper": false,
+    "championId": 248007
+   },
+   {
+    "gen": 90,
+    "best": -1.3804739284323846,
+    "mean": -1.4635472936305758,
+    "diversity": 0.26151348651348716,
+    "hyper": false,
+    "championId": 248007
+   },
+   {
+    "gen": 100,
+    "best": -1.3804415658875504,
+    "mean": -1.4548902466571838,
+    "diversity": 0.19586413586413753,
+    "hyper": false,
+    "championId": 254768
+   },
+   {
+    "gen": 110,
+    "best": -1.3804388042488296,
+    "mean": -1.449874620007006,
+    "diversity": 0.12089743589743707,
+    "hyper": false,
+    "championId": 256442
+   },
+   {
+    "gen": 120,
+    "best": -1.3804388042488296,
+    "mean": -1.4413391655974934,
+    "diversity": 0.17325174825174938,
+    "hyper": false,
+    "championId": 256442
+   },
+   {
+    "gen": 130,
+    "best": -1.3803733360319468,
+    "mean": -1.4502147640286356,
+    "diversity": 0.17347485847485988,
+    "hyper": false,
+    "championId": 260234
+   },
+   {
+    "gen": 140,
+    "best": -1.3803733360319466,
+    "mean": -1.4449217837186632,
+    "diversity": 0.14283216783216934,
+    "hyper": false,
+    "championId": 261552
+   },
+   {
+    "gen": 150,
+    "best": -1.3803733360319466,
+    "mean": -1.4714159254713959,
+    "diversity": 0.21988844488844606,
+    "hyper": false,
+    "championId": 261552
+   },
+   {
+    "gen": 160,
+    "best": -1.3803230568335507,
+    "mean": -1.4510378806377424,
+    "diversity": 0.20231934731934853,
+    "hyper": false,
+    "championId": 266424
+   },
+   {
+    "gen": 170,
+    "best": -1.3803230568335507,
+    "mean": -1.4477123164493761,
+    "diversity": 0.140944055944057,
+    "hyper": false,
+    "championId": 266424
+   },
+   {
+    "gen": 180,
+    "best": -1.3803230568335507,
+    "mean": -1.4398034341424526,
+    "diversity": 0.20523476523476647,
+    "hyper": false,
+    "championId": 266424
+   },
+   {
+    "gen": 190,
+    "best": -1.3802728232369197,
+    "mean": -1.453581236059306,
+    "diversity": 0.15169164169164306,
+    "hyper": false,
+    "championId": 272329
+   },
+   {
+    "gen": 200,
+    "best": -1.3802587401193924,
+    "mean": -1.4452242176950358,
+    "diversity": 0.1746620046620062,
+    "hyper": false,
+    "championId": 274611
+   }
+  ]
  }
 ]
