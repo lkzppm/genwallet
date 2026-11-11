@@ -3198,5 +3198,180 @@
     "championId": 274611
    }
   ]
+ },
+ {
+  "type": "fill",
+  "date": "2026-11-10",
+  "session": 10,
+  "trades": [
+   {
+    "ticker": "B3SA3",
+    "side": "sell",
+    "qty": 14,
+    "price": 14.992500000000001,
+    "value": 209.9,
+    "fee": 0.06
+   },
+   {
+    "ticker": "ENEV3",
+    "side": "sell",
+    "qty": 118,
+    "price": 27.72613,
+    "value": 3271.68,
+    "fee": 0.98
+   },
+   {
+    "ticker": "MGLU3",
+    "side": "sell",
+    "qty": 202,
+    "price": 6.09695,
+    "value": 1231.58,
+    "fee": 0.37
+   },
+   {
+    "ticker": "RENT3",
+    "side": "sell",
+    "qty": 20,
+    "price": 31.174405000000004,
+    "value": 623.49,
+    "fee": 0.19
+   },
+   {
+    "ticker": "YDUQ3",
+    "side": "sell",
+    "qty": 4,
+    "price": 9.715140000000002,
+    "value": 38.86,
+    "fee": 0.01
+   },
+   {
+    "ticker": "ASAI3",
+    "side": "buy",
+    "qty": 28,
+    "price": 8.98449,
+    "value": 251.57,
+    "fee": 0.08
+   },
+   {
+    "ticker": "BPAC11",
+    "side": "buy",
+    "qty": 7,
+    "price": 57.74885999999999,
+    "value": 404.24,
+    "fee": 0.12
+   },
+   {
+    "ticker": "CEAB3",
+    "side": "buy",
+    "qty": 433,
+    "price": 8.124059999999998,
+    "value": 3517.72,
+    "fee": 1.06
+   },
+   {
+    "ticker": "CYRE3",
+    "side": "buy",
+    "qty": 4,
+    "price": 19.099545,
+    "value": 76.4,
+    "fee": 0.02
+   },
+   {
+    "ticker": "FLRY3",
+    "side": "buy",
+    "qty": 2,
+    "price": 20.97048,
+    "value": 41.94,
+    "fee": 0.01
+   },
+   {
+    "ticker": "VAMO3",
+    "side": "buy",
+    "qty": 420,
+    "price": 2.631315,
+    "value": 1105.15,
+    "fee": 0.33
+   }
+  ],
+  "dividends": []
+ },
+ {
+  "type": "mark",
+  "date": "2026-11-10",
+  "session": 10,
+  "nav": 110052.05,
+  "cash": 372.5,
+  "interest": 0.19,
+  "cdi": 0.00050788,
+  "positions": [
+   {
+    "ticker": "ASAI3",
+    "shares": 2435,
+    "close": 9.17,
+    "value": 22328.95
+   },
+   {
+    "ticker": "B3SA3",
+    "shares": 1458,
+    "close": 14.48,
+    "value": 21111.84
+   },
+   {
+    "ticker": "BPAC11",
+    "shares": 64,
+    "close": 55.72,
+    "value": 3566.08
+   },
+   {
+    "ticker": "CEAB3",
+    "shares": 433,
+    "close": 7.65,
+    "value": 3312.45
+   },
+   {
+    "ticker": "CYRE3",
+    "shares": 201,
+    "close": 18.35,
+    "value": 3688.35
+   },
+   {
+    "ticker": "FLRY3",
+    "shares": 160,
+    "close": 20.75,
+    "value": 3320
+   },
+   {
+    "ticker": "MGLU3",
+    "shares": 3586,
+    "close": 6.52,
+    "value": 23380.72
+   },
+   {
+    "ticker": "RENT3",
+    "shares": 131,
+    "close": 29.79,
+    "value": 3902.49
+   },
+   {
+    "ticker": "VAMO3",
+    "shares": 8317,
+    "close": 2.62,
+    "value": 21790.54
+   },
+   {
+    "ticker": "YDUQ3",
+    "shares": 339,
+    "close": 9.67,
+    "value": 3278.13
+   }
+  ],
+  "ibov": {
+   "open": 172237.86,
+   "close": 171336.98
+  },
+  "bova": {
+   "open": 170.15,
+   "close": 168.85
+  }
  }
 ]
