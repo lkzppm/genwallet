@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { Footer } from "@/components/site/footer";
@@ -40,6 +41,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
           <Footer />
         </LocaleProvider>
+        {/* Vercel Web Analytics: page views, no cookies. It does nothing outside a Vercel deployment. */}
+        <Analytics />
       </body>
     </html>
   );
